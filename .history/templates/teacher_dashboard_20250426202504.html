@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель учителя - Math Teaching System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Логотип" class="header-logo">
+                <h1>Math Teaching System</h1>
+            </div>
+            <div class="header-right">
+                <span class="user-greeting">Здравствуйте, {{ full_name }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-logout">Выйти</a>
+            </div>
+        </header>
+        
+        <main class="dashboard-main teacher-dashboard">
+            <div class="welcome-section">
+                <h2>Панель управления учителя</h2>
+                <p>Здесь вы сможете создавать задания, отслеживать прогресс учеников и управлять классом</p>
+            </div>
+            
+            <div class="class-selection">
+                <h3>Выберите класс для работы:</h3>
+                <div class="grade-buttons">
+                    {% for grade in range(5, 12) %}
+                        <button class="btn-grade" data-grade="{{ grade }}">{{ grade }} класс</button>
+                    {% endfor %}
+                </div>
+                
+                <div class="letter-buttons hidden">
+                    <h4>Выберите букву класса:</h4>
+                    {% for letter in ['А', 'Б', 'В', 'Г', 'Д'] %}
+                        <button class="btn-letter" data-letter="{{ letter }}">{{ letter }}</button>
+                    {% endfor %}
+                </div>
+                
+                <div id="classActions" class="hidden">
+                    <button id="createNewLesson" class="btn btn-primary">Создать новый урок</button>
+                </div>
+            </div>
+            
+            <!-- Модальное окно создания урока -->
+            <div id="lessonModal" class="hidden">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Создание нового урока</h2>
+                    
+                    <div class="task-template">
+                        <h3>Шаблон задания</h3>
+                        <textarea id="taskTemplate" placeholder="Введите шаблон, например: Решите уравнение {A}x² + {B}x + {C} = 0"></textarea>
+                        
+                        <div class="parameters">
+                            <h4>Параметры:</h4>
+                            <div id="paramControls">
+                                <!-- Здесь будут динамически добавляться параметры -->
+                            </div>
+                            <button id="addParam" class="btn btn-small">+ Добавить параметр</button>
+                        </div>
+                        
+                        <div class="answer-logic">
+                            <h4>Формула для проверки:</h4>
+                            <input type="text" id="answerLogic" placeholder="Например: x1=(-B+sqrt(B^2-4*A*C))/(2*A); x2=(-B-sqrt(B^2-4*A*C))/(2*A)">
+                        </div>
+                    </div>
+                    
+                    <button id="saveLesson" class="btn btn-primary">Сохранить урок</button>
+                </div>
+            </div>
+
+            <div class="teacher-actions">
+                <div class="action-card">
+                    <h3>Создать новое задание</h3>
+                    <p>Создайте уникальные примеры для класса</p>
+                    <a href="#" class="btn btn-action">Перейти</a>
+                </div>
+                
+                <div class="action-card">
+                    <h3>Просмотр прогресса</h3>
+                    <p>Анализируйте результаты учеников</p>
+                    <a href="#" class="btn btn-action">Перейти</a>
+                </div>
+                
+                <div class="action-card">
+                    <h3>Управление классом</h3>
+                    <p>Добавляйте и редактируйте учеников</p>
+                    <a href="#" class="btn btn-action">Перейти</a>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

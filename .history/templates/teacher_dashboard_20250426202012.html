@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель учителя - Math Teaching System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Логотип" class="header-logo">
+                <h1>Math Teaching System</h1>
+            </div>
+            <div class="header-right">
+                <span class="user-greeting">Здравствуйте, {{ full_name }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-logout">Выйти</a>
+            </div>
+        </header>
+        
+        <main class="dashboard-main teacher-dashboard">
+            <div class="welcome-section">
+                <h2>Панель управления учителя</h2>
+                <p>Здесь вы сможете создавать задания, отслеживать прогресс учеников и управлять классом</p>
+            </div>
+            
+            
+            <div class="teacher-actions">
+                <div class="action-card">
+                    <h3>Создать новое задание</h3>
+                    <p>Создайте уникальные примеры для класса</p>
+                    <a href="#" class="btn btn-action">Перейти</a>
+                </div>
+                
+                <div class="action-card">
+                    <h3>Просмотр прогресса</h3>
+                    <p>Анализируйте результаты учеников</p>
+                    <a href="#" class="btn btn-action">Перейти</a>
+                </div>
+                
+                <div class="action-card">
+                    <h3>Управление классом</h3>
+                    <p>Добавляйте и редактируйте учеников</p>
+                    <a href="#" class="btn btn-action">Перейти</a>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
