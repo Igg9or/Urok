@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 import os
-import datetime
 from datetime import datetime as dt
 
 app = Flask(__name__)

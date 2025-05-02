@@ -2,8 +2,6 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 import os
-import datetime
-from datetime import datetime as dt
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
@@ -38,14 +36,6 @@ def init_db():
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     ''')
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS lesson_tasks (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        lesson_id INTEGER REFERENCES lessons(id),
-        question TEXT NOT NULL,
-        answer TEXT NOT NULL
-    )
-''')
     
     # Создаем таблицу предметов
     cursor.execute('''
@@ -195,7 +185,7 @@ def edit_lesson(lesson_id):
     return render_template('edit_lesson.html', 
                         lesson=dict(lesson),
                         tasks=[dict(task) for task in tasks],
-                        today_date=dt.now().strftime('%Y-%m-%d'))
+                        today_date=datetime.now().strftime('%Y-%m-%d'))
 
 @app.route('/teacher/conduct_lesson/<int:lesson_id>')
 def conduct_lesson(lesson_id):
@@ -233,66 +223,7 @@ def create_lesson():
         'lesson_id': lesson_id
     })
 
-@app.route('/teacher/update_lesson/<int:lesson_id>', methods=['POST'])
-def update_lesson(lesson_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    data = request.get_json()
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    try:
-        # Обновляем или добавляем задания
-        updated_tasks = []
-        for task in data['tasks']:
-            if task['id']:
-                # Обновление существующего задания
-                cursor.execute('''
-                    UPDATE lesson_tasks 
-                    SET question = ?, answer = ?
-                    WHERE id = ? AND lesson_id = ?
-                ''', (task['question'], task['answer'], task['id'], lesson_id))
-            else:
-                # Добавление нового задания
-                cursor.execute('''
-                    INSERT INTO lesson_tasks (lesson_id, question, answer)
-                    VALUES (?, ?, ?)
-                ''', (lesson_id, task['question'], task['answer']))
-                updated_tasks.append({'id': cursor.lastrowid})
-        
-        conn.commit()
-        return jsonify({'success': True, 'tasks': updated_tasks})
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'success': False, 'error': str(e)})
-    finally:
-        conn.close()
 
-@app.route('/teacher/delete_task/<int:task_id>', methods=['DELETE'])
-def delete_task(task_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    try:
-        # Проверяем, что задание принадлежит учителю
-        cursor.execute('''
-            DELETE FROM lesson_tasks 
-            WHERE id = ? AND lesson_id IN (
-                SELECT id FROM lessons WHERE teacher_id = ?
-            )
-        ''', (task_id, session['user_id']))
-        
-        conn.commit()
-        return jsonify({'success': True})
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'success': False, 'error': str(e)})
-    finally:
-        conn.close()
 
 with app.app_context():
     init_db()

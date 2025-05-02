@@ -51,7 +51,7 @@
                     <!-- Уроки будут добавляться динамически -->
                 </div>
             </div>
-
+            
         </main>
     </div>
 
@@ -62,16 +62,17 @@
             <h2>Создание нового урока</h2>
             
             <div class="form-group">
-                <label for="lessonTitle">Название урока:</label>
-                <input type="text" id="lessonTitle" placeholder="Введите название урока">
+                <label for="taskTemplate">Шаблон задания:</label>
+                <textarea id="taskTemplate" placeholder="Пример: Решите уравнение {A}x + {B} = {C}"></textarea>
             </div>
             
             <div class="form-group">
-                <label for="lessonDate">Дата урока:</label>
-                <input type="date" id="lessonDate" value="{{ today_date }}">
+                <label>Параметры:</label>
+                <div id="paramControls"></div>
+                <button id="addParam" class="btn btn-small">+ Добавить параметр</button>
             </div>
             
-            <button id="saveLesson" class="btn btn-primary">Создать урок</button>
+            <button id="saveLesson" class="btn btn-primary">Сохранить урок</button>
         </div>
     </div>
 

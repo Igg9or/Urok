@@ -2,8 +2,6 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 import os
-import datetime
-from datetime import datetime as dt
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
@@ -29,23 +27,13 @@ def init_db():
     CREATE TABLE IF NOT EXISTS lessons (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         teacher_id INTEGER REFERENCES users(id),
-        grade TEXT NOT NULL,
-        title TEXT NOT NULL,
-        date TEXT NOT NULL,
+        grade INTEGER,
         template TEXT,
         params TEXT,  -- JSON с параметрами
         answer_logic TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     ''')
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS lesson_tasks (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        lesson_id INTEGER REFERENCES lessons(id),
-        question TEXT NOT NULL,
-        answer TEXT NOT NULL
-    )
-''')
     
     # Создаем таблицу предметов
     cursor.execute('''
@@ -143,6 +131,40 @@ def teacher_dashboard():
     return render_template('teacher_dashboard.html', 
                          full_name=session['full_name'])
 
+@app.route('/teacher/create_lesson', methods=['POST'])
+def create_lesson():
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    template = data['template']
+    params = data['params']
+    
+    # Генерация ответов для разных вариантов (простая версия)
+    if "x + {B} = {C}" in template:
+        answer_logic = "x = (C - B)/A"
+    elif "x² + {B}x + {C} = 0" in template:
+        answer_logic = "x1=(-B+sqrt(B^2-4*A*C))/(2*A); x2=(-B-sqrt(B^2-4*A*C))/(2*A)"
+    else:
+        # Общий случай для простых арифметических выражений
+        answer_logic = "eval(expression)"
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO lessons (teacher_id, grade, template, params, answer_logic)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (
+        session['user_id'],
+        data['grade'],
+        template,
+        json.dumps(params),
+        answer_logic
+    ))
+    conn.commit()
+    conn.close()
+    
+    return jsonify({'success': True})
 
 @app.route('/teacher/get_lessons')
 def get_lessons():
@@ -169,33 +191,21 @@ def get_lessons():
 def edit_lesson(lesson_id):
     if 'user_id' not in session or session['role'] != 'teacher':
         return redirect(url_for('login'))
-
+    
     conn = get_db()
     cursor = conn.cursor()
-    
-    # Получаем основную информацию об уроке
     cursor.execute('''
-        SELECT id, title, date, grade FROM lessons 
-        WHERE id = ? AND teacher_id = ?
+        SELECT * FROM lessons WHERE id = ? AND teacher_id = ?
     ''', (lesson_id, session['user_id']))
     lesson = cursor.fetchone()
+    conn.close()
     
     if not lesson:
         return redirect(url_for('teacher_dashboard'))
     
-    # Получаем задания для этого урока
-    cursor.execute('''
-        SELECT id, question, answer FROM lesson_tasks 
-        WHERE lesson_id = ?
-    ''', (lesson_id,))
-    tasks = cursor.fetchall()
-    
-    conn.close()
-    
-    return render_template('edit_lesson.html', 
-                        lesson=dict(lesson),
-                        tasks=[dict(task) for task in tasks],
-                        today_date=dt.now().strftime('%Y-%m-%d'))
+    return render_template('teacher_create_lesson.html', 
+                         lesson=dict(lesson),
+                         today_date=datetime.now().strftime('%Y-%m-%d'))
 
 @app.route('/teacher/conduct_lesson/<int:lesson_id>')
 def conduct_lesson(lesson_id):
@@ -232,67 +242,6 @@ def create_lesson():
         'success': True,
         'lesson_id': lesson_id
     })
-
-@app.route('/teacher/update_lesson/<int:lesson_id>', methods=['POST'])
-def update_lesson(lesson_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    data = request.get_json()
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    try:
-        # Обновляем или добавляем задания
-        updated_tasks = []
-        for task in data['tasks']:
-            if task['id']:
-                # Обновление существующего задания
-                cursor.execute('''
-                    UPDATE lesson_tasks 
-                    SET question = ?, answer = ?
-                    WHERE id = ? AND lesson_id = ?
-                ''', (task['question'], task['answer'], task['id'], lesson_id))
-            else:
-                # Добавление нового задания
-                cursor.execute('''
-                    INSERT INTO lesson_tasks (lesson_id, question, answer)
-                    VALUES (?, ?, ?)
-                ''', (lesson_id, task['question'], task['answer']))
-                updated_tasks.append({'id': cursor.lastrowid})
-        
-        conn.commit()
-        return jsonify({'success': True, 'tasks': updated_tasks})
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'success': False, 'error': str(e)})
-    finally:
-        conn.close()
-
-@app.route('/teacher/delete_task/<int:task_id>', methods=['DELETE'])
-def delete_task(task_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    try:
-        # Проверяем, что задание принадлежит учителю
-        cursor.execute('''
-            DELETE FROM lesson_tasks 
-            WHERE id = ? AND lesson_id IN (
-                SELECT id FROM lessons WHERE teacher_id = ?
-            )
-        ''', (task_id, session['user_id']))
-        
-        conn.commit()
-        return jsonify({'success': True})
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'success': False, 'error': str(e)})
-    finally:
-        conn.close()
 
 with app.app_context():
     init_db()

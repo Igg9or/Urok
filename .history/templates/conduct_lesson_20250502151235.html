@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ход урока | Math Teaching System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Логотип" class="header-logo">
+                <h1>Ход урока</h1>
+            </div>
+            <div class="header-right">
+                <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-secondary">← Назад</a>
+            </div>
+        </header>
+
+        <main class="conduct-lesson-container">
+            <div class="lesson-content">
+                <!-- Здесь будет содержимое урока -->
+                <h2>Урок в процессе</h2>
+                <p>Здесь будет интерфейс для проведения урока</p>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 import os
-import datetime
 from datetime import datetime as dt
 
 app = Flask(__name__)
@@ -195,7 +194,7 @@ def edit_lesson(lesson_id):
     return render_template('edit_lesson.html', 
                         lesson=dict(lesson),
                         tasks=[dict(task) for task in tasks],
-                        today_date=dt.now().strftime('%Y-%m-%d'))
+                        today_date=datetime.now().strftime('%Y-%m-%d'))
 
 @app.route('/teacher/conduct_lesson/<int:lesson_id>')
 def conduct_lesson(lesson_id):
