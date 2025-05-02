@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель учителя - Math Teaching System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .class-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .class-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .class-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .recent-lessons {
+            margin-top: 30px;
+        }
+        .lesson-card {
+            background: white;
+            border-left: 4px solid #4a6bff;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Логотип" class="header-logo">
+                <h1>Math Teaching System</h1>
+            </div>
+            <div class="header-right">
+                <span class="user-greeting">Здравствуйте, {{ full_name }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-logout">Выйти</a>
+            </div>
+        </header>
+        
+        <main class="dashboard-main teacher-dashboard">
+            <div class="welcome-section">
+                <h2>Панель управления учителя</h2>
+                <p>Создавайте уроки, отслеживайте прогресс учеников и управляйте классами</p>
+            </div>
+            
+            <div class="teacher-actions">
+                <div class="action-card">
+                    <h3>Создать новый урок</h3>
+                    <p>Начните новый урок для выбранного класса</p>
+                    <div class="class-grid">
+                        {% for grade in range(5, 12) %}
+                            {% for letter in ['А', 'Б', 'В', 'Г', 'Д'] %}
+                                <a href="{{ url_for('create_lesson_page', class_name=grade~letter) }}" class="class-card">
+                                    {{ grade }}{{ letter }}
+                                </a>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="action-card">
+                    <h3>Последние уроки</h3>
+                    <div class="recent-lessons">
+                        {% for lesson in recent_lessons %}
+                        <div class="lesson-card">
+                            <h4>Урок для {{ lesson.class_name }}</h4>
+                            <p>{{ lesson.created_at.strftime('%d.%m.%Y') }} - {{ lesson.task_count }} заданий</p>
+                            <a href="{{ url_for('view_lesson', lesson_id=lesson.id) }}" class="btn btn-small">Открыть</a>
+                        </div>
+                        {% else %}
+                        <p>У вас пока нет созданных уроков</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="action-card">
+                    <h3>Быстрые действия</h3>
+                    <div class="quick-actions">
+                        <a href="{{ url_for('manage_classes') }}" class="btn btn-action">Управление классами</a>
+                        <a href="{{ url_for('view_statistics') }}" class="btn btn-action">Статистика</a>
+                        <button id="aiAssistantBtn" class="btn btn-ai">Помощник с заданиями</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Модальное окно AI ассистента -->
+    <div id="aiAssistantModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>AI Помощник</h2>
+            <textarea id="aiPromptInput" placeholder="Опишите задание, которое хотите создать..."></textarea>
+            <button id="generateWithAI" class="btn btn-ai">Сгенерировать</button>
+            <div id="aiResults" class="hidden">
+                <h3>Результаты:</h3>
+                <div id="aiSuggestions"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Управление модальным окном AI помощника
+        const aiModal = document.getElementById('aiAssistantModal');
+        const aiBtn = document.getElementById('aiAssistantBtn');
+        const closeBtn = document.querySelector('.close');
+        
+        aiBtn.addEventListener('click', () => {
+            aiModal.classList.remove('hidden');
+        });
+        
+        closeBtn.addEventListener('click', () => {
+            aiModal.classList.add('hidden');
+        });
+        
+        window.addEventListener('click', (e) => {
+            if (e.target === aiModal) {
+                aiModal.classList.add('hidden');
+            }
+        });
+        
+        // Генерация через AI
+        document.getElementById('generateWithAI').addEventListener('click', async () => {
+            const prompt = document.getElementById('aiPromptInput').value;
+            if (!prompt) return;
+            
+            const resultsDiv = document.getElementById('aiResults');
+            const suggestionsDiv = document.getElementById('aiSuggestions');
+            
+            suggestionsDiv.innerHTML = '<p>Генерация заданий...</p>';
+            resultsDiv.classList.remove('hidden');
+            
+            try {
+                const response = await fetch('/teacher/generate_with_ai', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    suggestionsDiv.innerHTML = '';
+                    data.tasks.forEach(task => {
+                        const taskDiv = document.createElement('div');
+                        taskDiv.className = 'ai-task';
+                        taskDiv.innerHTML = `
+                            <p>${task}</p>
+                            <a href="{{ url_for('create_lesson_page', class_name='8А') }}?template=${encodeURIComponent(task)}" 
+                               class="btn btn-small">
+                                Использовать
+                            </a>
+                        `;
+                        suggestionsDiv.appendChild(taskDiv);
+                    });
+                } else {
+                    suggestionsDiv.innerHTML = `<p class="error">Ошибка: ${data.error || 'Неизвестная ошибка'}</p>`;
+                }
+            } catch (error) {
+                suggestionsDiv.innerHTML = `<p class="error">Ошибка соединения</p>`;
+                console.error('AI error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
