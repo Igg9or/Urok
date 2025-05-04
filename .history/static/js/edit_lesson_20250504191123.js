@@ -138,6 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.success) {
                 alert('Изменения сохранены!');
+                // Обновляем ID новых заданий
                 data.tasks.forEach((task, index) => {
                     if (!tasks[index].id) {
                         document.querySelectorAll('.task-card')[index].dataset.taskId = task.id;
@@ -148,11 +149,4 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
-    document.querySelectorAll('.task-card').forEach(taskCard => {
-        taskCard.querySelector('.task-question').addEventListener('input', () => updatePreview(taskCard));
-        taskCard.querySelector('.task-answer').addEventListener('input', () => updatePreview(taskCard));
-        updatePreview(taskCard);
-    });
-
 });

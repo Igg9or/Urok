@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактирование урока | Math Teaching System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Боковая панель с заданиями -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>{{ lesson.title }}</h2>
+                <p>{{ lesson.grade }} класс</p>
+                <button id="addTaskBtn" class="btn btn-primary" style="width: 100%; margin-top: 15px;">
+                    + Добавить задание
+                </button>
+            </div>
+            
+            <div class="task-list" id="tasksList">
+                <!-- Задания будут добавляться динамически -->
+            </div>
+        </div>
+
+        <!-- Основное содержимое -->
+        <div class="main-content">
+            <div class="editor-container">
+                <h2>Редактирование задания</h2>
+                
+                <!-- Шаблон задания -->
+                <div class="form-group">
+                    <label for="taskTemplate">Шаблон вопроса:</label>
+                    <textarea id="taskTemplate" class="template-input" 
+                              placeholder="Пример: Решите {A}x + {B} = {C}"></textarea>
+                </div>
+                
+                <!-- Формула ответа -->
+                <div class="form-group">
+                    <label for="answerFormula">Формула ответа:</label>
+                    <input type="text" id="answerFormula" class="formula-input" 
+                           placeholder="Пример: (C - B)/A">
+                    <small style="display: block; margin-top: 5px; color: #666;">
+                        Используйте те же параметры, что и в шаблоне
+                    </small>
+                </div>
+                
+                <!-- Параметры -->
+                <h3>Параметры</h3>
+                <div class="params-container" id="paramControls">
+                    <!-- Параметры будут добавляться динамически -->
+                </div>
+                <button id="addParamBtn" class="btn btn-secondary">
+                    + Добавить параметр
+                </button>
+                
+                <!-- Примеры -->
+                <div class="examples-container">
+                    <h3>Примеры</h3>
+                    <button id="generateExamplesBtn" class="btn btn-secondary" style="margin-bottom: 15px;">
+                        Сгенерировать примеры
+                    </button>
+                    <div id="taskExamples">
+                        <!-- Примеры будут появляться здесь -->
+                    </div>
+                </div>
+                
+                <!-- Кнопки действий -->
+                <div class="action-buttons">
+                    <button id="saveTaskBtn" class="btn btn-primary">
+                        Сохранить задание
+                    </button>
+                    <button id="previewTaskBtn" class="btn btn-secondary">
+                        Предпросмотр
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключение JavaScript -->
+    <!DOCTYPE html>
+    <html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Редактирование урока | Math Teaching System</title>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    </head>
+    <body>
+        <div class="app-container">
+            <!-- Боковая панель с заданиями -->
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <h2>{{ lesson.title }}</h2>
+                    <p>{{ lesson.grade }} класс</p>
+                    <button id="addTaskBtn" class="btn btn-primary" style="width: 100%; margin-top: 15px;">
+                        + Добавить задание
+                    </button>
+                </div>
+                
+                <div class="task-list" id="tasksList">
+                    <!-- Задания будут добавляться динамически -->
+                </div>
+            </div>
+    
+            <!-- Основное содержимое -->
+            <div class="main-content">
+                <div class="editor-container">
+                    <h2>Редактирование задания</h2>
+                    
+                    <!-- Шаблон задания -->
+                    <div class="form-group">
+                        <label for="taskTemplate">Шаблон вопроса:</label>
+                        <textarea id="taskTemplate" class="template-input" 
+                                  placeholder="Пример: Решите {A}x + {B} = {C}"></textarea>
+                    </div>
+                    
+                    <!-- Формула ответа -->
+                    <div class="form-group">
+                        <label for="answerFormula">Формула ответа:</label>
+                        <input type="text" id="answerFormula" class="formula-input" 
+                               placeholder="Пример: (C - B)/A">
+                        <small style="display: block; margin-top: 5px; color: #666;">
+                            Используйте те же параметры, что и в шаблоне
+                        </small>
+                    </div>
+                    
+                    <!-- Параметры -->
+                    <h3>Параметры</h3>
+                    <div class="params-container" id="paramControls">
+                        <!-- Параметры будут добавляться динамически -->
+                    </div>
+                    <button id="addParamBtn" class="btn btn-secondary">
+                        + Добавить параметр
+                    </button>
+                    
+                    <!-- Примеры -->
+                    <div class="examples-container">
+                        <h3>Примеры</h3>
+                        <button id="generateExamplesBtn" class="btn btn-secondary" style="margin-bottom: 15px;">
+                            Сгенерировать примеры
+                        </button>
+                        <div id="taskExamples">
+                            <!-- Примеры будут появляться здесь -->
+                        </div>
+                    </div>
+                    
+                    <!-- Кнопки действий -->
+                    <div class="action-buttons">
+                        <button id="saveTaskBtn" class="btn btn-primary">
+                            Сохранить задание
+                        </button>
+                        <button id="previewTaskBtn" class="btn btn-secondary">
+                            Предпросмотр
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Подключение JavaScript -->
+<script>
+            const lessonId = {{ lesson.id }};
+        </script>
+        <script src="{{ url_for('static', filename='js/edit_lesson.js') }}"></script>
+    </body>
+    </html>
+</body>
+</html>

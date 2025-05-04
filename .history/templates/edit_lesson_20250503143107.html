@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактирование урока | Math Teaching System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Основные стили */
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+        }
+        
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Сайдбар с заданиями */
+        .sidebar {
+            width: 300px;
+            background: #2f3542;
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding-bottom: 15px;
+            border-bottom: 1px solid #444;
+        }
+        
+        .task-list {
+            margin-top: 20px;
+        }
+        
+        .task-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .task-item:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .task-item.active {
+            background: #4a6bff;
+        }
+        
+        /* Основное содержимое */
+        .main-content {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+        }
+        
+        .editor-container {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* Поля ввода */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .template-input {
+            width: 100%;
+            min-height: 100px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            line-height: 1.5;
+            resize: vertical;
+        }
+        
+        .formula-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        /* Параметры */
+        .params-container {
+            margin: 20px 0;
+        }
+        
+        .param-card {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid #eee;
+        }
+        
+        .param-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .param-name {
+            background: #4a6bff;
+            color: white;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: bold;
+        }
+        
+        .param-controls {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        /* Примеры */
+        .examples-container {
+            margin: 25px 0;
+        }
+        
+        .example-card {
+            background: #f5f7ff;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        
+        /* Кнопки */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #4a6bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #3a5bef;
+        }
+        
+        .btn-secondary {
+            background: #f5f7ff;
+            color: #4a6bff;
+            border: 1px solid #ddd;
+        }
+        
+        .btn-danger {
+            background: #ff4757;
+            color: white;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Боковая панель с заданиями -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>{{ lesson.title }}</h2>
+                <p>{{ lesson.grade }} класс</p>
+                <button id="addTaskBtn" class="btn btn-primary" style="width: 100%; margin-top: 15px;">
+                    + Добавить задание
+                </button>
+            </div>
+            
+            
+            <div class="task-list" id="tasksList">
+                <!-- Задания будут добавляться здесь -->
+                <div class="task-item active" data-task-id="task1">
+                    Задание 1: Нажмите для редактирования...
+                </div>
+            </div>
+        </div>
+
+        <!-- Основное содержимое -->
+        <div class="main-content">
+            <div class="editor-container">
+                <h2>Редактирование задания</h2>
+                
+                <!-- Шаблон задания -->
+                <div class="form-group">
+                    <label for="taskTemplate">Шаблон вопроса:</label>
+                    <textarea id="taskTemplate" class="template-input" 
+                              placeholder="Пример: Решите {A}x + {B} = {C}"></textarea>
+                </div>
+                
+                <!-- Формула ответа -->
+                <div class="form-group">
+                    <label for="answerFormula">Формула ответа:</label>
+                    <input type="text" id="answerFormula" class="formula-input" 
+                           placeholder="Пример: (C - B)/A">
+                    <small style="display: block; margin-top: 5px; color: #666;">
+                        Используйте те же параметры, что и в шаблоне
+                    </small>
+                </div>
+                
+                <!-- Параметры -->
+                <h3>Параметры</h3>
+                <div class="params-container" id="paramControls">
+                    <!-- Параметры будут добавляться здесь -->
+                </div>
+                <button id="addParamBtn" class="btn btn-secondary">
+                    + Добавить параметр
+                </button>
+                
+                <!-- Примеры -->
+                <div class="examples-container">
+                    <h3>Примеры</h3>
+                    <button id="generateExamplesBtn" class="btn btn-secondary" style="margin-bottom: 15px;">
+                        Сгенерировать примеры
+                    </button>
+                    <div id="taskExamples">
+                        <!-- Примеры будут появляться здесь -->
+                        <div class="example-card">
+                            <strong>Пример 1:</strong> Решите 2x + 5 = 15<br>
+                            <strong>Ответ:</strong> x = 5
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Кнопки действий -->
+                <div class="action-buttons">
+                    <button id="saveTaskBtn" class="btn btn-primary">
+                        Сохранить задание
+                    </button>
+                    <button id="previewTaskBtn" class="btn btn-secondary">
+                        Предпросмотр
+                    </button>
+                    <button id="saveAllBtn" class="btn btn-primary" style="margin-top: 20px;">
+                        Сохранить весь урок
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Текущее задание
+        let currentTaskId = 'task1';
+        const tasks = {
+            task1: {
+                template: '',
+                formula: '',
+                params: {}
+            }
+        };
+        
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            // Обработчики событий
+            document.getElementById('addTaskBtn').addEventListener('click', addNewTask);
+            document.getElementById('addParamBtn').addEventListener('click', addNewParameter);
+            document.getElementById('generateExamplesBtn').addEventListener('click', generateExamples);
+            document.getElementById('saveTaskBtn').addEventListener('click', saveCurrentTask);
+            
+            // Загрузка первого задания
+            loadTask(currentTaskId);
+        });
+        
+        // Добавление нового задания
+        function addNewTask() {
+            const taskId = 'task-' + Date.now();
+            currentTaskId = taskId;
+            tasks[taskId] = {
+                template: '',
+                formula: '',
+                params: {}
+            };
+            
+            const taskItem = document.createElement('div');
+            taskItem.className = 'task-item';
+            taskItem.dataset.taskId = taskId;
+            taskItem.textContent = 'Новое задание';
+            taskItem.addEventListener('click', function() {
+                loadTask(taskId);
+            });
+            
+            // Деактивируем другие задания
+            document.querySelectorAll('.task-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            document.getElementById('tasksList').appendChild(taskItem);
+            taskItem.classList.add('active');
+            clearEditor();
+        }
+        
+        // Загрузка задания в редактор
+        function loadTask(taskId) {
+            currentTaskId = taskId;
+            const task = tasks[taskId];
+            
+            // Деактивируем другие задания
+            document.querySelectorAll('.task-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.taskId === taskId) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Заполняем поля
+            document.getElementById('taskTemplate').value = task.template || '';
+            document.getElementById('answerFormula').value = task.formula || '';
+            
+            // Загружаем параметры
+            const paramsContainer = document.getElementById('paramControls');
+            paramsContainer.innerHTML = '';
+            
+            for (const [paramName, paramConfig] of Object.entries(task.params)) {
+                addParameterToEditor(paramName, paramConfig);
+            }
+        }
+        
+        // Очистка редактора
+        function clearEditor() {
+            document.getElementById('taskTemplate').value = '';
+            document.getElementById('answerFormula').value = '';
+            document.getElementById('paramControls').innerHTML = '';
+            document.getElementById('taskExamples').innerHTML = '';
+        }
+        
+        // Добавление нового параметра
+        function addNewParameter() {
+            const paramName = prompt('Введите имя параметра (одна буква, например A, B, C):');
+            
+            if (paramName && /^[A-Za-z]$/.test(paramName)) {
+                const upperParam = paramName.toUpperCase();
+                addParameterToEditor(upperParam);
+                
+                // Сохраняем в текущем задании
+                if (!tasks[currentTaskId].params[upperParam]) {
+                    tasks[currentTaskId].params[upperParam] = {
+                        type: 'int',
+                        min: 1,
+                        max: 10
+                    };
+                }
+            } else {
+                alert('Имя параметра должно быть одной буквой (A-Z)!');
+            }
+        }
+        
+        // Добавление параметра в интерфейс
+        function addParameterToEditor(name, config = { type: 'int', min: 1, max: 10 }) {
+            const paramsContainer = document.getElementById('paramControls');
+            
+            const paramCard = document.createElement('div');
+            paramCard.className = 'param-card';
+            paramCard.innerHTML = `
+                <div class="param-header">
+                    <span class="param-name">${name}</span>
+                    <button class="btn-danger remove-param" style="padding: 2px 8px;">×</button>
+                </div>
+                <div class="param-controls">
+                    <label>Тип:</label>
+                    <select class="param-type">
+                        <option value="int" ${config.type === 'int' ? 'selected' : ''}>Целое число</option>
+                        <option value="float" ${config.type === 'float' ? 'selected' : ''}>Дробное число</option>
+                    </select>
+                    
+                    <label>Диапазон:</label>
+                    <div style="display: flex; gap: 5px;">
+                        <input type="number" class="param-min" value="${config.min}" placeholder="Мин" style="width: 60px;">
+                        <span>до</span>
+                        <input type="number" class="param-max" value="${config.max}" placeholder="Макс" style="width: 60px;">
+                    </div>
+                </div>
+            `;
+            
+            // Обработчик удаления параметра
+            paramCard.querySelector('.remove-param').addEventListener('click', function() {
+                if (confirm(`Удалить параметр ${name}?`)) {
+                    paramsContainer.removeChild(paramCard);
+                    delete tasks[currentTaskId].params[name];
+                }
+            });
+            
+            paramsContainer.appendChild(paramCard);
+        }
+        
+        // Генерация примеров
+        function generateExamples() {
+            const template = document.getElementById('taskTemplate').value;
+            const formula = document.getElementById('answerFormula').value;
+            
+            if (!template) {
+                alert('Введите шаблон задания');
+                return;
+            }
+            
+            if (!formula) {
+                alert('Введите формулу ответа');
+                return;
+            }
+            
+            // Находим все параметры в шаблоне
+            const paramNames = [];
+            const regex = /\{([A-Za-z])\}/g;
+            let match;
+            
+            while ((match = regex.exec(template))) {
+                paramNames.push(match[1]);
+            }
+            
+            // Если нет параметров - просто показываем шаблон
+            if (paramNames.length === 0) {
+                document.getElementById('taskExamples').innerHTML = `
+                    <div class="example-card">
+                        <strong>Пример:</strong> ${template}<br>
+                        <strong>Ответ:</strong> ${formula}
+                    </div>
+                `;
+                return;
+            }
+            
+            // Генерируем 3 примера
+            let examplesHTML = '';
+            
+            for (let i = 0; i < 3; i++) {
+                const values = {};
+                let exampleText = template;
+                let calculationFormula = formula;
+                
+                // Заменяем параметры случайными значениями
+                paramNames.forEach(param => {
+                    let value;
+                    const paramConfig = tasks[currentTaskId].params[param] || { type: 'int', min: 1, max: 10 };
+                    
+                    if (paramConfig.type === 'int') {
+                        value = Math.floor(Math.random() * (paramConfig.max - paramConfig.min + 1)) + paramConfig.min;
+                    } else {
+                        value = (Math.random() * (paramConfig.max - paramConfig.min) + paramConfig.min).toFixed(2);
+                    }
+                    
+                    values[param] = value;
+                    exampleText = exampleText.replace(new RegExp(`\\{${param}\\}`, 'g'), value);
+                    calculationFormula = calculationFormula.replace(new RegExp(param, 'g'), value);
+                });
+                
+                // Вычисляем ответ
+                let answer;
+                try {
+                    answer = eval(calculationFormula);
+                    
+                    // Форматируем ответ
+                    if (Number.isInteger(answer)) {
+                        answer = answer.toString();
+                    } else {
+                        answer = parseFloat(answer.toFixed(4)).toString();
+                    }
+                } catch (e) {
+                    answer = `Ошибка: ${e.message}`;
+                }
+                
+                examplesHTML += `
+                    <div class="example-card">
+                        <strong>Пример ${i+1}:</strong> ${exampleText}<br>
+                        <strong>Ответ:</strong> ${answer} (формула: ${calculationFormula})
+                    </div>
+                `;
+            }
+            
+            document.getElementById('taskExamples').innerHTML = examplesHTML;
+        }
+        
+        // Сохранение задания
+        function saveCurrentTask() {
+            if (!currentTaskId) {
+                alert('Создайте или выберите задание');
+                return;
+            }
+            
+            const template = document.getElementById('taskTemplate').value;
+            const formula = document.getElementById('answerFormula').value;
+            
+            if (!template.trim()) {
+                alert('Введите шаблон задания');
+                return;
+            }
+            
+            // Обновляем задание
+            tasks[currentTaskId].template = template;
+            tasks[currentTaskId].formula = formula;
+            
+            // Обновляем параметры
+            const params = {};
+            document.querySelectorAll('.param-card').forEach(card => {
+                const name = card.querySelector('.param-name').textContent;
+                const type = card.querySelector('.param-type').value;
+                const min = parseFloat(card.querySelector('.param-min').value) || 1;
+                const max = parseFloat(card.querySelector('.param-max').value) || 10;
+                
+                params[name] = { type, min, max };
+            });
+            
+            tasks[currentTaskId].params = params;
+            
+            // Обновляем список заданий
+            const taskItem = document.querySelector(`.task-item[data-task-id="${currentTaskId}"]`);
+            if (taskItem) {
+                taskItem.textContent = `Задание: ${template.substring(0, 40)}${template.length > 40 ? '...' : ''}`;
+            }
+            
+            alert('Задание успешно сохранено!');
+            console.log('Сохраненные задания:', tasks);
+        }
+    </script>
+</body>
+</html>

@@ -148,11 +148,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
-    document.querySelectorAll('.task-card').forEach(taskCard => {
-        taskCard.querySelector('.task-question').addEventListener('input', () => updatePreview(taskCard));
-        taskCard.querySelector('.task-answer').addEventListener('input', () => updatePreview(taskCard));
-        updatePreview(taskCard);
-    });
 
+    
 });

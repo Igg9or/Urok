@@ -1,9 +1,9 @@
 ﻿
 
 ================================================================================
-Ф: C:\Users\yatma\Pictures\Urok\static\css\style.css
-: 9977 bytes
-Т : 05/02/2025 15:34:23
+ФАЙЛ: C:\Users\yatma\Pictures\Urok\static\css\style.css
+РАЗМЕР: 9977 bytes
+ДАТА ИЗМЕНЕНИЯ: 05/04/2025 18:56:59
 ================================================================================
 
 
@@ -571,9 +571,9 @@ body {
 
 
 ================================================================================
-Ф: C:\Users\yatma\Pictures\Urok\static\js\edit_lesson.js
-: 3127 bytes
-Т : 05/02/2025 15:34:01
+ФАЙЛ: C:\Users\yatma\Pictures\Urok\static\js\edit_lesson.js
+РАЗМЕР: 3127 bytes
+ДАТА ИЗМЕНЕНИЯ: 05/04/2025 18:56:59
 ================================================================================
 
 
@@ -653,9 +653,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 ================================================================================
-Ф: C:\Users\yatma\Pictures\Urok\static\js\teacher.js
-: 5705 bytes
-Т : 05/02/2025 15:48:01
+ФАЙЛ: C:\Users\yatma\Pictures\Urok\static\js\teacher.js
+РАЗМЕР: 5705 bytes
+ДАТА ИЗМЕНЕНИЯ: 05/02/2025 15:48:01
 ================================================================================
 
 
@@ -799,9 +799,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 ================================================================================
-Ф: C:\Users\yatma\Pictures\Urok\static\js\teacher_create_lesson.js
-: 7072 bytes
-Т : 04/26/2025 20:46:17
+ФАЙЛ: C:\Users\yatma\Pictures\Urok\static\js\teacher_create_lesson.js
+РАЗМЕР: 7072 bytes
+ДАТА ИЗМЕНЕНИЯ: 04/26/2025 20:46:17
 ================================================================================
 
 
@@ -982,9 +982,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 ================================================================================
-Ф: C:\Users\yatma\Pictures\Urok\templates\auth.html
-: 1957 bytes
-Т : 04/26/2025 20:01:13
+ФАЙЛ: C:\Users\yatma\Pictures\Urok\templates\auth.html
+РАЗМЕР: 1957 bytes
+ДАТА ИЗМЕНЕНИЯ: 04/26/2025 20:01:13
 ================================================================================
 
 
@@ -1036,9 +1036,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 ================================================================================
-Ф: C:\Users\yatma\Pictures\Urok\templates\conduct_lesson.html
-: 1319 bytes
-Т : 05/02/2025 15:12:35
+ФАЙЛ: C:\Users\yatma\Pictures\Urok\templates\conduct_lesson.html
+РАЗМЕР: 1319 bytes
+ДАТА ИЗМЕНЕНИЯ: 05/02/2025 15:12:35
 ================================================================================
 
 
@@ -1076,9 +1076,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 ================================================================================
-Ф: C:\Users\yatma\Pictures\Urok\templates\edit_lesson.html
-: 2266 bytes
-Т : 05/02/2025 15:33:41
+ФАЙЛ: C:\Users\yatma\Pictures\Urok\templates\edit_lesson.html
+РАЗМЕР: 2266 bytes
+ДАТА ИЗМЕНЕНИЯ: 05/04/2025 18:56:59
 ================================================================================
 
 
@@ -1135,9 +1135,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 ================================================================================
-Ф: C:\Users\yatma\Pictures\Urok\templates\student_dashboard.html
-: 2172 bytes
-Т : 04/26/2025 20:01:21
+ФАЙЛ: C:\Users\yatma\Pictures\Urok\templates\student_dashboard.html
+РАЗМЕР: 2172 bytes
+ДАТА ИЗМЕНЕНИЯ: 04/26/2025 20:01:21
 ================================================================================
 
 
@@ -1190,9 +1190,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 ================================================================================
-Ф: C:\Users\yatma\Pictures\Urok\templates\teacher_create_lesson.html
-: 3464 bytes
-Т : 04/26/2025 20:46:07
+ФАЙЛ: C:\Users\yatma\Pictures\Urok\templates\teacher_create_lesson.html
+РАЗМЕР: 3464 bytes
+ДАТА ИЗМЕНЕНИЯ: 04/26/2025 20:46:07
 ================================================================================
 
 
@@ -1269,9 +1269,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 ================================================================================
-Ф: C:\Users\yatma\Pictures\Urok\templates\teacher_dashboard.html
-: 3598 bytes
-Т : 05/02/2025 15:10:43
+ФАЙЛ: C:\Users\yatma\Pictures\Urok\templates\teacher_dashboard.html
+РАЗМЕР: 3598 bytes
+ДАТА ИЗМЕНЕНИЯ: 05/02/2025 15:10:43
 ================================================================================
 
 
@@ -1358,9 +1358,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 ================================================================================
-Ф: C:\Users\yatma\Pictures\Urok\app.py
-: 10194 bytes
-Т : 05/02/2025 15:34:46
+ФАЙЛ: C:\Users\yatma\Pictures\Urok\app.py
+РАЗМЕР: 10242 bytes
+ДАТА ИЗМЕНЕНИЯ: 05/04/2025 18:56:59
 ================================================================================
 
 
@@ -1368,6 +1368,8 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 import os
+import datetime
+from datetime import datetime as dt
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
@@ -1559,7 +1561,7 @@ def edit_lesson(lesson_id):
     return render_template('edit_lesson.html', 
                         lesson=dict(lesson),
                         tasks=[dict(task) for task in tasks],
-                        today_date=datetime.now().strftime('%Y-%m-%d'))
+                        today_date=dt.now().strftime('%Y-%m-%d'))
 
 @app.route('/teacher/conduct_lesson/<int:lesson_id>')
 def conduct_lesson(lesson_id):

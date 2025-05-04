@@ -68,33 +68,17 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 
-
+    
     // Добавление нового задания
     addTaskBtn.addEventListener('click', function() {
         const taskCard = document.createElement('div');
         taskCard.className = 'task-card';
         taskCard.innerHTML = `
-            <div class="task-header">
-                <h3>Задание</h3>
-                <button class="btn btn-danger btn-remove-task">Удалить</button>
-            </div>
-            <textarea class="task-question" placeholder="Введите вопрос с параметрами {A}, {B}..."></textarea>
-            <div class="task-preview">
-                <h4>Пример для учителя:</h4>
-                <div class="preview-examples"></div>
-            </div>
-            <div class="answer-section">
-                <label>Формула ответа:</label>
-                <textarea class="task-answer" placeholder="Введите формулу с параметрами {A}, {B}..."></textarea>
-                <p class="hint">Например: для вопроса "{A} + {B}" формула ответа будет "{A} + {B}"</p>
-            </div>
+            <textarea class="task-question" placeholder="Введите вопрос"></textarea>
+            <textarea class="task-answer" placeholder="Введите ответ"></textarea>
+            <button class="btn btn-danger btn-remove-task">Удалить</button>
         `;
-        
         tasksContainer.appendChild(taskCard);
-        
-        // Добавляем обработчики для обновления превью
-        taskCard.querySelector('.task-question').addEventListener('input', () => updatePreview(taskCard));
-        taskCard.querySelector('.task-answer').addEventListener('input', () => updatePreview(taskCard));
     });
 
     // Удаление задания
@@ -104,6 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const taskId = taskCard.dataset.taskId;
             
             if (taskId) {
+                // Если задание уже есть в БД - удаляем
                 fetch(`/teacher/delete_task/${taskId}`, {
                     method: 'DELETE'
                 }).then(response => {
@@ -111,6 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     taskCard.remove();
                 });
             } else {
+                // Если задание новое - просто удаляем из DOM
                 taskCard.remove();
             }
         }
@@ -138,6 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.success) {
                 alert('Изменения сохранены!');
+                // Обновляем ID новых заданий
                 data.tasks.forEach((task, index) => {
                     if (!tasks[index].id) {
                         document.querySelectorAll('.task-card')[index].dataset.taskId = task.id;
@@ -148,11 +135,4 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
-    document.querySelectorAll('.task-card').forEach(taskCard => {
-        taskCard.querySelector('.task-question').addEventListener('input', () => updatePreview(taskCard));
-        taskCard.querySelector('.task-answer').addEventListener('input', () => updatePreview(taskCard));
-        updatePreview(taskCard);
-    });
-
 });
