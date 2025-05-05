@@ -195,38 +195,21 @@ def get_lessons():
     if 'user_id' not in session or session['role'] != 'teacher':
         return jsonify({'error': 'Unauthorized'}), 401
     
-    class_full = request.args.get('grade')  # Формат "6В"
-    grade = class_full[:-1]  # "6"
-    letter = class_full[-1]  # "В"
+    grade = request.args.get('grade')
     
     conn = get_db()
     cursor = conn.cursor()
+    cursor.execute('''
+        SELECT id, title, date FROM lessons 
+        WHERE teacher_id = ? AND grade = ?
+        ORDER BY date DESC
+    ''', (session['user_id'], grade))
+    lessons = cursor.fetchall()
+    conn.close()
     
-    try:
-        # Находим ID класса
-        cursor.execute("SELECT id FROM classes WHERE grade = ? AND letter = ?", (grade, letter))
-        class_id = cursor.fetchone()
-        
-        if not class_id:
-            return jsonify({'lessons': []})
-        
-        # Получаем уроки для этого класса
-        cursor.execute('''
-            SELECT l.id, l.title, l.date 
-            FROM lessons l
-            WHERE l.class_id = ? AND l.teacher_id = ?
-            ORDER BY l.date DESC
-        ''', (class_id[0], session['user_id']))
-        
-        lessons = cursor.fetchall()
-        return jsonify({
-            'lessons': [dict(lesson) for lesson in lessons]
-        })
-    except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({'error': str(e)}), 500
-    finally:
-        conn.close()
+    return jsonify({
+        'lessons': [dict(lesson) for lesson in lessons]
+    })
 
 @app.route('/teacher/edit_lesson/<int:lesson_id>')
 def edit_lesson(lesson_id):
@@ -278,16 +261,14 @@ def create_lesson():
     data = request.get_json()
     class_full = data['grade']  # Формат "6В"
     
-    try:
-        grade = int(class_full[:-1])  # "6"
-        letter = class_full[-1]       # "В"
-    except:
-        return jsonify({'error': 'Invalid class format'}), 400
-    
     conn = get_db()
     cursor = conn.cursor()
     
     try:
+        # Разделяем номер и букву класса
+        grade = int(class_full[:-1])
+        letter = class_full[-1]
+        
         # Находим ID класса
         cursor.execute("SELECT id FROM classes WHERE grade = ? AND letter = ?", (grade, letter))
         class_id = cursor.fetchone()
@@ -315,7 +296,6 @@ def create_lesson():
         })
     except Exception as e:
         conn.rollback()
-        print(f"Error creating lesson: {e}")
         return jsonify({'error': str(e)}), 500
     finally:
         conn.close()

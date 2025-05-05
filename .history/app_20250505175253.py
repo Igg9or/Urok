@@ -278,16 +278,14 @@ def create_lesson():
     data = request.get_json()
     class_full = data['grade']  # Формат "6В"
     
-    try:
-        grade = int(class_full[:-1])  # "6"
-        letter = class_full[-1]       # "В"
-    except:
-        return jsonify({'error': 'Invalid class format'}), 400
-    
     conn = get_db()
     cursor = conn.cursor()
     
     try:
+        # Разделяем номер и букву класса
+        grade = int(class_full[:-1])
+        letter = class_full[-1]
+        
         # Находим ID класса
         cursor.execute("SELECT id FROM classes WHERE grade = ? AND letter = ?", (grade, letter))
         class_id = cursor.fetchone()
@@ -315,7 +313,6 @@ def create_lesson():
         })
     except Exception as e:
         conn.rollback()
-        print(f"Error creating lesson: {e}")
         return jsonify({'error': str(e)}), 500
     finally:
         conn.close()
