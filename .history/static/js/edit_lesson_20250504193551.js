@@ -126,8 +126,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    updateTaskNumbers();
-
     // Сохранение изменений
     saveLessonBtn.addEventListener('click', function() {
         const tasks = [];

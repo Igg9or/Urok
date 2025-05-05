@@ -67,14 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
     }
-
-    function updateTaskNumbers() {
-        const taskCards = document.querySelectorAll('.task-card');
-        taskCards.forEach((card, index) => {
-            card.querySelector('.task-number').textContent = index + 1;
-        });
-    }
-
+    
 
     // Добавление нового задания
     addTaskBtn.addEventListener('click', function() {
@@ -82,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
         taskCard.className = 'task-card';
         taskCard.innerHTML = `
             <div class="task-header">
-                <h3>Задание <span class="task-number">1</span></h3>
+                <h3>Задание</h3>
                 <button class="btn btn-danger btn-remove-task">Удалить</button>
             </div>
             <textarea class="task-question" placeholder="Введите вопрос с параметрами {A}, {B}..."></textarea>
@@ -98,7 +91,6 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         
         tasksContainer.appendChild(taskCard);
-        updateTaskNumbers(); // Обновляем нумерацию
         
         // Добавляем обработчики для обновления превью
         taskCard.querySelector('.task-question').addEventListener('input', () => updatePreview(taskCard));
@@ -117,16 +109,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 }).then(response => {
                     if (!response.ok) throw new Error('Ошибка удаления');
                     taskCard.remove();
-                    updateTaskNumbers(); // Обновляем нумерацию после удаления
                 });
             } else {
                 taskCard.remove();
-                updateTaskNumbers(); // Обновляем нумерацию после удаления
             }
         }
     });
-
-    updateTaskNumbers();
 
     // Сохранение изменений
     saveLessonBtn.addEventListener('click', function() {

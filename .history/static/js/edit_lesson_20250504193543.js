@@ -117,16 +117,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 }).then(response => {
                     if (!response.ok) throw new Error('Ошибка удаления');
                     taskCard.remove();
-                    updateTaskNumbers(); // Обновляем нумерацию после удаления
                 });
             } else {
                 taskCard.remove();
-                updateTaskNumbers(); // Обновляем нумерацию после удаления
             }
         }
     });
-
-    updateTaskNumbers();
 
     // Сохранение изменений
     saveLessonBtn.addEventListener('click', function() {

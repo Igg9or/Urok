@@ -19,8 +19,8 @@ def init_db():
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS classes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        grade INTEGER NOT NULL,  
-        letter TEXT NOT NULL,   
+        grade INTEGER NOT NULL,  # 5-11
+        letter TEXT NOT NULL,    # А-Д
         UNIQUE(grade, letter)
     )
     ''')
@@ -31,13 +31,10 @@ def init_db():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
-        role TEXT NOT NULL,      
-        full_name TEXT,
-        class_id INTEGER REFERENCES classes(id),
-        UNIQUE(username, class_id)
+        role TEXT NOT NULL,  -- 'student' или 'teacher'
+        full_name TEXT
     )
     ''')
-
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS lessons (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -82,42 +79,6 @@ def init_db():
         cursor.execute("INSERT INTO subjects (name, description) VALUES (?, ?)",
                       ('Математика', 'Алгебра и геометрия'))
     
-    for grade in [6]:
-        for letter in ['В', 'Д']:
-            cursor.execute("INSERT OR IGNORE INTO classes (grade, letter) VALUES (?, ?)", (grade, letter))
-    
-    # Добавляем тестовых учеников
-    students_6v = [
-        ('student_6v_1', 'student123', 'Иванов Иван'),
-        ('student_6v_2', 'student123', 'Петрова Мария')
-    ]
-    
-    students_6d = [
-        ('student_6d_1', 'student123', 'Сидоров Алексей'),
-        ('student_6d_2', 'student123', 'Кузнецова Анна')
-    ]
-    
-    # Получаем ID классов
-    cursor.execute("SELECT id FROM classes WHERE grade = 6 AND letter = 'В'")
-    class_6v_id = cursor.fetchone()[0]
-    
-    cursor.execute("SELECT id FROM classes WHERE grade = 6 AND letter = 'Д'")
-    class_6d_id = cursor.fetchone()[0]
-    
-    # Добавляем учеников 6В
-    for student in students_6v:
-        cursor.execute(
-            "INSERT OR IGNORE INTO users (username, password, role, full_name, class_id) VALUES (?, ?, ?, ?, ?)",
-            (student[0], generate_password_hash(student[1]), 'student', student[2], class_6v_id)
-        )
-    
-    # Добавляем учеников 6Д
-    for student in students_6d:
-        cursor.execute(
-            "INSERT OR IGNORE INTO users (username, password, role, full_name, class_id) VALUES (?, ?, ?, ?, ?)",
-            (student[0], generate_password_hash(student[1]), 'student', student[2], class_6d_id)
-        )
-
     conn.commit()
     conn.close()
 
@@ -340,80 +301,6 @@ def delete_task(task_id):
     except Exception as e:
         conn.rollback()
         return jsonify({'success': False, 'error': str(e)})
-    finally:
-        conn.close()
-
-@app.route('/teacher/manage_students')
-def manage_students():
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return redirect(url_for('login'))
-    
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM classes ORDER BY grade, letter")
-    classes = cursor.fetchall()
-    conn.close()
-    
-    return render_template('manage_students.html', classes=classes)
-
-@app.route('/teacher/get_students')
-def get_students():
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    class_id = request.args.get('class_id')
-    
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute('''
-        SELECT id, username, full_name FROM users 
-        WHERE role = 'student' AND class_id = ?
-        ORDER BY full_name
-    ''', (class_id,))
-    students = cursor.fetchall()
-    conn.close()
-    
-    return jsonify({
-        'students': [dict(student) for student in students]
-    })
-
-@app.route('/teacher/add_student', methods=['POST'])
-def add_student():
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    data = request.get_json()
-    
-    conn = get_db()
-    cursor = conn.cursor()
-    try:
-        cursor.execute('''
-            INSERT INTO users (username, password, role, full_name, class_id)
-            VALUES (?, ?, 'student', ?, ?)
-        ''', (
-            data['username'],
-            generate_password_hash(data['password']),
-            data['full_name'],
-            data['class_id']
-        ))
-        conn.commit()
-        return jsonify({'success': True})
-    except sqlite3.IntegrityError as e:
-        return jsonify({'success': False, 'error': 'Логин уже существует'})
-    finally:
-        conn.close()
-
-@app.route('/teacher/delete_student/<int:student_id>', methods=['DELETE'])
-def delete_student(student_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    conn = get_db()
-    cursor = conn.cursor()
-    try:
-        cursor.execute("DELETE FROM users WHERE id = ? AND role = 'student'", (student_id,))
-        conn.commit()
-        return jsonify({'success': cursor.rowcount > 0})
     finally:
         conn.close()
 

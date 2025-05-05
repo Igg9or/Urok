@@ -20,7 +20,7 @@ def init_db():
     CREATE TABLE IF NOT EXISTS classes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         grade INTEGER NOT NULL,  
-        letter TEXT NOT NULL,   
+        letter TEXT NOT NULL,    # А-Д
         UNIQUE(grade, letter)
     )
     ''')
@@ -31,7 +31,7 @@ def init_db():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
-        role TEXT NOT NULL,      
+        role TEXT NOT NULL,      # 'student' или 'teacher'
         full_name TEXT,
         class_id INTEGER REFERENCES classes(id),
         UNIQUE(username, class_id)

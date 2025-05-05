@@ -15,23 +15,21 @@ def init_db():
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
     
-    # Создаем таблицу классов
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS classes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        grade INTEGER NOT NULL,  
-        letter TEXT NOT NULL,   
+        grade INTEGER NOT NULL,  # 5-11
+        letter TEXT NOT NULL,    # А-Д
         UNIQUE(grade, letter)
     )
     ''')
 
-    # Создаем таблицу пользователей
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
-        role TEXT NOT NULL,      
+        role TEXT NOT NULL,      # 'student' или 'teacher'
         full_name TEXT,
         class_id INTEGER REFERENCES classes(id),
         UNIQUE(username, class_id)
