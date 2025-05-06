@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Проведение урока | {{ lesson.title }}</title>
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/teacher_dashboard.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Логотип" class="header-logo">
+                <h1>Проведение урока: {{ lesson.title }}</h1>
+            </div>
+            <div class="header-right">
+                <span class="class-info">{{ lesson.grade }}{{ lesson.letter }} класс</span>
+                <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-secondary">← Назад</a>
+            </div>
+        </header>
+
+        <main class="conduct-lesson-container">
+            <div class="real-time-results">
+                <h2>Результаты класса</h2>
+                <div class="results-table-container">
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>Ученик</th>
+                                {% for task in tasks %}
+                                <th>Задание {{ loop.index }}</th>
+                                {% endfor %}
+                                <th>Прогресс</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsResults">
+                            {% for student in students %}
+                            <tr>
+                                <td>{{ student.full_name }}</td>
+                                {% for task in tasks %}
+                                <td class="task-result" data-student-id="{{ student.id }}" data-task-id="{{ task.id }}">
+                                    <span class="result-icon pending">—</span>
+                                </td>
+                                {% endfor %}
+                                <td>
+                                    <div class="progress-container">
+                                        <div class="progress-bar" style="width: 0%"></div>
+                                        <span>0%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="lesson-controls">
+                <button id="refreshResults" class="btn btn-primary">Обновить результаты</button>
+                <button id="endLesson" class="btn btn-danger">Завершить урок</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/conduct_lesson.js') }}"></script>
+</body>
+</html>
