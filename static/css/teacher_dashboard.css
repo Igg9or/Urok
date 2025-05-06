@@ -1,0 +1,163 @@
+/* Стили для проведения урока */
+.conduct-lesson-container {
+    padding: 20px;
+}
+
+.real-time-results {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+}
+
+.results-table-container {
+    overflow-x: auto;
+}
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.results-table th, .results-table td {
+    padding: 12px 15px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+.results-table th {
+    background: var(--secondary-color);
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.correct {
+    color: var(--success-color);
+    font-weight: bold;
+}
+
+.incorrect {
+    color: var(--error-color);
+    font-weight: bold;
+}
+
+.pending {
+    color: var(--light-text);
+}
+
+.progress-container {
+    position: relative;
+    height: 20px;
+    background: #f0f0f0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-container .progress-bar {
+    height: 100%;
+    background: var(--primary-color);
+    transition: width 0.3s ease;
+}
+
+.progress-container span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12px;
+    color: white;
+    z-index: 1;
+}
+
+.lesson-controls {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 20px;
+}
+.conduct-lesson-container {
+    padding: 20px;
+}
+
+.class-info {
+    margin-right: 20px;
+    font-weight: 500;
+    color: var(--primary-color);
+}
+
+.real-time-results {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+}
+
+.results-table-container {
+    overflow-x: auto;
+}
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.results-table th, .results-table td {
+    padding: 12px 15px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+.results-table th {
+    background: var(--secondary-color);
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.task-result .correct {
+    color: var(--success-color);
+    font-weight: bold;
+}
+
+.task-result .incorrect {
+    color: var(--error-color);
+    font-weight: bold;
+}
+
+.task-result .pending {
+    color: var(--light-text);
+}
+
+.progress-container {
+    position: relative;
+    height: 20px;
+    background: #f0f0f0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-container .progress-bar {
+    height: 100%;
+    background: var(--primary-color);
+    transition: width 0.3s ease;
+}
+
+.progress-container span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12px;
+    color: white;
+    z-index: 1;
+}
+
+.lesson-controls {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 20px;
+}

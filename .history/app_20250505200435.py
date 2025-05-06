@@ -816,66 +816,9 @@ def get_student_answers(lesson_id, user_id):
     finally:
         conn.close()
 
-@app.route('/teacher/end_lesson/<int:lesson_id>', methods=['POST'])
-def end_lesson(lesson_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    # Здесь можно добавить логику завершения урока
-    # Например, пометить урок как завершенный в базе данных
-    
-    return jsonify({'success': True})
 
 
-@app.route('/teacher/get_student_progress/<int:lesson_id>/<int:student_id>')
-def get_student_progress(lesson_id, student_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    try:
-        # Получаем прогресс конкретного ученика
-        cursor.execute('''
-            SELECT 
-                t.id as task_id,
-                sa.answer,
-                sa.is_correct,
-                sa.answered_at
-            FROM lesson_tasks t
-            LEFT JOIN student_answers sa ON sa.task_id = t.id AND sa.user_id = ?
-            WHERE t.lesson_id = ?
-            ORDER BY t.id
-        ''', (student_id, lesson_id))
-        
-        tasks = []
-        correct_count = 0
-        
-        for task in cursor.fetchall():
-            if task['is_correct']:
-                correct_count += 1
-            tasks.append({
-                'task_id': task['task_id'],
-                'answered': task['answer'] is not None,
-                'is_correct': task['is_correct'],
-                'answered_at': task['answered_at']
-            })
-        
-        total_tasks = len(tasks)
-        progress = round((correct_count / total_tasks) * 100) if total_tasks > 0 else 0
-        
-        return jsonify({
-            'student_id': student_id,
-            'progress': progress,
-            'tasks': tasks
-        })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-    finally:
-        conn.close()
 
-        
 with app.app_context():
     init_db()
 

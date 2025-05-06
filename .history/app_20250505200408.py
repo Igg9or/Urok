@@ -755,6 +755,86 @@ def get_lesson_results(lesson_id):
     cursor = conn.cursor()
     
     try:
+        # Получаем список учеников класса
+        cursor.execute('''
+            SELECT u.id, u.full_name
+            FROM users u
+            JOIN lessons l ON u.class_id = l.class_id
+            WHERE l.id = ? AND u.role = 'student'
+            ORDER BY u.full_name
+        ''', (lesson_id,))
+        students = cursor.fetchall()
+        
+        # Получаем список заданий урока
+        cursor.execute('''
+            SELECT id FROM lesson_tasks
+            WHERE lesson_id = ?
+            ORDER BY id
+        ''', (lesson_id,))
+        tasks = cursor.fetchall()
+        
+        # Собираем результаты
+        results = []
+        for student in students:
+            student_result = {
+                'user_id': student['id'],
+                'full_name': student['full_name'],
+                'tasks': []
+            }
+            
+            for task in tasks:
+                cursor.execute('''
+                    SELECT answer, is_correct
+                    FROM student_answers
+                    WHERE task_id = ? AND user_id = ?
+                ''', (task['id'], student['id']))
+                answer = cursor.fetchone()
+                
+                student_result['tasks'].append({
+                    'answered': answer is not None,
+                    'is_correct': answer['is_correct'] if answer else False
+                })
+            
+            results.append(student_result)
+        
+        return jsonify({
+            'results': results,
+            'total_tasks': len(tasks)
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/get_student_answers/<int:lesson_id>/<int:user_id>')
+def get_student_answers(lesson_id, user_id):
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute('''
+            SELECT sa.task_id, sa.answer, sa.is_correct
+            FROM student_answers sa
+            JOIN lesson_tasks lt ON sa.task_id = lt.id
+            WHERE lt.lesson_id = ? AND sa.user_id = ?
+        ''', (lesson_id, user_id))
+        
+        answers = cursor.fetchall()
+        return jsonify([dict(answer) for answer in answers])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/teacher/get_lesson_results/<int:lesson_id>')
+def get_lesson_results(lesson_id):
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
         # Получаем список учеников и их ответов
         cursor.execute('''
             SELECT 
@@ -796,86 +876,7 @@ def get_lesson_results(lesson_id):
     finally:
         conn.close()
 
-@app.route('/get_student_answers/<int:lesson_id>/<int:user_id>')
-def get_student_answers(lesson_id, user_id):
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    try:
-        cursor.execute('''
-            SELECT sa.task_id, sa.answer, sa.is_correct
-            FROM student_answers sa
-            JOIN lesson_tasks lt ON sa.task_id = lt.id
-            WHERE lt.lesson_id = ? AND sa.user_id = ?
-        ''', (lesson_id, user_id))
-        
-        answers = cursor.fetchall()
-        return jsonify([dict(answer) for answer in answers])
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-    finally:
-        conn.close()
 
-@app.route('/teacher/end_lesson/<int:lesson_id>', methods=['POST'])
-def end_lesson(lesson_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    # Здесь можно добавить логику завершения урока
-    # Например, пометить урок как завершенный в базе данных
-    
-    return jsonify({'success': True})
-
-
-@app.route('/teacher/get_student_progress/<int:lesson_id>/<int:student_id>')
-def get_student_progress(lesson_id, student_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    try:
-        # Получаем прогресс конкретного ученика
-        cursor.execute('''
-            SELECT 
-                t.id as task_id,
-                sa.answer,
-                sa.is_correct,
-                sa.answered_at
-            FROM lesson_tasks t
-            LEFT JOIN student_answers sa ON sa.task_id = t.id AND sa.user_id = ?
-            WHERE t.lesson_id = ?
-            ORDER BY t.id
-        ''', (student_id, lesson_id))
-        
-        tasks = []
-        correct_count = 0
-        
-        for task in cursor.fetchall():
-            if task['is_correct']:
-                correct_count += 1
-            tasks.append({
-                'task_id': task['task_id'],
-                'answered': task['answer'] is not None,
-                'is_correct': task['is_correct'],
-                'answered_at': task['answered_at']
-            })
-        
-        total_tasks = len(tasks)
-        progress = round((correct_count / total_tasks) * 100) if total_tasks > 0 else 0
-        
-        return jsonify({
-            'student_id': student_id,
-            'progress': progress,
-            'tasks': tasks
-        })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-    finally:
-        conn.close()
-
-        
 with app.app_context():
     init_db()
 

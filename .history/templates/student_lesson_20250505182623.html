@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ lesson.title }} | Math Teaching System</title>
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Логотип" class="header-logo">
+                <h1>{{ lesson.title }}</h1>
+            </div>
+            <div class="header-right">
+                <a href="{{ url_for('student_lessons') }}" class="btn btn-secondary">← Назад</a>
+            </div>
+        </header>
+
+        <main class="lesson-container">
+            <div class="lesson-meta">
+                <p>Дата: {{ lesson.date }}</p>
+                <p>Учитель: {{ lesson.teacher_name }}</p>
+            </div>
+
+            <!-- Добавьте этот код в tasks-section -->
+    <div class="tasks-section">
+        <h2>Задания</h2>
+        <div id="tasksContainer">
+            {% for task in tasks %}
+            <div class="task-card" data-task-id="{{ task.id }}" data-user-id="{{ user_id }}">
+                <div class="task-header">
+                    <h3>Задание {{ loop.index }}</h3>
+                </div>
+                <div class="task-question">
+                    <p>{{ task.question|safe }}</p>
+                </div>
+                <div class="task-answer">
+                    <label>Ваш ответ:</label>
+                    <input type="text" class="answer-input">
+                    <button class="btn btn-check">Проверить</button>
+                    <div class="result hidden"></div>
+                </div>
+                <input type="hidden" class="correct-answer" value="{{ task.correct_answer }}">
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/student_lesson.js') }}"></script>
+</body>
+</html>

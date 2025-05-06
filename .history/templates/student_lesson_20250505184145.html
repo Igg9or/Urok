@@ -24,7 +24,7 @@
         <main class="lesson-content">
             <div class="tasks-container">
                 {% for task in tasks %}
-                <div class="task-card" data-task-id="{{ task.id }}" data-user-id="{{ user_id }}">
+                <div class="task-card" data-task-id="{{ task.id }}">
                     <div class="task-header">
                         <div class="task-number">Задание {{ loop.index }}</div>
                         <div class="task-status"></div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Проведение урока | {{ lesson.title }}</title>
+    <title>Проведение урока | Math Teaching System</title>
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/teacher_dashboard.css') }}" rel="stylesheet">
 </head>
@@ -15,14 +15,13 @@
                 <h1>Проведение урока: {{ lesson.title }}</h1>
             </div>
             <div class="header-right">
-                <span class="class-info">{{ lesson.grade }}{{ lesson.letter }} класс</span>
                 <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-secondary">← Назад</a>
             </div>
         </header>
 
         <main class="conduct-lesson-container">
             <div class="real-time-results">
-                <h2>Результаты класса</h2>
+                <h2>Результаты класса в реальном времени</h2>
                 <div class="results-table-container">
                     <table class="results-table">
                         <thead>
@@ -35,22 +34,7 @@
                             </tr>
                         </thead>
                         <tbody id="studentsResults">
-                            {% for student in students %}
-                            <tr data-student-id="{{ student.id }}">
-                                <td>{{ student.full_name }}</td>
-                                {% for task in tasks %}
-                                <td data-task-id="{{ task.id }}">
-                                    <span class="pending">—</span>
-                                </td>
-                                {% endfor %}
-                                <td>
-                                    <div class="progress-container">
-                                        <div class="progress-bar" style="width: 0%"></div>
-                                        <span>0%</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
+                            <!-- Данные будут загружаться через JavaScript -->
                         </tbody>
                     </table>
                 </div>

@@ -291,50 +291,8 @@ def conduct_lesson(lesson_id):
     if 'user_id' not in session or session['role'] != 'teacher':
         return redirect(url_for('login'))
     
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    try:
-        # Получаем информацию об уроке
-        cursor.execute('''
-            SELECT l.id, l.title, l.date, c.grade, c.letter 
-            FROM lessons l
-            JOIN classes c ON l.class_id = c.id
-            WHERE l.id = ? AND l.teacher_id = ?
-        ''', (lesson_id, session['user_id']))
-        
-        lesson = cursor.fetchone()
-        if not lesson:
-            return redirect(url_for('teacher_dashboard'))
-        
-        # Получаем список учеников класса
-        cursor.execute('''
-            SELECT u.id, u.full_name
-            FROM users u
-            JOIN classes c ON u.class_id = c.id
-            JOIN lessons l ON l.class_id = c.id
-            WHERE l.id = ? AND u.role = 'student'
-            ORDER BY u.full_name
-        ''', (lesson_id,))
-        students = cursor.fetchall()
-        
-        # Получаем задания урока
-        cursor.execute('''
-            SELECT id, question FROM lesson_tasks
-            WHERE lesson_id = ?
-            ORDER BY id
-        ''', (lesson_id,))
-        tasks = cursor.fetchall()
-        
-        return render_template('conduct_lesson.html',
-                            lesson=dict(lesson),
-                            students=students,
-                            tasks=tasks)
-    except Exception as e:
-        print(f"Error: {e}")
-        return "Произошла ошибка", 500
-    finally:
-        conn.close()
+    # Здесь будет логика для страницы проведения урока
+    return render_template('conduct_lesson.html', lesson_id=lesson_id)
 
 @app.route('/teacher/create_lesson', methods=['POST'])
 def create_lesson():
@@ -755,41 +713,51 @@ def get_lesson_results(lesson_id):
     cursor = conn.cursor()
     
     try:
-        # Получаем список учеников и их ответов
+        # Получаем список учеников класса
         cursor.execute('''
-            SELECT 
-                u.id as user_id, 
-                u.full_name,
-                t.id as task_id,
-                sa.answer,
-                sa.is_correct
+            SELECT u.id, u.full_name
             FROM users u
             JOIN lessons l ON u.class_id = l.class_id
-            JOIN lesson_tasks t ON t.lesson_id = l.id
-            LEFT JOIN student_answers sa ON sa.task_id = t.id AND sa.user_id = u.id
             WHERE l.id = ? AND u.role = 'student'
-            ORDER BY u.full_name, t.id
+            ORDER BY u.full_name
         ''', (lesson_id,))
+        students = cursor.fetchall()
         
-        # Формируем структуру результатов
-        results = {}
-        for row in cursor.fetchall():
-            user_id = row['user_id']
-            if user_id not in results:
-                results[user_id] = {
-                    'user_id': user_id,
-                    'full_name': row['full_name'],
-                    'tasks': []
-                }
+        # Получаем список заданий урока
+        cursor.execute('''
+            SELECT id FROM lesson_tasks
+            WHERE lesson_id = ?
+            ORDER BY id
+        ''', (lesson_id,))
+        tasks = cursor.fetchall()
+        
+        # Собираем результаты
+        results = []
+        for student in students:
+            student_result = {
+                'user_id': student['id'],
+                'full_name': student['full_name'],
+                'tasks': []
+            }
             
-            results[user_id]['tasks'].append({
-                'task_id': row['task_id'],
-                'answered': row['answer'] is not None,
-                'is_correct': row['is_correct'] if row['is_correct'] is not None else False
-            })
+            for task in tasks:
+                cursor.execute('''
+                    SELECT answer, is_correct
+                    FROM student_answers
+                    WHERE task_id = ? AND user_id = ?
+                ''', (task['id'], student['id']))
+                answer = cursor.fetchone()
+                
+                student_result['tasks'].append({
+                    'answered': answer is not None,
+                    'is_correct': answer['is_correct'] if answer else False
+                })
+            
+            results.append(student_result)
         
         return jsonify({
-            'results': list(results.values())
+            'results': results,
+            'total_tasks': len(tasks)
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -816,66 +784,7 @@ def get_student_answers(lesson_id, user_id):
     finally:
         conn.close()
 
-@app.route('/teacher/end_lesson/<int:lesson_id>', methods=['POST'])
-def end_lesson(lesson_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    # Здесь можно добавить логику завершения урока
-    # Например, пометить урок как завершенный в базе данных
-    
-    return jsonify({'success': True})
 
-
-@app.route('/teacher/get_student_progress/<int:lesson_id>/<int:student_id>')
-def get_student_progress(lesson_id, student_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    try:
-        # Получаем прогресс конкретного ученика
-        cursor.execute('''
-            SELECT 
-                t.id as task_id,
-                sa.answer,
-                sa.is_correct,
-                sa.answered_at
-            FROM lesson_tasks t
-            LEFT JOIN student_answers sa ON sa.task_id = t.id AND sa.user_id = ?
-            WHERE t.lesson_id = ?
-            ORDER BY t.id
-        ''', (student_id, lesson_id))
-        
-        tasks = []
-        correct_count = 0
-        
-        for task in cursor.fetchall():
-            if task['is_correct']:
-                correct_count += 1
-            tasks.append({
-                'task_id': task['task_id'],
-                'answered': task['answer'] is not None,
-                'is_correct': task['is_correct'],
-                'answered_at': task['answered_at']
-            })
-        
-        total_tasks = len(tasks)
-        progress = round((correct_count / total_tasks) * 100) if total_tasks > 0 else 0
-        
-        return jsonify({
-            'student_id': student_id,
-            'progress': progress,
-            'tasks': tasks
-        })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-    finally:
-        conn.close()
-
-        
 with app.app_context():
     init_db()
 
