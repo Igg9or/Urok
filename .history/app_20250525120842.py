@@ -963,28 +963,23 @@ def textbook_tasks(textbook_id):
     
     conn = get_db()
     try:
-        # Получаем учебник
         textbook = conn.execute('SELECT * FROM textbooks WHERE id = ?', (textbook_id,)).fetchone()
         if not textbook:
             flash('Учебник не найден', 'error')
             return redirect(url_for('manage_tasks'))
         
-        # Получаем шаблоны заданий с нумерацией
         templates = conn.execute('''
-            SELECT *, 
-                   ROW_NUMBER() OVER (ORDER BY id) as task_number 
-            FROM task_templates 
-            WHERE textbook_id = ? 
+            SELECT * FROM task_templates 
+            WHERE textbook_id = ?
             ORDER BY id
         ''', (textbook_id,)).fetchall()
         
-        return render_template('textbook_tasks.html', 
-                            full_name=session['full_name'],
+        return render_template('textbook_tasks.html',
                             textbook=dict(textbook),
                             templates=templates)
     except Exception as e:
-        print(f"Error loading textbook tasks: {e}")
-        flash('Произошла ошибка при загрузке заданий', 'error')
+        print(f"Error: {e}")
+        flash('Ошибка загрузки шаблонов', 'error')
         return redirect(url_for('manage_tasks'))
     finally:
         conn.close()
@@ -1071,7 +1066,7 @@ def delete_task_template(template_id):
         return jsonify({'success': False, 'error': str(e)})
     finally:
         conn.close()
-        
+
 
 @app.route('/teacher/add_textbook', methods=['POST'])
 def add_textbook():
@@ -1107,115 +1102,9 @@ def add_textbook():
     finally:
         conn.close()
 
-# Маршрут для сохранения шаблона
-@app.route('/api/templates', methods=['POST'])
-def save_template():
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
 
-    data = request.get_json()
-    required_fields = ['textbook_id', 'name', 'question', 'answer', 'parameters']
-    
-    if not all(field in data for field in required_fields):
-        return jsonify({'error': 'Missing required fields'}), 400
 
-    conn = get_db()
-    try:
-        # Проверяем, существует ли учебник
-        textbook = conn.execute(
-            'SELECT 1 FROM textbooks WHERE id = ?', 
-            (data['textbook_id'],)
-        ).fetchone()
-        
-        if not textbook:
-            return jsonify({'error': 'Textbook not found'}), 404
 
-        # Сохраняем шаблон
-        conn.execute('''
-            INSERT INTO task_templates 
-            (textbook_id, name, question_template, answer_template, parameters)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (
-            data['textbook_id'],
-            data['name'],
-            data['question'],
-            data['answer'],
-            json.dumps(data['parameters'])
-        ))
-        
-        conn.commit()
-        return jsonify({
-            'success': True,
-            'template_id': conn.execute('SELECT last_insert_rowid()').fetchone()[0]
-        })
-    except sqlite3.IntegrityError as e:
-        return jsonify({
-            'success': False,
-            'error': 'Template with this name already exists'
-        }), 400
-    except Exception as e:
-        conn.rollback()
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-    finally:
-        conn.close()
-
-# Маршрут для загрузки шаблонов
-@app.route('/api/textbooks/<int:textbook_id>/templates')
-def get_templates(textbook_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    conn = get_db()
-    try:
-        templates = conn.execute('''
-            SELECT id, name, question_template, answer_template, parameters
-            FROM task_templates
-            WHERE textbook_id = ?
-            ORDER BY name
-            LIMIT 1000  -- Ограничение для защиты от перегрузки
-        ''', (textbook_id,)).fetchall()
-        
-        return jsonify({
-            'success': True,
-            'templates': [dict(t) for t in templates]
-        })
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-    finally:
-        conn.close()
-
-# Маршрут для удаления шаблона
-@app.route('/api/templates/<int:template_id>', methods=['DELETE'])
-def delete_template(template_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    conn = get_db()
-    try:
-        result = conn.execute(
-            'DELETE FROM task_templates WHERE id = ?', 
-            (template_id,)
-        )
-        conn.commit()
-        
-        if result.rowcount == 0:
-            return jsonify({'success': False, 'error': 'Template not found'}), 404
-            
-        return jsonify({'success': True})
-    except Exception as e:
-        conn.rollback()
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-    finally:
-        conn.close()
         
 with app.app_context():
     init_db()

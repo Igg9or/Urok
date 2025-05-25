@@ -963,28 +963,23 @@ def textbook_tasks(textbook_id):
     
     conn = get_db()
     try:
-        # Получаем учебник
         textbook = conn.execute('SELECT * FROM textbooks WHERE id = ?', (textbook_id,)).fetchone()
         if not textbook:
             flash('Учебник не найден', 'error')
             return redirect(url_for('manage_tasks'))
         
-        # Получаем шаблоны заданий с нумерацией
         templates = conn.execute('''
-            SELECT *, 
-                   ROW_NUMBER() OVER (ORDER BY id) as task_number 
-            FROM task_templates 
-            WHERE textbook_id = ? 
+            SELECT * FROM task_templates 
+            WHERE textbook_id = ?
             ORDER BY id
         ''', (textbook_id,)).fetchall()
         
-        return render_template('textbook_tasks.html', 
-                            full_name=session['full_name'],
+        return render_template('textbook_tasks.html',
                             textbook=dict(textbook),
                             templates=templates)
     except Exception as e:
-        print(f"Error loading textbook tasks: {e}")
-        flash('Произошла ошибка при загрузке заданий', 'error')
+        print(f"Error: {e}")
+        flash('Ошибка загрузки шаблонов', 'error')
         return redirect(url_for('manage_tasks'))
     finally:
         conn.close()
@@ -1022,56 +1017,9 @@ def add_task_template():
     finally:
         conn.close()
 
-@app.route('/teacher/update_task_template/<int:template_id>', methods=['POST'])
-def update_task_template(template_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    data = request.get_json()
-    
-    conn = get_db()
-    try:
-        cursor = conn.cursor()
-        cursor.execute('''
-            UPDATE task_templates SET
-                name = ?,
-                question_template = ?,
-                answer_template = ?,
-                parameters = ?
-            WHERE id = ?
-        ''', (
-            data['name'],
-            data['question_template'],
-            data['answer_template'],
-            json.dumps(data['parameters']),
-            template_id
-        ))
-        
-        conn.commit()
-        return jsonify({'success': True})
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'success': False, 'error': str(e)})
-    finally:
-        conn.close()
 
-@app.route('/teacher/delete_task_template/<int:template_id>', methods=['DELETE'])
-def delete_task_template(template_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    conn = get_db()
-    try:
-        cursor = conn.cursor()
-        cursor.execute('DELETE FROM task_templates WHERE id = ?', (template_id,))
-        conn.commit()
-        return jsonify({'success': True})
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'success': False, 'error': str(e)})
-    finally:
-        conn.close()
-        
+
+
 
 @app.route('/teacher/add_textbook', methods=['POST'])
 def add_textbook():
@@ -1216,6 +1164,8 @@ def delete_template(template_id):
         }), 500
     finally:
         conn.close()
+
+
         
 with app.app_context():
     init_db()

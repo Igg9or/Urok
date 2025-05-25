@@ -87,45 +87,75 @@ def init_db():
             PRIMARY KEY (task_id, user_id))
     ''')
 
-    # Создаем таблицу учебников
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS textbooks (
+        CREATE TABLE IF NOT EXISTS math_templates (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            description TEXT,
-            grade INTEGER NOT NULL,
-            UNIQUE(title, grade))
-    ''')
-
-    # Создаем таблицу шаблонов заданий
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS task_templates (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            textbook_id INTEGER REFERENCES textbooks(id),
             name TEXT NOT NULL,
-            question_template TEXT NOT NULL,
-            answer_template TEXT NOT NULL,
-            parameters TEXT NOT NULL,  
-            UNIQUE(textbook_id, name))
-    ''')
+            template TEXT NOT NULL,
+            answer_formula TEXT NOT NULL,
+            parameters TEXT NOT NULL,  -- JSON с описанием параметров
+            difficulty INTEGER,        -- 1-5
+            topic TEXT,                -- 'алгебра', 'геометрия' и т.д.
+            grade_range TEXT           -- '5-6', '7-9', '10-11'
+        )
+        ''')
+    
+        # Примеры шаблонов
+    math_templates = [
+        {
+            'name': 'Линейное уравнение',
+            'template': 'Решите уравнение: {A}x + {B} = {C}',
+            'answer_formula': '({C}-{B})/{A}',
+            'parameters': json.dumps({
+                'A': {'min': 1, 'max': 10, 'type': 'int'},
+                'B': {'min': -20, 'max': 20, 'type': 'int'},
+                'C': {'min': -30, 'max': 30, 'type': 'int'}
+            }),
+            'difficulty': 1,
+            'topic': 'алгебра',
+            'grade_range': '5-7'
+        },
+        {
+            'name': 'Квадратное уравнение',
+            'template': 'Решите уравнение: {A}x² + {B}x + {C} = 0',
+            'answer_formula': '[(-{B}+sqrt({B}**2-4*{A}*{C}))/(2*{A}), (-{B}-sqrt({B}**2-4*{A}*{C}))/(2*{A})]',
+            'parameters': json.dumps({
+                'A': {'min': 1, 'max': 5, 'type': 'int'},
+                'B': {'min': -10, 'max': 10, 'type': 'int'},
+                'C': {'min': -15, 'max': 15, 'type': 'int'}
+            }),
+            'difficulty': 3,
+            'topic': 'алгебра',
+            'grade_range': '8-9'
+        },
+        {
+            'name': 'Тригонометрическое уравнение',
+            'template': 'Решите уравнение: sin({A}x) = {B}',
+            'answer_formula': '[math.asin({B})/{A} + 2*math.pi*{n}/{A}, math.pi - math.asin({B})/{A} + 2*math.pi*{n}/{A}]',
+            'parameters': json.dumps({
+                'A': {'min': 1, 'max': 3, 'type': 'int'},
+                'B': {'min': -0.9, 'max': 0.9, 'step': 0.1, 'type': 'float'},
+                'n': {'values': [0, 1, -1], 'type': 'choice'}
+            }),
+            'difficulty': 4,
+            'topic': 'тригонометрия',
+            'grade_range': '10-11'
+        }
+    ]
 
-    # В функции init_db(), после создания таблиц:
-    cursor.execute("SELECT COUNT(*) FROM textbooks")
-    if cursor.fetchone()[0] == 0:
-        # Добавляем тестовые учебники
-        textbooks = [
-            ('Макарычев', 'Алгебра для 5 класса', 5),
-            ('Мордкович', 'Алгебра для 7-9 классов', 7),
-            ('Атанасян', 'Геометрия 7-9 классы', 7)
-        ]
-        
-        for title, description, grade in textbooks:
-            cursor.execute(
-                "INSERT INTO textbooks (title, description, grade) VALUES (?, ?, ?)",
-                (title, description, grade)
-            )
-        
-        conn.commit()
+    for template in math_templates:
+        cursor.execute('''
+            INSERT OR IGNORE INTO math_templates (name, template, answer_formula, parameters, difficulty, topic, grade_range)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            template['name'],
+            template['template'],
+            template['answer_formula'],
+            template['parameters'],
+            template['difficulty'],
+            template['topic'],
+            template['grade_range']
+        ))
     # Добавляем тестовые данные
     try:
         cursor.execute("SELECT COUNT(*) FROM users")
@@ -174,27 +204,6 @@ def init_db():
                 "INSERT INTO subjects (name, description) VALUES (?, ?)",
                 ('Математика', 'Алгебра и геометрия 6 класс')
             )
-            
-            # Тестовый учебник
-            cursor.execute(
-                "INSERT INTO textbooks (title, description, grade) VALUES (?, ?, ?)",
-                ('Макарычев', 'Алгебра для 5 класса', 5)
-            )
-            
-            # Базовые шаблоны для учебника
-            templates = [
-                ('Сложение', '{A} + {B} = ?', '{A} + {B}', '{"A": {"min": 1, "max": 10}, "B": {"min": 1, "max": 10}}'),
-                ('Вычитание', '{A} - {B} = ?', '{A} - {B}', '{"A": {"min": 1, "max": 20}, "B": {"min": 1, "max": 10}}'),
-                ('Умножение', '{A} × {B} = ?', '{A} * {B}', '{"A": {"min": 1, "max": 10}, "B": {"min": 1, "max": 10}}'),
-                ('Деление', '{A} ÷ {B} = ?', '{A} / {B}', '{"A": {"min": 1, "max": 50}, "B": {"min": 1, "max": 10}}'),
-                ('Уравнение', 'Решите: {A}x + {B} = {C}', '({C} - {B}) / {A}', '{"A": {"min": 1, "max": 5}, "B": {"min": 1, "max": 20}, "C": {"min": 10, "max": 50}}')
-            ]
-            
-            for name, question, answer, params in templates:
-                cursor.execute(
-                    "INSERT INTO task_templates (textbook_id, name, question_template, answer_template, parameters) VALUES (1, ?, ?, ?, ?)",
-                    (name, question, answer, params)
-                )
             
             conn.commit()
     except Exception as e:
@@ -876,8 +885,6 @@ def get_student_answers(lesson_id, user_id):
     finally:
         conn.close()
 
-
-
 @app.route('/teacher/end_lesson/<int:lesson_id>', methods=['POST'])
 def end_lesson(lesson_id):
     if 'user_id' not in session or session['role'] != 'teacher':
@@ -938,285 +945,79 @@ def get_student_progress(lesson_id, student_id):
         conn.close()
 
 
-@app.route('/teacher/manage_tasks')
-def manage_tasks():
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return redirect(url_for('login'))
+@app.route('/get_math_templates')
+def get_math_templates():
+    topic = request.args.get('type')
+    grade = request.args.get('grade', '5-11')
     
     conn = get_db()
+    cursor = conn.cursor()
+    
     try:
-        textbooks = conn.execute('SELECT * FROM textbooks ORDER BY grade, title').fetchall()
-        return render_template('manage_tasks.html', 
-                            full_name=session['full_name'],
-                            textbooks=textbooks)
-    except Exception as e:
-        print(f"Error fetching textbooks: {e}")
-        return "Произошла ошибка при загрузке учебников", 500
-    finally:
-        conn.close()
-
-
-@app.route('/teacher/manage_tasks/<int:textbook_id>')
-def textbook_tasks(textbook_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return redirect(url_for('login'))
-    
-    conn = get_db()
-    try:
-        # Получаем учебник
-        textbook = conn.execute('SELECT * FROM textbooks WHERE id = ?', (textbook_id,)).fetchone()
-        if not textbook:
-            flash('Учебник не найден', 'error')
-            return redirect(url_for('manage_tasks'))
-        
-        # Получаем шаблоны заданий с нумерацией
-        templates = conn.execute('''
-            SELECT *, 
-                   ROW_NUMBER() OVER (ORDER BY id) as task_number 
-            FROM task_templates 
-            WHERE textbook_id = ? 
-            ORDER BY id
-        ''', (textbook_id,)).fetchall()
-        
-        return render_template('textbook_tasks.html', 
-                            full_name=session['full_name'],
-                            textbook=dict(textbook),
-                            templates=templates)
-    except Exception as e:
-        print(f"Error loading textbook tasks: {e}")
-        flash('Произошла ошибка при загрузке заданий', 'error')
-        return redirect(url_for('manage_tasks'))
-    finally:
-        conn.close()
-
-@app.route('/teacher/add_task_template', methods=['POST'])
-def add_task_template():
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    data = request.get_json()
-    
-    conn = get_db()
-    try:
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO task_templates 
-            (textbook_id, name, question_template, answer_template, parameters)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (
-            data['textbook_id'],
-            data['name'],
-            data['question_template'],
-            data['answer_template'],
-            json.dumps(data['parameters'])
-        ))
-        
-        conn.commit()
-        return jsonify({
-            'success': True,
-            'template_id': cursor.lastrowid
-        })
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'success': False, 'error': str(e)})
-    finally:
-        conn.close()
-
-@app.route('/teacher/update_task_template/<int:template_id>', methods=['POST'])
-def update_task_template(template_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    data = request.get_json()
-    
-    conn = get_db()
-    try:
-        cursor = conn.cursor()
-        cursor.execute('''
-            UPDATE task_templates SET
-                name = ?,
-                question_template = ?,
-                answer_template = ?,
-                parameters = ?
-            WHERE id = ?
-        ''', (
-            data['name'],
-            data['question_template'],
-            data['answer_template'],
-            json.dumps(data['parameters']),
-            template_id
-        ))
-        
-        conn.commit()
-        return jsonify({'success': True})
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'success': False, 'error': str(e)})
-    finally:
-        conn.close()
-
-@app.route('/teacher/delete_task_template/<int:template_id>', methods=['DELETE'])
-def delete_task_template(template_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    conn = get_db()
-    try:
-        cursor = conn.cursor()
-        cursor.execute('DELETE FROM task_templates WHERE id = ?', (template_id,))
-        conn.commit()
-        return jsonify({'success': True})
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'success': False, 'error': str(e)})
-    finally:
-        conn.close()
-        
-
-@app.route('/teacher/add_textbook', methods=['POST'])
-def add_textbook():
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    data = request.get_json()
-    title = data.get('title')
-    description = data.get('description')
-    grade = data.get('grade')
-    
-    if not title or not grade:
-        return jsonify({'success': False, 'error': 'Название и класс обязательны'})
-    
-    conn = get_db()
-    try:
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO textbooks (title, description, grade)
-            VALUES (?, ?, ?)
-        ''', (title, description, grade))
-        
-        conn.commit()
-        return jsonify({
-            'success': True,
-            'textbook_id': cursor.lastrowid
-        })
-    except sqlite3.IntegrityError:
-        return jsonify({'success': False, 'error': 'Учебник с таким названием и классом уже существует'})
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'success': False, 'error': str(e)})
-    finally:
-        conn.close()
-
-# Маршрут для сохранения шаблона
-@app.route('/api/templates', methods=['POST'])
-def save_template():
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    data = request.get_json()
-    required_fields = ['textbook_id', 'name', 'question', 'answer', 'parameters']
-    
-    if not all(field in data for field in required_fields):
-        return jsonify({'error': 'Missing required fields'}), 400
-
-    conn = get_db()
-    try:
-        # Проверяем, существует ли учебник
-        textbook = conn.execute(
-            'SELECT 1 FROM textbooks WHERE id = ?', 
-            (data['textbook_id'],)
-        ).fetchone()
-        
-        if not textbook:
-            return jsonify({'error': 'Textbook not found'}), 404
-
-        # Сохраняем шаблон
-        conn.execute('''
-            INSERT INTO task_templates 
-            (textbook_id, name, question_template, answer_template, parameters)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (
-            data['textbook_id'],
-            data['name'],
-            data['question'],
-            data['answer'],
-            json.dumps(data['parameters'])
-        ))
-        
-        conn.commit()
-        return jsonify({
-            'success': True,
-            'template_id': conn.execute('SELECT last_insert_rowid()').fetchone()[0]
-        })
-    except sqlite3.IntegrityError as e:
-        return jsonify({
-            'success': False,
-            'error': 'Template with this name already exists'
-        }), 400
-    except Exception as e:
-        conn.rollback()
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-    finally:
-        conn.close()
-
-# Маршрут для загрузки шаблонов
-@app.route('/api/textbooks/<int:textbook_id>/templates')
-def get_templates(textbook_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    conn = get_db()
-    try:
-        templates = conn.execute('''
-            SELECT id, name, question_template, answer_template, parameters
-            FROM task_templates
-            WHERE textbook_id = ?
-            ORDER BY name
-            LIMIT 1000  -- Ограничение для защиты от перегрузки
-        ''', (textbook_id,)).fetchall()
-        
-        return jsonify({
-            'success': True,
-            'templates': [dict(t) for t in templates]
-        })
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-    finally:
-        conn.close()
-
-# Маршрут для удаления шаблона
-@app.route('/api/templates/<int:template_id>', methods=['DELETE'])
-def delete_template(template_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    conn = get_db()
-    try:
-        result = conn.execute(
-            'DELETE FROM task_templates WHERE id = ?', 
-            (template_id,)
-        )
-        conn.commit()
-        
-        if result.rowcount == 0:
-            return jsonify({'success': False, 'error': 'Template not found'}), 404
+        if topic == 'custom':
+            return jsonify([])
             
-        return jsonify({'success': True})
+        cursor.execute('''
+            SELECT * FROM math_templates 
+            WHERE topic = ? AND grade_range = ?
+            ORDER BY difficulty
+        ''', (topic, grade))
+        
+        templates = []
+        for row in cursor.fetchall():
+            templates.append({
+                'id': row['id'],
+                'name': row['name'],
+                'template': row['template'],
+                'answer_formula': row['answer_formula'],
+                'parameters': row['parameters'],
+                'difficulty': row['difficulty']
+            })
+        
+        return jsonify(templates)
     except Exception as e:
-        conn.rollback()
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+        return jsonify({'error': str(e)}), 500
     finally:
         conn.close()
+
+@app.route('/generate_task_variant', methods=['POST'])
+def generate_task_variant():
+    data = request.get_json()
+    template = data.get('template')
+    params_config = json.loads(data.get('parameters', '{}'))
+    
+    try:
+        # Генерация случайных значений параметров
+        params = {}
+        for param, config in params_config.items():
+            if config['type'] == 'int':
+                params[param] = random.randint(config['min'], config['max'])
+            elif config['type'] == 'float':
+                steps = int((config['max'] - config['min']) / config['step'])
+                params[param] = config['min'] + random.randint(0, steps) * config['step']
+            elif config['type'] == 'choice':
+                params[param] = random.choice(config['values'])
         
+        # Подстановка параметров в шаблон
+        question = template
+        for param, value in params.items():
+            question = question.replace(f'{{{param}}}', str(value))
+        
+        # Вычисление ответа (безопасный eval)
+        answer_formula = data.get('answer_formula')
+        safe_dict = {'math': math, 'n': params.get('n', 0)}
+        safe_dict.update(params)
+        answer = str(eval(answer_formula, {"__builtins__": None}, safe_dict))
+        
+        return jsonify({
+            'question': question,
+            'answer': answer,
+            'params': params
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+    
 with app.app_context():
     init_db()
 

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ textbook.title }} - Управление заданиями</title>
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/math_editor.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Логотип" class="header-logo">
+                <h1>{{ textbook.title }} ({{ textbook.grade }} класс)</h1>
+                <p>{{ textbook.description }}</p>
+            </div>
+            <div class="header-right">
+                <a href="{{ url_for('manage_tasks') }}" class="btn btn-secondary">← Назад</a>
+            </div>
+        </header>
+
+        <main class="textbook-tasks-container">
+            <div class="existing-templates">
+                <h2>Шаблоны заданий</h2>
+                <div class="templates-list">
+                    {% for template in templates %}
+                    <div class="template-card">
+                        <div class="template-header">
+                            <h3>{{ template.name }}</h3>
+                            <button class="btn btn-small use-template" 
+                                    data-question="{{ template.question_template }}"
+                                    data-answer="{{ template.answer_template }}">
+                                Использовать
+                            </button>
+                        </div>
+                        <div class="template-content">
+                            <p><strong>Вопрос:</strong> {{ template.question_template }}</p>
+                            <p><strong>Формула ответа:</strong> {{ template.answer_template }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="new-template-form">
+                <h2>Создать новый шаблон</h2>
+                <div class="form-group">
+                    <label>Название шаблона:</label>
+                    <input type="text" id="templateName" class="form-control">
+                </div>
+                
+                <div class="math-editor">
+                    <div class="math-toolbar">
+                        <button class="btn-math" data-insert="{A}">Добавить A</button>
+                        <button class="btn-math" data-insert="{B}">Добавить B</button>
+                        <button class="btn-math" data-insert="{C}">Добавить C</button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Шаблон вопроса:</label>
+                        <textarea id="questionTemplate" class="math-editor-area"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Формула ответа:</label>
+                        <textarea id="answerTemplate" class="math-editor-area"></textarea>
+                        <p class="hint">Используйте те же параметры, что и в вопросе ({A}, {B} и т.д.)</p>
+                    </div>
+                    
+                    <div id="parametersContainer">
+                        <!-- Параметры будут добавляться динамически -->
+                    </div>
+                    
+                    <button id="addTemplateBtn" class="btn btn-primary">Добавить шаблон</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/textbook_tasks.js') }}"></script>
+</body>
+</html>
