@@ -138,22 +138,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function loadTemplates() {
-        try {
-            const response = await fetch(`/api/textbooks/${textbookId}/templates`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-            renderTemplates(data.templates);
-        } catch (error) {
-            console.error('Ошибка загрузки:', error);
-            // Добавьте отладочную информацию
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'error';
-            errorDiv.textContent = `Ошибка загрузки шаблонов: ${error.message}`;
-            elements.templatesList.appendChild(errorDiv);
+    try {
+        const response = await fetch(`/api/textbooks/${textbookId}/templates`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        const data = await response.json();
+        renderTemplates(data.templates);
+    } catch (error) {
+        console.error('Ошибка загрузки:', error);
+        // Добавьте отладочную информацию
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error';
+        errorDiv.textContent = `Ошибка загрузки шаблонов: ${error.message}`;
+        elements.templatesList.appendChild(errorDiv);
     }
+}
 
     function renderTemplates(templates) {
         elements.templatesList.innerHTML = templates.length 

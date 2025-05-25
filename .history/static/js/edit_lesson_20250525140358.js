@@ -94,7 +94,16 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const textbookId = textbookSelect.value;
         
-        
+        if (!textbookSelect || textbookSelect.options.length === 0) {
+        console.error('Не загружен список учебников');
+        return;
+    }
+    
+    const textbookId = textbookSelect.value;
+    if (!textbookId) {
+        console.error('Учебник не выбран');
+        return;
+    }
         try {
             const response = await fetch(`/api/textbooks/${textbookId}/templates`);
             const data = await response.json();

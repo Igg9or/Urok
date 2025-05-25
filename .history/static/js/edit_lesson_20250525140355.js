@@ -94,7 +94,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const textbookId = textbookSelect.value;
         
-        
         try {
             const response = await fetch(`/api/textbooks/${textbookId}/templates`);
             const data = await response.json();

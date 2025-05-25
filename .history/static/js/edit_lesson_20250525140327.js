@@ -91,9 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Загрузка шаблонов из учебника
     async function loadTemplates() {
-        
         const textbookId = textbookSelect.value;
-        
         
         try {
             const response = await fetch(`/api/textbooks/${textbookId}/templates`);

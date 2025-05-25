@@ -91,9 +91,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Загрузка шаблонов из учебника
     async function loadTemplates() {
-        
+        if (!textbookSelect || textbookSelect.options.length === 0) {
+        console.error('Не загружен список учебников');
+        return;
+    }
+    
+    const textbookId = textbookSelect.value;
+    if (!textbookId) {
+        console.error('Учебник не выбран');
+        return;
+    }
+    
         const textbookId = textbookSelect.value;
-        
         
         try {
             const response = await fetch(`/api/textbooks/${textbookId}/templates`);

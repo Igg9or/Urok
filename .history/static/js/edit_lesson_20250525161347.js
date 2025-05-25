@@ -1,8 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Основные элементы интерфейса
     const tasksContainer = document.getElementById('tasksContainer');
     const addTaskBtn = document.getElementById('addTaskBtn');
     const saveLessonBtn = document.getElementById('saveLessonBtn');
     const lessonId = window.location.pathname.split('/').pop();
+    
+    // Элементы для работы с шаблонами (могут быть null, если панели нет)
+    const textbookSelect = document.getElementById('textbookSelect');
+    const templateItems = document.getElementById('templateItems');
+    const templateSearch = document.getElementById('templateSearch');
 
     // ===== ОСНОВНЫЕ ФУНКЦИИ ДЛЯ РАБОТЫ С ЗАДАНИЯМИ =====
     function getRandomInt(min, max) {
@@ -71,96 +77,97 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ===== ФУНКЦИОНАЛ ШАБЛОНОВ ИЗ УЧЕБНИКОВ =====
-    const textbookSelect = document.getElementById('textbookSelect');
-    const templateItems = document.getElementById('templateItems');
-    const templateSearch = document.getElementById('templateSearch');
+    if (textbookSelect && templateItems) {
+        // Загрузка шаблонов при изменении учебника
+        textbookSelect.addEventListener('change', loadTemplates);
 
-    // Загрузка шаблонов при изменении учебника
-    textbookSelect.addEventListener('change', loadTemplates);
-
-    // Поиск шаблонов
-    templateSearch.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        const items = templateItems.querySelectorAll('.template-item');
-        
-        items.forEach(item => {
-            const text = item.textContent.toLowerCase();
-            item.style.display = text.includes(searchTerm) ? 'block' : 'none';
-        });
-    });
-
-    // Загрузка шаблонов из учебника
-    async function loadTemplates() {
-        
-        const textbookId = textbookSelect.value;
-        
-        
-        try {
-            const response = await fetch(`/api/textbooks/${textbookId}/templates`);
-            const data = await response.json();
-            
-            if (data.success) {
-                renderTemplates(data.templates);
-            } else {
-                throw new Error(data.error || 'Ошибка загрузки шаблонов');
-            }
-        } catch (error) {
-            console.error('Ошибка загрузки шаблонов:', error);
-            alert('Не удалось загрузить шаблоны');
+        // Поиск шаблонов
+        if (templateSearch) {
+            templateSearch.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const items = templateItems.querySelectorAll('.template-item');
+                
+                items.forEach(item => {
+                    const text = item.textContent.toLowerCase();
+                    item.style.display = text.includes(searchTerm) ? 'block' : 'none';
+                });
+            });
         }
-    }
 
-    // Отображение списка шаблонов
-    function renderTemplates(templates) {
-        templateItems.innerHTML = templates.length ? '' : '<p>Нет шаблонов для этого учебника</p>';
-        
-        templates.forEach(template => {
-            const item = document.createElement('div');
-            item.className = 'template-item';
-            item.innerHTML = `
-                <h4>${template.name}</h4>
-                <p>${template.question_template}</p>
-                <div class="template-actions">
-                    <button class="btn btn-small btn-add-template" data-id="${template.id}">Добавить</button>
-                    <button class="btn btn-small btn-preview-template">Пример</button>
-                </div>
-            `;
-            templateItems.appendChild(item);
-        });
+        // Загрузка шаблонов из учебника
+        async function loadTemplates() {
+            const textbookId = textbookSelect.value;
+            if (!textbookId) return;
+            
+            try {
+                const response = await fetch(`/api/textbooks/${textbookId}/templates`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    renderTemplates(data.templates);
+                } else {
+                    throw new Error(data.error || 'Ошибка загрузки шаблонов');
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки шаблонов:', error);
+                templateItems.innerHTML = '<p class="error">Не удалось загрузить шаблоны</p>';
+            }
+        }
 
-        // Обработчики для кнопок шаблонов
-        templateItems.querySelectorAll('.btn-add-template').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const templateId = this.dataset.id;
-                addTemplateToLesson(templateId);
+        // Отображение списка шаблонов
+        function renderTemplates(templates) {
+            templateItems.innerHTML = templates.length ? '' : '<p>Нет шаблонов для этого учебника</p>';
+            
+            templates.forEach(template => {
+                const item = document.createElement('div');
+                item.className = 'template-item';
+                item.innerHTML = `
+                    <h4>${template.name}</h4>
+                    <p>${template.question_template}</p>
+                    <div class="template-actions">
+                        <button class="btn btn-small btn-add-template" data-id="${template.id}">Добавить</button>
+                        <button class="btn btn-small btn-preview-template">Пример</button>
+                    </div>
+                `;
+                templateItems.appendChild(item);
             });
-        });
 
-        templateItems.querySelectorAll('.btn-preview-template').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const templateItem = this.closest('.template-item');
-                const question = templateItem.querySelector('p').textContent;
-                alert(`Пример задания:\n\n${question}`);
+            // Обработчики для кнопок шаблонов
+            templateItems.querySelectorAll('.btn-add-template').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const templateId = this.dataset.id;
+                    addTemplateToLesson(templateId);
+                });
             });
-        });
-    }
 
-    // Добавление шаблона в урок
-    async function addTemplateToLesson(templateId) {
+            templateItems.querySelectorAll('.btn-preview-template').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const templateItem = this.closest('.template-item');
+                    const question = templateItem.querySelector('p').textContent;
+                    alert(`Пример задания:\n\n${question}`);
+                });
+            });
+        }
+
+        // Добавление шаблона в урок
+        async function addTemplateToLesson(templateId) {
         try {
             const response = await fetch(`/api/templates/${templateId}`);
             const data = await response.json();
             
             if (data.success) {
-                const template = data.template;
-                createTaskFromTemplate(template);
+                createTaskFromTemplate(data.template);
             } else {
                 throw new Error(data.error || 'Ошибка загрузки шаблона');
             }
         } catch (error) {
             console.error('Ошибка добавления шаблона:', error);
-            alert('Не удалось добавить шаблон');
+            alert('Не удалось добавить шаблон: ' + error.message);
         }
+    }
+
+        // Первоначальная загрузка шаблонов
+        loadTemplates();
     }
 
     // Создание задания из шаблона
@@ -286,7 +293,4 @@ document.addEventListener('DOMContentLoaded', function() {
         taskCard.querySelector('.task-answer').addEventListener('input', () => updatePreview(taskCard));
         updatePreview(taskCard);
     });
-
-    // Первоначальная загрузка шаблонов
-    loadTemplates();
 });

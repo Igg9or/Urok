@@ -1162,7 +1162,6 @@ def save_template():
     finally:
         conn.close()
 
-@app.route('/api/templates/<int:template_id>')
 @app.route('/api/textbooks/<int:textbook_id>/templates')
 def get_templates(textbook_id):
     if 'user_id' not in session or session['role'] != 'teacher':
