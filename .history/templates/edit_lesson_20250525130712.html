@@ -21,26 +21,6 @@
         </header>
 
         <main class="edit-lesson-container">
-            <aside class="templates-sidebar">
-                <div class="sidebar-header">
-                    <h3>Шаблоны заданий</h3>
-                    <select id="textbookSelect" class="form-control">
-                        {% for textbook in textbooks %}
-                        <option value="{{ textbook.id }}">{{ textbook.title }} ({{ textbook.grade }} класс)</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                
-                <div class="templates-list">
-                    <div class="search-box">
-                        <input type="text" id="templateSearch" placeholder="Поиск шаблонов...">
-                    </div>
-                    
-                    <div class="template-items" id="templateItems">
-                        <!-- Шаблоны будут загружаться здесь -->
-                    </div>
-                </div>
-            </aside>
             
             <div class="lesson-meta">
                 <h3>Класс: {{ lesson.grade }}</h3>

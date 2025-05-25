@@ -6,7 +6,7 @@
     <title>Редактирование урока | Math Teaching System</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/edit_lesson.css') }}">
+    
 </head>
 <body>
     <div class="dashboard-container">
@@ -21,27 +21,6 @@
         </header>
 
         <main class="edit-lesson-container">
-            <aside class="templates-sidebar">
-                <div class="sidebar-header">
-                    <h3>Шаблоны заданий</h3>
-                    <select id="textbookSelect" class="form-control">
-                        {% for textbook in textbooks %}
-                        <option value="{{ textbook.id }}">{{ textbook.title }} ({{ textbook.grade }} класс)</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                
-                <div class="templates-list">
-                    <div class="search-box">
-                        <input type="text" id="templateSearch" placeholder="Поиск шаблонов...">
-                    </div>
-                    
-                    <div class="template-items" id="templateItems">
-                        <!-- Шаблоны будут загружаться здесь -->
-                    </div>
-                </div>
-            </aside>
-            
             <div class="lesson-meta">
                 <h3>Класс: {{ lesson.grade }}</h3>
                 <p>Дата проведения: {{ lesson.date }}</p>

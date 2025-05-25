@@ -342,13 +342,9 @@ def edit_lesson(lesson_id):
 
         
         
-        cursor.execute("SELECT * FROM textbooks ORDER BY grade, title")
-        textbooks = cursor.fetchall()
-    
         return render_template('edit_lesson.html',
-                        lesson=dict(lesson),
-                        tasks=[dict(task) for task in tasks],
-                        textbooks=textbooks)
+                            lesson=dict(lesson),
+                            tasks=[dict(task) for task in tasks])
     finally:
         conn.close()
 

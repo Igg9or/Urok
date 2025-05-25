@@ -340,17 +340,14 @@ def edit_lesson(lesson_id):
         ''', (lesson_id,))
         tasks = cursor.fetchall()
 
-        
-        
         cursor.execute("SELECT * FROM textbooks ORDER BY grade, title")
-        textbooks = cursor.fetchall()
+    textbooks = cursor.fetchall()
     
-        return render_template('edit_lesson.html',
+    return render_template('edit_lesson.html',
                         lesson=dict(lesson),
                         tasks=[dict(task) for task in tasks],
                         textbooks=textbooks)
-    finally:
-        conn.close()
+    
 
 @app.route('/teacher/conduct_lesson/<int:lesson_id>')
 def conduct_lesson(lesson_id):

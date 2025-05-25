@@ -1,0 +1,92 @@
+/* Боковая панель с шаблонами */
+.templates-sidebar {
+    width: 300px;
+    background: #f8f9fa;
+    border-right: 1px solid #ddd;
+    padding: 20px;
+    height: calc(100vh - 80px);
+    position: fixed;
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    margin-bottom: 15px;
+}
+
+.templates-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.search-box {
+    margin-bottom: 15px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.template-item {
+    background: white;
+    padding: 12px;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.template-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.template-item h4 {
+    margin: 0 0 5px 0;
+    color: var(--primary-color);
+}
+
+.template-item p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--light-text);
+}
+
+.template-item .template-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+/* Адаптация основного контента */
+.tasks-section {
+    margin-left: 320px;
+    width: calc(100% - 320px);
+}
+
+@media (max-width: 992px) {
+    .templates-sidebar {
+        width: 250px;
+    }
+    .tasks-section {
+        margin-left: 260px;
+        width: calc(100% - 260px);
+    }
+}
+
+@media (max-width: 768px) {
+    .templates-sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid #ddd;
+    }
+    .tasks-section {
+        margin-left: 0;
+        width: 100%;
+    }
+}
