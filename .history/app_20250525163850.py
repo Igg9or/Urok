@@ -1162,7 +1162,7 @@ def save_template():
     finally:
         conn.close()
 
-
+@app.route('/api/templates/<int:template_id>')
 @app.route('/api/textbooks/<int:textbook_id>/templates')
 def get_templates(textbook_id):
     if 'user_id' not in session or session['role'] != 'teacher':
@@ -1170,28 +1170,27 @@ def get_templates(textbook_id):
 
     conn = get_db()
     try:
-        templates = conn.execute('''
-            SELECT id, name, question_template, answer_template, parameters
+        template = conn.execute('''
+            SELECT id, textbook_id, name, question_template, answer_template, parameters
             FROM task_templates
-            WHERE textbook_id = ?
-            ORDER BY name
-        ''', (textbook_id,)).fetchall()
-        
+            WHERE id = ?
+        ''', (template_id,)).fetchone()
+
+        if not template:
+            return jsonify({'success': False, 'error': 'Template not found'}), 404
+
         return jsonify({
             'success': True,
-            'templates': [dict(t) for t in templates]
+            'template': dict(template)
         })
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+        return jsonify({'success': False, 'error': str(e)}), 500
     finally:
         conn.close()
 
 # Маршрут для удаления шаблона
 @app.route('/api/templates/<int:template_id>', methods=['DELETE'])
-def delete_templates(template_id):
+def delete_template(template_id):
     if 'user_id' not in session or session['role'] != 'teacher':
         return jsonify({'error': 'Unauthorized'}), 401
 
@@ -1213,31 +1212,6 @@ def delete_templates(template_id):
             'success': False,
             'error': str(e)
         }), 500
-    finally:
-        conn.close()
-
-@app.route('/api/templates/<int:template_id>')
-def get_template(template_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    conn = get_db()
-    try:
-        template = conn.execute('''
-            SELECT id, textbook_id, name, question_template, answer_template, parameters
-            FROM task_templates
-            WHERE id = ?
-        ''', (template_id,)).fetchone()
-
-        if not template:
-            return jsonify({'success': False, 'error': 'Template not found'}), 404
-
-        return jsonify({
-            'success': True,
-            'template': dict(template)
-        })
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
     finally:
         conn.close()
         
