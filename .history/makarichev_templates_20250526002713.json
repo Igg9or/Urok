@@ -1,0 +1,54 @@
+{
+  "textbook_id": 1,
+  "textbook_title": "Макарычев. Алгебра 5 класс",
+  "templates": [
+    {
+      "id": "makarichev_simple_division",
+      "name": "Простое деление",
+      "template": "{A} : {B}",
+      "constraints": {
+        "A": {"min": 10, "max": 100, "divisible_by": "B"},
+        "B": {"values": [2, 3, 4, 5, 10]}
+      },
+      "rules": ["B != 0"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "makarichev_subtract_divide",
+      "name": "Вычитание с делением",
+      "template": "{A} - {B} : {C}",
+      "constraints": {
+        "A": {"min": 50, "max": 200},
+        "B": {"min": 10, "max": 100, "divisible_by": "C"},
+        "C": {"values": [2, 5]}
+      },
+      "rules": ["A > (B / C)"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "makarichev_complex_expression",
+      "name": "Составное выражение",
+      "template": "({A} + {B}) × {C} - {D}",
+      "constraints": {
+        "A": {"min": 1, "max": 20},
+        "B": {"min": 1, "max": 20},
+        "C": {"values": [5, 10, 20]},
+        "D": {"min": 10, "max": 100}
+      },
+      "rules": ["(A + B) * C > D"],
+      "difficulty": "hard"
+    },
+    {
+      "id": "makarichev_equation",
+      "name": "Простое уравнение",
+      "template": "{A}x + {B} = {C}",
+      "constraints": {
+        "A": {"values": [2, 3, 4, 5]},
+        "B": {"min": 10, "max": 50},
+        "C": {"expression": "A * X + B", "X": {"min": 1, "max": 10}}
+      },
+      "rules": [],
+      "difficulty": "medium"
+    }
+  ]
+}

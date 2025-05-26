@@ -1,0 +1,41 @@
+{
+  "textbook_id": 1,
+  "textbook_title": "Макарычев. Алгебра 5 класс",
+  "templates": [
+    {
+      "id": "makarichev_simple_division",
+      "name": "Простое деление",
+      "template": "{A} : {B}",
+      "constraints": {
+        "A": {"min": 10, "max": 100, "divisible_by": "B"},
+        "B": {"values": [2, 3, 4, 5, 10]}
+      },
+      "rules": ["B != 0"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "makarichev_subtract_divide",
+      "name": "Вычитание с делением",
+      "template": "{A} - {B} : {C}",
+      "constraints": {
+        "C": {"values": [2, 5]},
+        "B": {"min": 10, "max": 50, "divisible_by": "C"},
+        "A": {"expression": "(B // C) + random.randint(10, 50)"}
+      },
+      "rules": [],
+      "difficulty": "medium"
+    },
+    {
+      "id": "makarichev_complex_expression",
+      "name": "Составное выражение",
+      "template": "({A} + {B}) × {C}",
+      "constraints": {
+        "A": {"min": 1, "max": 10},
+        "B": {"min": 1, "max": 10},
+        "C": {"values": [5, 10]}
+      },
+      "rules": [],
+      "difficulty": "hard"
+    }
+  ]
+}

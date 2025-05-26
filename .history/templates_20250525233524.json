@@ -1,0 +1,21 @@
+[
+ {
+  "textbook_id": 1,
+  "name": "Значение цифры",
+  "question_template": "Что означает цифра {digit} в числе {number}?",
+  "answer_template": "{meaning}",
+  "generation_rules": {
+    "digit": {"min": 1, "max": 9, "count": 1},
+    "number": {
+      "min": 10,
+      "max": 999999,
+      "must_contain_digit": true,
+      "digit_source": "digit"
+    }
+  },
+  "answer_logic": {
+    "meaning": "digit_position_in_number(digit, number)"
+  },
+  "type": "auto_generated_digit_meaning"
+}
+]

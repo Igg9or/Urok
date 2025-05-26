@@ -1,0 +1,23 @@
+[
+  {
+    "textbook_id": 1,
+    "name": "Значение цифры в числе",
+    "question_template": "Что означает цифра {digit} в числе {number}?",
+    "answer_template": "{digit} * 10 ** {position}",
+    "parameters": {
+      "digit": [5, 0],
+      "position": [0, 1, 2, 3, 4]
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "Собери число из разрядов",
+    "question_template": "Напишите число, в котором: {H} сотен, {T} десятков, {U} единиц.",
+    "answer_template": "{H} * 100 + {T} * 10 + {U}",
+    "parameters": {
+      "H": {"min": 0, "max": 9},
+      "T": {"min": 0, "max": 9},
+      "U": {"min": 0, "max": 9}
+    }
+  }
+]

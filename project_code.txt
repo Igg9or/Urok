@@ -1166,7 +1166,7 @@ def save_template():
     finally:
         conn.close()
 
-@app.route('/api/templates/<int:template_id>')
+
 @app.route('/api/textbooks/<int:textbook_id>/templates')
 def get_templates(textbook_id):
     if 'user_id' not in session or session['role'] != 'teacher':
@@ -1195,7 +1195,7 @@ def get_templates(textbook_id):
 
 # Маршрут для удаления шаблона
 @app.route('/api/templates/<int:template_id>', methods=['DELETE'])
-def delete_template(template_id):
+def delete_templates(template_id):
     if 'user_id' not in session or session['role'] != 'teacher':
         return jsonify({'error': 'Unauthorized'}), 401
 
@@ -1219,12 +1219,123 @@ def delete_template(template_id):
         }), 500
     finally:
         conn.close()
+
+@app.route('/api/templates/<int:template_id>')
+def get_template(template_id):
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = get_db()
+    try:
+        template = conn.execute('''
+            SELECT id, textbook_id, name, question_template, answer_template, parameters
+            FROM task_templates
+            WHERE id = ?
+        ''', (template_id,)).fetchone()
+
+        if not template:
+            return jsonify({'success': False, 'error': 'Template not found'}), 404
+
+        return jsonify({
+            'success': True,
+            'template': dict(template)
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
         
 with app.app_context():
     init_db()
 
 if __name__ == '__main__':
     app.run(debug=True)
+================================================================================
+ФАЙЛ: import_templates.py
+================================================================================
+import sqlite3
+import json
+from pathlib import Path
+
+DB_PATH = 'database.db'
+JSON_FILE = 'templates.json'
+
+def validate_template(template):
+    """Проверяет шаблон на корректность перед импортом"""
+    required_fields = ['textbook_id', 'name', 'question_template', 'answer_template', 'parameters']
+    for field in required_fields:
+        if field not in template:
+            raise ValueError(f"Шаблон должен содержать поле '{field}'")
+    
+    # Проверка параметров
+    for param, config in template['parameters'].items():
+        if not isinstance(config, dict):
+            raise ValueError(f"Параметр {param} должен быть словарем с настройками")
+        
+        if 'min' in config and 'max' in config and config['min'] > config['max']:
+            raise ValueError(f"Для параметра {param} min не может быть больше max")
+
+def import_templates():
+    """Импортирует шаблоны из JSON в базу данных"""
+    if not Path(JSON_FILE).exists():
+        print(f"❌ Файл {JSON_FILE} не найден")
+        return
+    
+    with open(JSON_FILE, encoding='utf-8') as f:
+        templates = json.load(f)
+    
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    # Проверяем существование учебника
+    textbook_ids = {t['textbook_id'] for t in templates}
+    for textbook_id in textbook_ids:
+        cursor.execute("SELECT 1 FROM textbooks WHERE id = ?", (textbook_id,))
+        if not cursor.fetchone():
+            print(f"❌ Учебник с ID {textbook_id} не существует")
+            conn.close()
+            return
+    
+    # Импортируем шаблоны
+    imported_count = 0
+    for tpl in templates:
+        try:
+            validate_template(tpl)
+            
+            # Проверяем, существует ли уже такой шаблон
+            cursor.execute('''
+                SELECT 1 FROM task_templates 
+                WHERE textbook_id = ? AND name = ?
+            ''', (tpl['textbook_id'], tpl['name']))
+            
+            if cursor.fetchone():
+                print(f"⚠ Шаблон '{tpl['name']}' уже существует, пропускаем")
+                continue
+                
+            cursor.execute('''
+                INSERT INTO task_templates 
+                (textbook_id, name, question_template, answer_template, parameters)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (
+                tpl['textbook_id'],
+                tpl['name'],
+                tpl['question_template'],
+                tpl['answer_template'],
+                json.dumps(tpl['parameters'])
+            ))
+            imported_count += 1
+            print(f"✅ Добавлен шаблон: '{tpl['name']}'")
+            
+        except Exception as e:
+            print(f"❌ Ошибка при добавлении шаблона '{tpl.get('name', '')}': {str(e)}")
+            conn.rollback()
+    
+    conn.commit()
+    conn.close()
+    print(f"\n🎉 Импортировано {imported_count} шаблонов из {len(templates)}")
+
+if __name__ == "__main__":
+    import_templates()
 ================================================================================
 ФАЙЛ: static\css\edit_lesson.css
 ================================================================================
@@ -1714,575 +1825,7 @@ body {
     display: none;
 }
 
-/* Модальное окно */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.modal-content {
-    background: white;
-    padding: 25px;
-    border-radius: 8px;
-    width: 80%;
-    max-width: 700px;
-    max-height: 90vh;
-    overflow-y: auto;
-}
-
-.close {
-    float: right;
-    font-size: 24px;
-    cursor: pointer;
-}
-
-.task-template textarea {
-    width: 100%;
-    min-height: 100px;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-.parameters {
-    margin: 15px 0;
-}
-
-.param-control {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-    align-items: center;
-}
-
-.param-control input {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-.btn-small {
-    padding: 5px 10px;
-    font-size: 14px;
-}
-/* Стили для модального окна */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.modal.hidden {
-    display: none;
-}
-
-.modal:not(.hidden) {
-    display: flex;
-}
-
-.modal-content {
-    background: white;
-    padding: 25px;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 600px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-/* Стили для параметров */
-.param-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-
-.param-row input {
-    width: 80px;
-    padding: 6px;
-}
-
-.btn-remove-param {
-    background: #ff4757;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-}
-
-/* Стили для списка уроков */
-.lessons-list {
-    margin-top: 30px;
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: var(--shadow);
-}
-
-.lessons-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-    margin-top: 15px;
-}
-
-.lesson-card {
-    display: flex;
-    flex-direction: column;
-    background: var(--secondary-color);
-    padding: 15px;
-    border-radius: 8px;
-    transition: transform 0.3s;
-}
-
-.lesson-card:hover {
-    transform: translateY(-3px);
-}
-
-.lesson-icon {
-    width: 40px;
-    height: 40px;
-    background: var(--primary-color);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 10px;
-}
-
-.lesson-icon svg {
-    width: 20px;
-    height: 20px;
-    color: white;
-}
-
-.lesson-info h4 {
-    margin-bottom: 5px;
-}
-
-.lesson-info p {
-    color: var(--light-text);
-    font-size: 14px;
-}
-
-.lesson-actions {
-    margin-top: 15px;
-    display: flex;
-    gap: 10px;
-}
-
-.btn-small {
-    padding: 6px 12px;
-    font-size: 14px;
-}
-
-.edit-lesson-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.lesson-meta {
-    background: var(--secondary-color);
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-.tasks-section {
-    margin-top: 30px;
-}
-
-.task-card {
-    background: white;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: var(--shadow);
-    margin-bottom: 15px;
-}
-
-.task-question, .task-answer {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    min-height: 60px;
-}
-
-.btn-remove-task {
-    background: var(--error-color);
-    color: white;
-}
-
-.save-actions {
-    margin-top: 30px;
-    text-align: center;
-}
-
-.btn-save {
-    background: var(--success-color);
-    padding: 12px 30px;
-}
-/* Стили для редактирования урока */
-.edit-lesson-container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 30px;
-}
-
-.task-creation-guide {
-    background: var(--secondary-color);
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-.task-creation-guide h4 {
-    margin-bottom: 10px;
-    color: var(--primary-color);
-}
-
-.task-card {
-    background: var(--white);
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: var(--shadow);
-    margin-bottom: 20px;
-}
-
-.task-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.task-header h3 {
-    margin: 0;
-    color: var(--primary-color);
-}
-
-.task-question, .task-answer {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    margin-bottom: 15px;
-    font-size: 16px;
-    min-height: 80px;
-    resize: vertical;
-}
-
-.task-question:focus, .task-answer:focus {
-    border-color: var(--primary-color);
-    outline: none;
-}
-
-.task-preview {
-    background: #f9f9f9;
-    padding: 15px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-}
-
-.task-preview h4 {
-    margin-top: 0;
-    color: var(--light-text);
-    font-size: 14px;
-}
-
-.example {
-    background: white;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-}
-
-.example p {
-    margin: 5px 0;
-}
-
-.params {
-    font-size: 12px;
-    color: var(--light-text);
-}
-
-.answer-section {
-    margin-top: 15px;
-}
-
-.answer-section label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-}
-
-.hint {
-    font-size: 13px;
-    color: var(--light-text);
-    margin-top: 5px;
-}
-.task-number {
-    color: var(--primary-color);
-    font-weight: bold;
-}
-
-/* Стили для списка уроков ученика */
-.lessons-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.lesson-card {
-    background: var(--white);
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: var(--shadow);
-    transition: transform 0.3s;
-}
-
-.lesson-card:hover {
-    transform: translateY(-5px);
-}
-
-.lesson-icon {
-    width: 50px;
-    height: 50px;
-    background: var(--primary-color);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 15px;
-}
-
-.lesson-icon svg {
-    width: 24px;
-    height: 24px;
-    color: white;
-}
-
-.lesson-info h3 {
-    margin-bottom: 10px;
-    color: var(--primary-color);
-}
-
-.lesson-info p {
-    color: var(--light-text);
-    margin-bottom: 5px;
-    font-size: 14px;
-}
-
-.lesson-actions {
-    margin-top: 15px;
-}
-/* Стили для заданий ученика */
-.task-card {
-    background: var(--white);
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 20px;
-    box-shadow: var(--shadow);
-}
-
-.task-question {
-    margin-bottom: 15px;
-    font-size: 16px;
-}
-
-.task-question p {
-    margin: 0;
-}
-
-.task-answer {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.answer-input {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    flex-grow: 1;
-}
-
-.result {
-    margin-top: 10px;
-    padding: 8px;
-    border-radius: 4px;
-}
-
-.hidden {
-    display: none;
-}
-/* Основные стили урока */
-.lesson-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: 'Roboto', sans-serif;
-}
-
-.lesson-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #eee;
-}
-
-.lesson-header h1 {
-    color: var(--primary-color);
-    margin: 0;
-}
-
-.lesson-meta {
-    font-size: 14px;
-    color: var(--light-text);
-    margin-top: 5px;
-}
-
-.lesson-meta span {
-    margin-right: 15px;
-}
-
-/* Стили заданий */
-.task-card {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-.task-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-.task-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    background: var(--secondary-color);
-}
-
-.task-number {
-    font-weight: 500;
-    color: var(--primary-color);
-}
-
-.task-status {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: 2px solid #ddd;
-}
-
-.task-body {
-    padding: 20px;
-}
-
-.task-question {
-    font-size: 16px;
-    line-height: 1.6;
-    margin-bottom: 20px;
-}
-
-.task-answer {
-    display: flex;
-    gap: 10px;
-}
-
-.answer-input {
-    flex: 1;
-    padding: 10px 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-}
-
-/* Стили обратной связи */
-.task-feedback {
-    margin-top: 15px;
-    padding: 15px;
-    border-radius: 5px;
-}
-
-.feedback-correct {
-    color: var(--success-color);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.feedback-incorrect {
-    color: var(--error-color);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.icon {
-    font-size: 20px;
-    font-weight: bold;
-}
-
-.btn-hint {
-    margin-left: 15px;
-    background: none;
-    border: none;
-    color: var(--primary-color);
-    cursor: pointer;
-    text-decoration: underline;
-}
-
-.task-hint {
-    margin-top: 15px;
-    padding: 15px;
-    background: #f9f9f9;
-    border-radius: 5px;
-    border-left: 3px solid var(--primary-color);
-}
-
-/* Прогресс */
-.lesson-progress {
-    margin-top: 30px;
-    padding: 20px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.progress-bar {
-    height: 10px;
-    background: #f0f0f0;
+/
     border-radius: 5px;
     margin: 10px 0;
     overflow: hidden;
@@ -2708,172 +2251,68 @@ body {
     gap: 10px;
     margin-top: 15px;
 }
+
 ================================================================================
-ФАЙЛ: static\css\teacher_dashboard.css
+ФАЙЛ: static\js\bulk_actions.js
 ================================================================================
-/* Стили для проведения урока */
-.conduct-lesson-container {
-    padding: 20px;
-}
-
-.real-time-results {
-    background: white;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: var(--shadow);
-    margin-bottom: 20px;
-}
-
-.results-table-container {
-    overflow-x: auto;
-}
-
-.results-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-}
-
-.results-table th, .results-table td {
-    padding: 12px 15px;
-    text-align: center;
-    border-bottom: 1px solid #eee;
-}
-
-.results-table th {
-    background: var(--secondary-color);
-    color: var(--primary-color);
-    font-weight: 500;
-}
-
-.correct {
-    color: var(--success-color);
-    font-weight: bold;
-}
-
-.incorrect {
-    color: var(--error-color);
-    font-weight: bold;
-}
-
-.pending {
-    color: var(--light-text);
-}
-
-.progress-container {
-    position: relative;
-    height: 20px;
-    background: #f0f0f0;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.progress-container .progress-bar {
-    height: 100%;
-    background: var(--primary-color);
-    transition: width 0.3s ease;
-}
-
-.progress-container span {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 12px;
-    color: white;
-    z-index: 1;
-}
-
-.lesson-controls {
-    display: flex;
-    justify-content: flex-end;
-    gap: 15px;
-    margin-top: 20px;
-}
-.conduct-lesson-container {
-    padding: 20px;
-}
-
-.class-info {
-    margin-right: 20px;
-    font-weight: 500;
-    color: var(--primary-color);
-}
-
-.real-time-results {
-    background: white;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: var(--shadow);
-    margin-bottom: 20px;
-}
-
-.results-table-container {
-    overflow-x: auto;
-}
-
-.results-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-}
-
-.results-table th, .results-table td {
-    padding: 12px 15px;
-    text-align: center;
-    border-bottom: 1px solid #eee;
-}
-
-.results-table th {
-    background: var(--secondary-color);
-    color: var(--primary-color);
-    font-weight: 500;
-}
-
-.task-result .correct {
-    color: var(--success-color);
-    font-weight: bold;
-}
-
-.task-result .incorrect {
-    color: var(--error-color);
-    font-weight: bold;
-}
-
-.task-result .pending {
-    color: var(--light-text);
-}
-
-.progress-container {
-    position: relative;
-    height: 20px;
-    background: #f0f0f0;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.progress-container .progress-bar {
-    height: 100%;
-    background: var(--primary-color);
-    transition: width 0.3s ease;
-}
-
-.progress-container span {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 12px;
-    color: white;
-    z-index: 1;
-}
-
-.lesson-controls {
-    display: flex;
-    justify-content: flex-end;
-    gap: 15px;
-    margin-top: 20px;
-}
+document.addEventListener('DOMContentLoaded', function() {
+    const textbookId = document.querySelector('.textbook-tasks-container').dataset.textbookId;
+    const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+    const selectAllBtn = document.getElementById('selectAllBtn');
+    const checkboxes = document.querySelectorAll('.template-checkbox');
+    
+    // Обработчик выбора шаблонов
+    function updateDeleteButton() {
+        const selected = document.querySelectorAll('.template-checkbox:checked');
+        deleteSelectedBtn.disabled = selected.length === 0;
+        deleteSelectedBtn.textContent = selected.length > 0 ? 
+            `Удалить выбранные (${selected.length})` : 'Удалить выбранные';
+    }
+    
+    // Выбрать все/снять выделение
+    selectAllBtn.addEventListener('click', function() {
+        const allChecked = document.querySelectorAll('.template-checkbox:checked').length === checkboxes.length;
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = !allChecked;
+        });
+        updateDeleteButton();
+    });
+    
+    // Обработчики для чекбоксов
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateDeleteButton);
+    });
+    
+    // Массовое удаление
+    deleteSelectedBtn.addEventListener('click', function() {
+        const selectedIds = Array.from(document.querySelectorAll('.template-checkbox:checked'))
+            .map(checkbox => parseInt(checkbox.dataset.id));
+        
+        if (!selectedIds.length) return;
+        
+        if (confirm(`Вы уверены, что хотите удалить ${selectedIds.length} шаблонов?`)) {
+            fetch('/teacher/bulk_delete_templates', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    textbook_id: textbookId,
+                    template_ids: selectedIds
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Удалено ${data.deleted_count} шаблонов`);
+                    window.location.reload();
+                } else {
+                    alert('Ошибка удаления: ' + (data.error || ''));
+                }
+            });
+        }
+    });
+});
 ================================================================================
 ФАЙЛ: static\js\conduct_lesson.js
 ================================================================================

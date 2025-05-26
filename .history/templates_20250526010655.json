@@ -1,0 +1,48 @@
+[
+    {
+        "textbook_id": 1,
+        "name": "Вычитание с делением",
+        "question_template": "{A} - {B} : {C}",
+        "answer_template": "{A} - {B} / {C}",
+        "parameters": {
+            "A": {"min": 1000, "max": 2000},
+            "B": {"min": 100, "max": 200},
+            "C": {"min": 2, "max": 10}
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "Выражение в скобках с делением",
+        "question_template": "({A} - {B} + {C}) : ({D} - {E})",
+        "answer_template": "({A} - {B} + {C}) / ({D} - {E})",
+        "parameters": {
+            "A": {"min": 400, "max": 600},
+            "B": {"min": 50, "max": 150},
+            "C": {"min": 100, "max": 300},
+            "D": {"min": 300, "max": 350},
+            "E": {"min": 299, "max": 349}
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "Умножение с нулевым результатом",
+        "question_template": "({A} - {B}) × ({C} - {C})",
+        "answer_template": "({A} - {B}) * ({C} - {C})",
+        "parameters": {
+            "A": {"min": 5000, "max": 6000},
+            "B": {"min": 1, "max": 10},
+            "C": {"min": 100, "max": 500}
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "Последовательные операции",
+        "question_template": "{A} × {B} : {C}",
+        "answer_template": "{A} * {B} / {C}",
+        "parameters": {
+            "A": {"min": 10, "max": 30},
+            "B": {"min": 5, "max": 15},
+            "C": {"min": 2, "max": 10}
+        }
+    }
+]

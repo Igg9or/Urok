@@ -1,0 +1,72 @@
+[
+  {
+    "textbook_id": 1,
+    "name": "Вычисление с делением",
+    "question_template": "Вычислите: 1260 - 120 : {A}",
+    "answer_template": "1260 - 120 / {A}",
+    "parameters": {
+      "A": {
+        "min": 1,
+        "max": 10,
+        "exclude": [0],
+        "description": "Делитель (от 1 до 10)"
+      }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "Вычисление с делением в скобках",
+    "question_template": "Вычислите: (500 - 100 + 200) : ({A} - {B})",
+    "answer_template": "(500 - 100 + 200) / ({A} - {B})",
+    "parameters": {
+      "A": {
+        "min": 300,
+        "max": 310,
+        "description": "Первое число в знаменателе"
+      },
+      "B": {
+        "min": 290,
+        "max": 299,
+        "must_equal": "A-300",
+        "description": "Второе число в знаменателе (A - 300)"
+      }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "Деление с проверкой на ноль",
+    "question_template": "Вычислите: (5003 - 7) : ({A} - {B})",
+    "answer_template": "({A} - {B}) != 0 ? (5003 - 7) / ({A} - {B}) : 'Деление на ноль невозможно'",
+    "parameters": {
+      "A": {
+        "min": 300,
+        "max": 310,
+        "description": "Первое число в знаменателе"
+      },
+      "B": {
+        "min": 300,
+        "max": 310,
+        "must_not_equal": "A",
+        "description": "Второе число в знаменателе (не равно A)"
+      }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "Простое умножение и деление",
+    "question_template": "Вычислите: 20 ⋅ {A} : {B}",
+    "answer_template": "20 * {A} / {B}",
+    "parameters": {
+      "A": {
+        "min": 5,
+        "max": 15,
+        "description": "Множитель"
+      },
+      "B": {
+        "min": 2,
+        "max": 5,
+        "description": "Делитель"
+      }
+    }
+  }
+]

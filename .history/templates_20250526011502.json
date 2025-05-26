@@ -1,0 +1,71 @@
+[
+    {
+        "textbook_id": 1,
+        "name": "Вычитание с делением (простой вариант)",
+        "question_template": "{A} - {B} : {C}",
+        "answer_template": "{A} - {B} / {C}",
+        "parameters": {
+            "A": {"min": 1000, "max": 2000},
+            "B": {"min": 100, "max": 200, "divisible_by": 2},
+            "C": {"min": 2, "max": 10},
+            "D": {"min": 100, "max": 200, "divisible_by": "C"}  // Гарантируем целочисленное деление
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "Выражение в скобках с делением (простой вариант)",
+        "question_template": "({A} - {B} + {C}) : ({D} - {E})",
+        "answer_template": "({A} - {B} + {C}) / ({D} - {E})",
+        "parameters": {
+            "A": {"min": 400, "max": 600},
+            "B": {"min": 50, "max": 150},
+            "C": {"min": 100, "max": 300},
+            "D": {"min": 301, "max": 350},
+            "E": {"min": 300, "max": 349, "less_than": "D"},
+            "F": {"min": 1, "max": 50, "divisible": ["(A-B+C)", "(D-E)"]}  
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "Умножение с нулевым результатом",
+        "question_template": "({A} - {B}) × ({C} - {C})",
+        "answer_template": "({A} - {B}) * ({C} - {C})",
+        "parameters": {
+            "A": {"min": 5000, "max": 6000},
+            "B": {"min": 1, "max": 10, "less_than": "A"},  
+            "C": {"min": 100, "max": 500}
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "Последовательные операции умножения и деления",
+        "question_template": "{A} × {B} : {C}",
+        "answer_template": "{A} * {B} / {C}",
+        "parameters": {
+            "A": {"min": 10, "max": 30},
+            "B": {"min": 5, "max": 15},
+            "C": {"min": 2, "max": 10, "divisor_of": "A*B"}  
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "Комбинированные операции (сложение и умножение)",
+        "question_template": "{A} + {B} × {C}",
+        "answer_template": "{A} + {B} * {C}",
+        "parameters": {
+            "A": {"min": 10, "max": 50},
+            "B": {"min": 2, "max": 5},
+            "C": {"min": 3, "max": 10}
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "Деление с остатком (целочисленное)",
+        "question_template": "{A} : {B}",
+        "answer_template": "{A} // {B}",
+        "parameters": {
+            "A": {"min": 20, "max": 100, "divisible_by": "B"},
+            "B": {"min": 2, "max": 10}
+        }
+    }
+]

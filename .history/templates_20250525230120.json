@@ -1,0 +1,24 @@
+[
+  
+  {
+  "textbook_id": 1,
+  "name": "Число из слов",
+  "question_template": "Запишите цифрами: {text_form}",
+  "answer_template": "{number}",
+  "parameters": [
+    {
+      "text_form": "восемьсот девять",
+      "number": 809
+    },
+    {
+      "text_form": "пять тысяч двести одиннадцать",
+      "number": 5211
+    },
+    {
+      "text_form": "двадцать два миллиона три тысячи восемь",
+      "number": 22003008
+    }
+  ],
+  "type": "from_text_to_number"
+}
+]
