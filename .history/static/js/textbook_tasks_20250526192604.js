@@ -82,25 +82,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Обработчик для добавления условий
-        document.querySelectorAll('.add-constraint').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const constraintsContainer = this.closest('.param-group').querySelector('.param-constraints');
-                const constraintDiv = document.createElement('div');
-                constraintDiv.className = 'constraint';
-                constraintDiv.innerHTML = `
-                    <select class="constraint-type">
-                        <option value="multiple_of">Кратно</option>
-                        <option value="greater_than">Больше чем</option>
-                        <option value="less_than">Меньше чем</option>
-                        <option value="equals">Равно</option>
-                    </select>
-                    <input type="text" class="constraint-value" placeholder="Значение или параметр">
-                    <button class="btn-icon remove-constraint">×</button>
-                `;
-                constraintsContainer.insertBefore(constraintDiv, this);
-            });
+    document.querySelectorAll('.add-constraint').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const constraintsContainer = this.closest('.param-group').querySelector('.param-constraints');
+            const constraintDiv = document.createElement('div');
+            constraintDiv.className = 'constraint';
+            constraintDiv.innerHTML = `
+                <select class="constraint-type">
+                    <option value="multiple_of">Кратно</option>
+                    <option value="greater_than">Больше чем</option>
+                    <option value="less_than">Меньше чем</option>
+                    <option value="equals">Равно</option>
+                </select>
+                <input type="text" class="constraint-value" placeholder="Значение или параметр">
+                <button class="btn-icon remove-constraint">×</button>
+            `;
+            constraintsContainer.insertBefore(constraintDiv, this);
         });
-        }
+    });
+    }
 
     async function saveTemplate() {
         const name = elements.templateName.value.trim();

@@ -10,49 +10,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function generateExample(question, answer) {
-        const paramsEl = document.querySelector('.template-params');
-        const params = paramsEl ? JSON.parse(paramsEl.dataset.params) : {};
+        const paramRegex = /\{([A-Z])\}/g;
+        const params = {};
+        let match;
         
-        // Генерация значений с учетом ограничений
-        const values = {};
-        for (const param in params) {
-            let valid = false;
-            let value;
-            const config = params[param];
-            
-            // Пытаемся сгенерировать значение, удовлетворяющее всем условиям
-            for (let i = 0; i < 100 && !valid; i++) {
-                value = config.type === 'float' ? 
-                    getRandomFloat(config.min, config.max) :
-                    getRandomInt(config.min, config.max);
-                
-                valid = true;
-                
-                // Проверяем ограничения
-                if (config.constraints) {
-                    for (const constraint of config.constraints) {
-                        if (constraint.type === 'multiple_of' && value % constraint.value !== 0) {
-                            valid = false;
-                        } else if (constraint.type === 'greater_than') {
-                            const compareTo = constraint.param ? values[constraint.param] : constraint.value;
-                            if (value <= compareTo) valid = false;
-                        }
-                        // другие проверки
-                    }
-                }
+        while ((match = paramRegex.exec(question)) !== null) {
+            if (!params[match[1]]) {
+                params[match[1]] = getRandomInt(1, 10);
             }
-            
-            values[param] = value || config.min; // fallback
         }
         
-        // Заменяем параметры в вопросе и ответе
         let exampleQuestion = question;
-        let exampleAnswer = answer;
+        for (const param in params) {
+            exampleQuestion = exampleQuestion.replace(new RegExp(`\\{${param}\\}`, 'g'), params[param]);
+        }
         
-        for (const param in values) {
-            const value = values[param];
-            exampleQuestion = exampleQuestion.replace(new RegExp(`\\{${param}\\}`, 'g'), value);
-            exampleAnswer = exampleAnswer.replace(new RegExp(`\\{${param}\\}`, 'g'), value);
+        let exampleAnswer = answer;
+        for (const param in params) {
+            exampleAnswer = exampleAnswer.replace(new RegExp(`\\{${param}\\}`, 'g'), params[param]);
         }
         
         try {
@@ -64,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return {
             question: exampleQuestion,
             answer: exampleAnswer,
-            params: values
+            params: params
         };
     }
 
