@@ -1251,6 +1251,39 @@ with app.app_context():
 if __name__ == '__main__':
     app.run(debug=True)
 ================================================================================
+ФАЙЛ: import_templates.py
+================================================================================
+import sqlite3
+import json
+
+DB_PATH = 'database.db'  # или укажи абсолютный путь, если база не рядом
+JSON_FILE = 'templates.json'
+
+with open(JSON_FILE, encoding='utf-8') as f:
+    templates = json.load(f)
+
+conn = sqlite3.connect(DB_PATH)
+cursor = conn.cursor()
+
+for tpl in templates:
+    cursor.execute('''
+        INSERT INTO task_templates 
+        (textbook_id, name, question_template, answer_template, parameters)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (
+        tpl['textbook_id'],
+        tpl['name'],
+        tpl['question_template'],
+        tpl['answer_template'],
+        json.dumps(tpl['parameters'], ensure_ascii=False)
+    ))
+
+conn.commit()
+conn.close()
+
+print("✅ Шаблоны успешно загружены в базу данных.")
+
+================================================================================
 ФАЙЛ: static\css\edit_lesson.css
 ================================================================================
 /* Боковая панель с шаблонами */
@@ -5177,3 +5210,44 @@ document.addEventListener('DOMContentLoaded', function() {
     <script src="{{ url_for('static', filename='js/textbook_tasks.js') }}"></script>
 </body>
 </html>
+================================================================================
+ФАЙЛ: utils\task_generator.py
+================================================================================
+# utils/task_generator.py
+import random
+import re
+import json
+from typing import Dict, Any, List, Tuple
+
+class TaskGenerator:
+    @staticmethod
+    def generate_task_variant(question: str, answer_template: str, parameters: dict) -> dict:
+        # 1. Генерируем значения параметров
+        params = {k: random.randint(v['min'], v['max']) for k, v in parameters.items()}
+        
+        # 2. Формируем вопрос с подставленными значениями
+        generated_question = question
+        for param, value in params.items():
+            generated_question = generated_question.replace(f'{{{param}}}', str(value))
+        
+        # 3. Вычисляем ответ
+        try:
+            # Создаем локальные переменные для eval
+            locals().update(params)
+            
+            # Вычисляем ответ (убираем фигурные скобки из шаблона)
+            expr = answer_template.replace('{', '').replace('}', '')
+            computed_answer = str(eval(expr, {}, locals()))
+        except Exception as e:
+            computed_answer = f"Error: {str(e)}"
+        
+        return {
+            'question': generated_question,
+            'correct_answer': computed_answer,
+            'params': params
+        }
+
+    @staticmethod
+    def extract_parameters(template: str) -> List[str]:
+        """Извлекает список параметров из шаблона"""
+        return list(set(re.findall(r'\{([A-Za-z]+)\}', template)))

@@ -4,12 +4,15 @@ import sqlite3
 import os, re, json, random
 import datetime
 from datetime import datetime as dt
+import requests
+import 
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
 
 # Конфигурация БД
 DATABASE = 'database.db'
+DEEPSEEK_API_KEY = "sk-0eebbaabbab648099f7e507d6e30f03a"
 
 def init_db():
     conn = sqlite3.connect(DATABASE)
@@ -105,12 +108,9 @@ def init_db():
             name TEXT NOT NULL,
             question_template TEXT NOT NULL,
             answer_template TEXT NOT NULL,
-            parameters TEXT NOT NULL,
-            conditions TEXT,  
-            answer_type TEXT DEFAULT 'numeric',  
+            parameters TEXT NOT NULL,  
             UNIQUE(textbook_id, name))
     ''')
-
 
     # В функции init_db(), после создания таблиц:
     cursor.execute("SELECT COUNT(*) FROM textbooks")
@@ -206,7 +206,6 @@ def init_db():
     finally:
         conn.close()
 
-    
 
 def get_db():
     conn = sqlite3.connect(DATABASE)
@@ -1245,46 +1244,79 @@ def get_template(template_id):
     finally:
         conn.close()
 
-@app.route('/api/generate_task', methods=['POST'])
-def generate_task():
-    data = request.get_json()
-    template_id = data.get('template_id')
-    
-    conn = get_db()
-    template = conn.execute('SELECT * FROM task_templates WHERE id = ?', [template_id]).fetchone()
-    if not template:
-        return jsonify({"error": "Template not found"}), 404
+import requests
+import os
+from dotenv import load_dotenv
 
-    params = json.loads(template['parameters'])
-    generated_params = MathEngine.generate_parameters(params)
-    
-    question = template['question_template'].format(**generated_params)
-    answer = MathEngine.evaluate_expression(template['answer_template'], generated_params)
-    
-    return jsonify({
-        "question": question,
-        "answer": answer,
-        "params": generated_params
-    })
+load_dotenv()  # Загружаем ключ из .env
 
-@app.route('/api/check_answer', methods=['POST'])
-def api_check_answer():
-    data = request.get_json()
-    user_answer = data.get('answer')
-    correct_answer = data.get('correct_answer')
-    params = data.get('params', {})
-    
+@app.route('/api/analyze_task', methods=['POST'])
+def analyze_task():
     try:
-        # Сравниваем математически, а не как строки
-        user_val = MathEngine.evaluate_expression(user_answer, params)
-        correct_val = MathEngine.evaluate_expression(correct_answer, params)
-        
-        return jsonify({
-            "is_correct": abs(float(user_val) - float(correct_val)) < 1e-6,
-            "evaluated_answer": user_val
-        })
-    except:
-        return jsonify({"error": "Invalid expression"}), 400
+        # Проверяем API-ключ
+        api_key = os.getenv("DEEPSEEK_API_KEY")
+        if not api_key:
+            return jsonify({"error": "API-ключ не настроен"}), 500
+
+        # Получаем текст или изображение
+        text = request.form.get("text", "")
+        if not text and "image" in request.files:
+            # Если есть изображение, распознаём текст (например, через Tesseract OCR)
+            import pytesseract
+            from PIL import Image
+            img = Image.open(request.files["image"])
+            text = pytesseract.image_to_string(img)
+
+        if not text.strip():
+            return jsonify({"error": "Не удалось извлечь текст"}), 400
+
+        # Формируем промпт
+        prompt = f"""
+        Преобразуй задачу в шаблон с параметрами:
+        Задача: {text}
+        Требования:
+        - Замени числа на {{A}}, {{B}}, {{C}}...
+        - Укажи разумные min/max для параметров
+        - Добавь ограничения (например, «A > B»)
+        - Верни ответ в JSON:
+        {{
+            "template": "текст с параметрами",
+            "answer": "формула",
+            "parameters": {{
+                "A": {{"min": 1, "max": 10, "constraints": ["A > B"]}},
+                "B": {{"min": 1, "max": 5}}
+            }}
+        }}
+        """
+
+        # Отправляем запрос к DeepSeek API
+        response = requests.post(
+            "https://api.deepseek.com/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "deepseek-chat",
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0.3
+            },
+            timeout=10
+        )
+
+        if response.status_code != 200:
+            return jsonify({
+                "error": f"Ошибка API (код {response.status_code})",
+                "details": response.text
+            }), 500
+
+        # Парсим ответ
+        result = response.json()
+        return jsonify(result["choices"][0]["message"]["content"])
+
+    except Exception as e:
+        return jsonify({"error": f"Ошибка: {str(e)}"}), 500
+    
     
         
 with app.app_context():

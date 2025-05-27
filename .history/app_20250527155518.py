@@ -100,17 +100,16 @@ def init_db():
     # Создаем таблицу шаблонов заданий
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS task_templates (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            textbook_id INTEGER REFERENCES textbooks(id),
-            name TEXT NOT NULL,
-            question_template TEXT NOT NULL,
-            answer_template TEXT NOT NULL,
-            parameters TEXT NOT NULL,
-            conditions TEXT,  
-            answer_type TEXT DEFAULT 'numeric',  
-            UNIQUE(textbook_id, name))
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        textbook_id INTEGER REFERENCES textbooks(id),
+        name TEXT NOT NULL,
+        question_template TEXT NOT NULL,
+        answer_template TEXT NOT NULL,
+        parameters TEXT NOT NULL,
+        conditions TEXT,  # Новое поле для условий
+        answer_type TEXT DEFAULT 'numeric',  # numeric, expression, graph и т.д.
+        UNIQUE(textbook_id, name))
     ''')
-
 
     # В функции init_db(), после создания таблиц:
     cursor.execute("SELECT COUNT(*) FROM textbooks")
@@ -206,7 +205,6 @@ def init_db():
     finally:
         conn.close()
 
-    
 
 def get_db():
     conn = sqlite3.connect(DATABASE)
@@ -1244,48 +1242,6 @@ def get_template(template_id):
         return jsonify({'success': False, 'error': str(e)}), 500
     finally:
         conn.close()
-
-@app.route('/api/generate_task', methods=['POST'])
-def generate_task():
-    data = request.get_json()
-    template_id = data.get('template_id')
-    
-    conn = get_db()
-    template = conn.execute('SELECT * FROM task_templates WHERE id = ?', [template_id]).fetchone()
-    if not template:
-        return jsonify({"error": "Template not found"}), 404
-
-    params = json.loads(template['parameters'])
-    generated_params = MathEngine.generate_parameters(params)
-    
-    question = template['question_template'].format(**generated_params)
-    answer = MathEngine.evaluate_expression(template['answer_template'], generated_params)
-    
-    return jsonify({
-        "question": question,
-        "answer": answer,
-        "params": generated_params
-    })
-
-@app.route('/api/check_answer', methods=['POST'])
-def api_check_answer():
-    data = request.get_json()
-    user_answer = data.get('answer')
-    correct_answer = data.get('correct_answer')
-    params = data.get('params', {})
-    
-    try:
-        # Сравниваем математически, а не как строки
-        user_val = MathEngine.evaluate_expression(user_answer, params)
-        correct_val = MathEngine.evaluate_expression(correct_answer, params)
-        
-        return jsonify({
-            "is_correct": abs(float(user_val) - float(correct_val)) < 1e-6,
-            "evaluated_answer": user_val
-        })
-    except:
-        return jsonify({"error": "Invalid expression"}), 400
-    
         
 with app.app_context():
     init_db()

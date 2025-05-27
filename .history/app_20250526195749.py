@@ -105,12 +105,9 @@ def init_db():
             name TEXT NOT NULL,
             question_template TEXT NOT NULL,
             answer_template TEXT NOT NULL,
-            parameters TEXT NOT NULL,
-            conditions TEXT,  
-            answer_type TEXT DEFAULT 'numeric',  
+            parameters TEXT NOT NULL,  
             UNIQUE(textbook_id, name))
     ''')
-
 
     # В функции init_db(), после создания таблиц:
     cursor.execute("SELECT COUNT(*) FROM textbooks")
@@ -206,7 +203,6 @@ def init_db():
     finally:
         conn.close()
 
-    
 
 def get_db():
     conn = sqlite3.connect(DATABASE)
@@ -1245,46 +1241,64 @@ def get_template(template_id):
     finally:
         conn.close()
 
-@app.route('/api/generate_task', methods=['POST'])
-def generate_task():
-    data = request.get_json()
-    template_id = data.get('template_id')
-    
-    conn = get_db()
-    template = conn.execute('SELECT * FROM task_templates WHERE id = ?', [template_id]).fetchone()
-    if not template:
-        return jsonify({"error": "Template not found"}), 404
+@app.route('/api/analyze_task', methods=['POST'])
+def analyze_task():
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
 
-    params = json.loads(template['parameters'])
-    generated_params = MathEngine.generate_parameters(params)
+    # Получаем данные (текст или изображение)
+    text = request.form.get('text')
+    image = request.files.get('image')
     
-    question = template['question_template'].format(**generated_params)
-    answer = MathEngine.evaluate_expression(template['answer_template'], generated_params)
+    if image:
+        # Если загружено изображение, используем OCR для извлечения текста
+        text = extract_text_from_image(image)
     
-    return jsonify({
-        "question": question,
-        "answer": answer,
-        "params": generated_params
-    })
+    if not text:
+        return jsonify({'error': 'No text provided'}), 400
 
-@app.route('/api/check_answer', methods=['POST'])
-def api_check_answer():
-    data = request.get_json()
-    user_answer = data.get('answer')
-    correct_answer = data.get('correct_answer')
-    params = data.get('params', {})
+    # Подготовка промпта для DeepSeek
+    prompt = f"""
+    Проанализируй задачу по математике и преобразуй её в шаблон с параметрами.
+    Задача: {text}
     
+    Требования:
+    1. Замени числа на параметры в формате {{A}}, {{B}}, {{C}} и т.д.
+    2. Убедись, что параметры имеют логические ограничения (например, цена не может быть отрицательной)
+    3. Для задач с делением убедись, что параметры кратны или деление нацело
+    4. Сохрани структуру и смысл оригинальной задачи
+    5. Предложи формулу для вычисления ответа
+    
+    Верни ответ в JSON формате:
+    {{
+        "template": "текст шаблона с параметрами",
+        "answer": "формула ответа",
+        "parameters": {{
+            "A": {{"min": 1, "max": 10, "constraints": ["условия"]}},
+            "B": {{"min": 1, "max": 5, "constraints": ["условия"]}}
+        }},
+        "explanation": "пояснение преобразований"
+    }}
+    """
+
+    # Вызов DeepSeek API
     try:
-        # Сравниваем математически, а не как строки
-        user_val = MathEngine.evaluate_expression(user_answer, params)
-        correct_val = MathEngine.evaluate_expression(correct_answer, params)
+        response = requests.post(
+            'https://api.deepseek.com/v1/chat/completions',
+            headers={'Authorization': f'Bearer {DEEPSEEK_API_KEY}'},
+            json={
+                'model': 'deepseek-chat',
+                'messages': [{'role': 'user', 'content': prompt}],
+                'temperature': 0.7
+            }
+        )
         
-        return jsonify({
-            "is_correct": abs(float(user_val) - float(correct_val)) < 1e-6,
-            "evaluated_answer": user_val
-        })
-    except:
-        return jsonify({"error": "Invalid expression"}), 400
+        result = response.json()
+        return jsonify(result['choices'][0]['message']['content'])
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
     
         
 with app.app_context():

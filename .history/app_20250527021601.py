@@ -105,12 +105,9 @@ def init_db():
             name TEXT NOT NULL,
             question_template TEXT NOT NULL,
             answer_template TEXT NOT NULL,
-            parameters TEXT NOT NULL,
-            conditions TEXT,  
-            answer_type TEXT DEFAULT 'numeric',  
+            parameters TEXT NOT NULL,  
             UNIQUE(textbook_id, name))
     ''')
-
 
     # В функции init_db(), после создания таблиц:
     cursor.execute("SELECT COUNT(*) FROM textbooks")
@@ -206,7 +203,6 @@ def init_db():
     finally:
         conn.close()
 
-    
 
 def get_db():
     conn = sqlite3.connect(DATABASE)
@@ -1245,48 +1241,160 @@ def get_template(template_id):
     finally:
         conn.close()
 
-@app.route('/api/generate_task', methods=['POST'])
-def generate_task():
+# Добавим новый маршрут для генерации примеров
+@app.route('/api/generate_task_examples', methods=['POST'])
+def generate_task_examples():
     data = request.get_json()
-    template_id = data.get('template_id')
-    
-    conn = get_db()
-    template = conn.execute('SELECT * FROM task_templates WHERE id = ?', [template_id]).fetchone()
-    if not template:
-        return jsonify({"error": "Template not found"}), 404
-
-    params = json.loads(template['parameters'])
-    generated_params = MathEngine.generate_parameters(params)
-    
-    question = template['question_template'].format(**generated_params)
-    answer = MathEngine.evaluate_expression(template['answer_template'], generated_params)
-    
-    return jsonify({
-        "question": question,
-        "answer": answer,
-        "params": generated_params
-    })
-
-@app.route('/api/check_answer', methods=['POST'])
-def api_check_answer():
-    data = request.get_json()
-    user_answer = data.get('answer')
-    correct_answer = data.get('correct_answer')
-    params = data.get('params', {})
     
     try:
-        # Сравниваем математически, а не как строки
-        user_val = MathEngine.evaluate_expression(user_answer, params)
-        correct_val = MathEngine.evaluate_expression(correct_answer, params)
+        question = data['question']
+        answer = data['answer']
+        parameters = data.get('parameters', {})
         
-        return jsonify({
-            "is_correct": abs(float(user_val) - float(correct_val)) < 1e-6,
-            "evaluated_answer": user_val
-        })
-    except:
-        return jsonify({"error": "Invalid expression"}), 400
+        # Если параметры не переданы, извлекаем их из шаблона
+        if not parameters:
+            params = TaskGenerator.extract_parameters(question + answer)
+            parameters = {p: {'min': 1, 'max': 10} for p in params}
+        
+        # Генерируем 3 примера
+        examples = []
+        for _ in range(3):
+            examples.append(TaskGenerator.generate_task_variant(question, answer, parameters))
+        
+        return jsonify({'success': True, 'examples': examples})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 400
+        
+@app.route('/api/generate_student_variants/<int:lesson_id>/<int:user_id>', methods=['POST'])
+def generate_student_variants(lesson_id, user_id):
+    conn = get_db()
+    try:
+        # 1. Получаем базовые задания урока
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT id, question, answer FROM lesson_tasks 
+            WHERE lesson_id = ? ORDER BY id
+        ''', (lesson_id,))
+        base_tasks = cursor.fetchall()
+
+        tasks = []
+        
+        # 2. Генерируем вариант для каждого задания
+        for task in base_tasks:
+            # Проверяем, есть ли сохранённый вариант
+            cursor.execute('''
+                SELECT variant_data FROM student_task_variants
+                WHERE lesson_id = ? AND user_id = ? AND task_id = ?
+            ''', (lesson_id, user_id, task['id']))
+            variant = cursor.fetchone()
+            
+            if variant:
+                # Используем существующий вариант
+                variant_data = json.loads(variant['variant_data'])
+            else:
+                # Генерируем новый вариант
+                params = {}
+                # Извлекаем параметры из шаблона (например, {A}, {B})
+                param_matches = set(re.findall(r'\{([A-Z]+)\}', task['question']))
+                
+                # Задаём диапазоны для параметров (можно брать из шаблона)
+                for param in param_matches:
+                    params[param] = {'min': 1, 'max': 10}
+                
+                # Генерируем конкретные значения
+                variant_data = {
+                    'params': {},
+                    'question': task['question'],
+                    'correct_answer': task['answer']
+                }
+                
+                for param, config in params.items():
+                    variant_data['params'][param] = random.randint(config['min'], config['max'])
+                
+                # Подставляем параметры в вопрос
+                variant_data['question'] = variant_data['question'].format(**variant_data['params'])
+                
+                # Вычисляем ответ
+                try:
+                    variant_data['correct_answer'] = str(eval(
+                        variant_data['correct_answer'].format(**variant_data['params'])
+                    ))
+                except:
+                    variant_data['correct_answer'] = "Ошибка в формуле"
+                
+                # Сохраняем вариант в БД
+                cursor.execute('''
+                    INSERT INTO student_task_variants
+                    (lesson_id, user_id, task_id, variant_data)
+                    VALUES (?, ?, ?, ?)
+                ''', (
+                    lesson_id,
+                    user_id,
+                    task['id'],
+                    json.dumps(variant_data)
+                ))
+            
+            tasks.append({
+                'id': task['id'],
+                'question': variant_data['question'],
+                'correct_answer': variant_data['correct_answer']
+            })
+        
+        conn.commit()
+        return jsonify({'success': True, 'tasks': tasks})
+        
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/api/check_answer', methods=['POST'])
+def check_answer():
+    data = request.get_json()
+    task_id = data['task_id']
+    user_answer = data['user_answer']
     
+    conn = get_db()
+    try:
+        # 1. Получаем правильный ответ из БД
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT variant_data FROM student_task_variants
+            WHERE task_id = ? AND user_id = ?
+        ''', (task_id, session['user_id']))
         
+        variant = cursor.fetchone()
+        if not variant:
+            return jsonify({'success': False, 'error': 'Вариант не найден'}), 404
+        
+        variant_data = json.loads(variant['variant_data'])
+        correct_answer = variant_data['correct_answer']
+        
+        # 2. Простая проверка ответа (можно усложнить)
+        is_correct = str(user_answer).strip() == str(correct_answer).strip()
+        
+        # 3. Сохраняем результат
+        cursor.execute('''
+            INSERT OR REPLACE INTO student_answers
+            (task_id, user_id, answer, is_correct)
+            VALUES (?, ?, ?, ?)
+        ''', (task_id, session['user_id'], user_answer, is_correct))
+        
+        conn.commit()
+        return jsonify({
+            'success': True,
+            'is_correct': is_correct,
+            'correct_answer': correct_answer
+        })
+        
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
+        
+         
 with app.app_context():
     init_db()
 

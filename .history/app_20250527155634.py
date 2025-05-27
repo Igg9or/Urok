@@ -111,7 +111,6 @@ def init_db():
             UNIQUE(textbook_id, name))
     ''')
 
-
     # В функции init_db(), после создания таблиц:
     cursor.execute("SELECT COUNT(*) FROM textbooks")
     if cursor.fetchone()[0] == 0:
@@ -206,7 +205,6 @@ def init_db():
     finally:
         conn.close()
 
-    
 
 def get_db():
     conn = sqlite3.connect(DATABASE)

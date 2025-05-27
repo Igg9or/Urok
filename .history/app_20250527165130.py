@@ -111,6 +111,67 @@ def init_db():
             UNIQUE(textbook_id, name))
     ''')
 
+        advanced_templates = [
+        {
+            'textbook_id': 2,  # ID учебника "Мордкович"
+            'name': 'Квадратное уравнение',
+            'question_template': 'Решите уравнение: {A}x² + {B}x + {C} = 0',
+            'answer_template': 'solve(Eq(A*x**2 + B*x + C, 0), x)',
+            'parameters': json.dumps({
+                "A": {
+                    "min": 1,
+                    "max": 5,
+                    "type": "int",
+                    "constraints": [
+                        {"type": "not_equal", "value": 0}
+                    ]
+                },
+                "B": {
+                    "min": -10,
+                    "max": 10,
+                    "type": "int"
+                },
+                "C": {
+                    "min": -15,
+                    "max": 15,
+                    "type": "int",
+                    "constraints": [
+                        {"type": "expr", "value": "B**2 - 4*A*C > 0"}
+                    ]
+                }
+            })
+        },
+        {
+            'textbook_id': 3,  # ID учебника "Атанасян"
+            'name': 'Площадь треугольника',
+            'question_template': 'Найдите площадь треугольника со сторонами {a}, {b} и углом между ними {gamma}°',
+            'answer_template': '0.5 * a * b * sin(rad(gamma))',
+            'parameters': json.dumps({
+                "a": {"min": 5, "max": 15, "type": "int"},
+                "b": {"min": 5, "max": 15, "type": "int"},
+                "gamma": {
+                    "min": 30,
+                    "max": 150,
+                    "type": "int",
+                    "constraints": [
+                        {"type": "not_equal", "value": 90}
+                    ]
+                }
+            })
+        }
+    ]
+
+    for template in advanced_templates:
+        cursor.execute(
+            "INSERT INTO task_templates (textbook_id, name, question_template, answer_template, parameters) VALUES (?, ?, ?, ?, ?)",
+            (
+                template['textbook_id'],
+                template['name'],
+                template['question_template'],
+                template['answer_template'],
+                template['parameters']
+            )
+        )
 
     # В функции init_db(), после создания таблиц:
     cursor.execute("SELECT COUNT(*) FROM textbooks")
@@ -206,7 +267,6 @@ def init_db():
     finally:
         conn.close()
 
-    
 
 def get_db():
     conn = sqlite3.connect(DATABASE)

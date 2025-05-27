@@ -206,7 +206,9 @@ def init_db():
     finally:
         conn.close()
 
+    # После существующих шаблонов в init_db()
     
+
 
 def get_db():
     conn = sqlite3.connect(DATABASE)

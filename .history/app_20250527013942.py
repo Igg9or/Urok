@@ -3,13 +3,37 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 import os, re, json, random
 import datetime
+import sys
 from datetime import datetime as dt
+from num2words import num2words
+from flask import flash
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
 
 # Конфигурация БД
 DATABASE = 'database.db'
+
+def spell_number(number: int) -> str:
+    return num2words(number, lang='ru').replace('-', ' ').replace(',', '')
+
+SAFE_GLOBALS = {
+    "spell_number": spell_number
+}
+
+def compute_answer(answer_template, params):
+    try:
+        expression = answer_template.format(**params)
+
+        if ';' in expression:
+            results = [eval(e.strip(), SAFE_GLOBALS, {}) for e in expression.split(';')]
+            return '; '.join(str(r) for r in results)
+        else:
+            return str(eval(expression, SAFE_GLOBALS, {}))
+    except Exception as e:
+        return f"Ошибка формулы: {e}"
+    
 
 def init_db():
     conn = sqlite3.connect(DATABASE)
@@ -105,12 +129,9 @@ def init_db():
             name TEXT NOT NULL,
             question_template TEXT NOT NULL,
             answer_template TEXT NOT NULL,
-            parameters TEXT NOT NULL,
-            conditions TEXT,  
-            answer_type TEXT DEFAULT 'numeric',  
+            parameters TEXT NOT NULL,  
             UNIQUE(textbook_id, name))
     ''')
-
 
     # В функции init_db(), после создания таблиц:
     cursor.execute("SELECT COUNT(*) FROM textbooks")
@@ -206,7 +227,6 @@ def init_db():
     finally:
         conn.close()
 
-    
 
 def get_db():
     conn = sqlite3.connect(DATABASE)
@@ -697,17 +717,38 @@ def start_lesson(lesson_id):
                 answer = task['answer']
                 
                 # Генерация параметров
-                param_matches = set(re.findall(r'\{([A-Z])\}', question))
-                for param in param_matches:
-                    params[param] = random.randint(1, 10)  # Диапазон можно настроить
+                cursor.execute('SELECT question_template, answer_template, parameters FROM task_templates WHERE question_template = ?', (question,))
+                tpl = cursor.fetchone()
+
+                if not tpl:
+                    continue
+
+                question_template, answer_template, raw_parameters = tpl
+                try:
+                    parsed_params = json.loads(raw_parameters)
+                except:
+                    parsed_params = {}
+
+                # Генерация параметров
+                if isinstance(parsed_params, dict):
+                    params = {
+                        key: random.randint(val["min"], val["max"])
+                        if isinstance(val, dict) and "min" in val else random.choice(val)
+                        for key, val in parsed_params.items()
+                    }
+                elif isinstance(parsed_params, list):
+                    params = random.choice(parsed_params)
+                else:
+                    params = {}
                 
                 # Заменяем параметры в вопросе
-                generated_question = question
+                generated_question = question_template.format(**params)
                 for param, value in params.items():
                     generated_question = generated_question.replace(f'{{{param}}}', str(value))
                 
                 # Вычисляем ответ
-                computed_answer = str(eval(answer.format(**params)))
+                computed_answer = compute_answer(answer, params)
+
                 
                 # Сохраняем вариант
                 variant_data = {
@@ -1244,48 +1285,6 @@ def get_template(template_id):
         return jsonify({'success': False, 'error': str(e)}), 500
     finally:
         conn.close()
-
-@app.route('/api/generate_task', methods=['POST'])
-def generate_task():
-    data = request.get_json()
-    template_id = data.get('template_id')
-    
-    conn = get_db()
-    template = conn.execute('SELECT * FROM task_templates WHERE id = ?', [template_id]).fetchone()
-    if not template:
-        return jsonify({"error": "Template not found"}), 404
-
-    params = json.loads(template['parameters'])
-    generated_params = MathEngine.generate_parameters(params)
-    
-    question = template['question_template'].format(**generated_params)
-    answer = MathEngine.evaluate_expression(template['answer_template'], generated_params)
-    
-    return jsonify({
-        "question": question,
-        "answer": answer,
-        "params": generated_params
-    })
-
-@app.route('/api/check_answer', methods=['POST'])
-def api_check_answer():
-    data = request.get_json()
-    user_answer = data.get('answer')
-    correct_answer = data.get('correct_answer')
-    params = data.get('params', {})
-    
-    try:
-        # Сравниваем математически, а не как строки
-        user_val = MathEngine.evaluate_expression(user_answer, params)
-        correct_val = MathEngine.evaluate_expression(correct_answer, params)
-        
-        return jsonify({
-            "is_correct": abs(float(user_val) - float(correct_val)) < 1e-6,
-            "evaluated_answer": user_val
-        })
-    except:
-        return jsonify({"error": "Invalid expression"}), 400
-    
         
 with app.app_context():
     init_db()
