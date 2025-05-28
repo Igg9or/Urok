@@ -1290,7 +1290,25 @@ def api_check_answer():
     except:
         return jsonify({"error": "Invalid expression"}), 400
     
+# В app.py добавить новый маршрут
+@app.route('/api/generate_from_template/<int:template_id>')
+def generate_from_template(template_id):
+    conn = get_db()
+    try:
+        template = conn.execute('SELECT * FROM task_templates WHERE id = ?', [template_id]).fetchone()
+        if not template:
+            return jsonify({"error": "Template not found"}), 404
         
+        template_dict = dict(template)
+        template_dict['parameters'] = json.loads(template['parameters'])
+        
+        variant = TaskGenerator.generate_task_variant(template_dict)
+        return jsonify(variant)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        conn.close()
+                
 with app.app_context():
     init_db()
 
@@ -1332,33 +1350,57 @@ print("✅ Шаблоны успешно загружены в базу данн
 ================================================================================
 ФАЙЛ: math_engine.py
 ================================================================================
+# math_engine.py
+import random
 import sympy
 from sympy.parsing.sympy_parser import parse_expr
-import random
 
 class MathEngine:
     @staticmethod
     def generate_parameters(template_params):
         params = {}
-        # Пример: для параметра A с условиями
-        for param, config in template_params.items():
-            for _ in range(100):  # Попыток сгенерировать
-                value = random.randint(config['min'], config['max'])
-                if MathEngine._check_constraints(param, value, config.get('constraints', []), params):
-                    params[param] = value
-                    break
-        return params
-
-    @staticmethod
-    def _check_constraints(param, value, constraints, existing_params):
-        for constraint in constraints:
-            if constraint['type'] == 'multiple_of' and value % constraint['value'] != 0:
-                return False
-            elif constraint['type'] == 'greater_than':
-                other = existing_params.get(constraint['param'], constraint.get('value'))
-                if value <= other:
-                    return False
-        return True
+        conditions = template_params.get('conditions', '')
+        
+        # Попытки сгенерировать подходящие параметры
+        for _ in range(100):  # Максимум 100 попыток
+            generated = {}
+            valid = True
+            
+            # Генерация параметров
+            for param, config in template_params.items():
+                if param == 'conditions':
+                    continue
+                    
+                if config['type'] == 'int':
+                    value = random.randint(config['min'], config['max'])
+                    # Проверка ограничений
+                    if 'constraints' in config:
+                        for constraint in config['constraints']:
+                            if constraint['type'] == 'multiple_of':
+                                if value % constraint['value'] != 0:
+                                    valid = False
+                            elif constraint['type'] == 'greater_than':
+                                if 'param' in constraint:
+                                    if value <= generated.get(constraint['param'], 0):
+                                        valid = False
+                                else:
+                                    if value <= constraint['value']:
+                                        valid = False
+                    generated[param] = value
+            
+            # Проверка условий
+            if valid and conditions:
+                try:
+                    if not eval(conditions, {}, generated):
+                        valid = False
+                except:
+                    valid = False
+            
+            if valid:
+                return generated
+        
+        # Если не удалось сгенерировать - возвращаем последний вариант
+        return generated
 
     @staticmethod
     def evaluate_expression(expr, params):
@@ -1367,8 +1409,64 @@ class MathEngine:
             local_dict = {k: sympy.Integer(v) if isinstance(v, int) else sympy.Float(v) 
                          for k, v in params.items()}
             return str(parse_expr(expr, local_dict=local_dict).evalf())
-        except:
+        except Exception as e:
+            print(f"Error evaluating expression: {expr} with params {params}. Error: {e}")
             return None
+================================================================================
+ФАЙЛ: task_generator.py
+================================================================================
+import re
+from math_engine import MathEngine
+import random
+
+class TaskGenerator:
+    @staticmethod
+    def generate_task_variant(template):
+        # Проверяем наличие всех необходимых полей
+        if not all(key in template for key in ['question_template', 'answer_template', 'parameters']):
+            return None
+
+        # Генерация параметров
+        params = MathEngine.generate_parameters(template['parameters'])
+        if not params:
+            return None
+
+        # Замена в вопросе
+        question = template['question_template']
+        answer_template = template['answer_template']
+
+        # Извлекаем все параметры из вопроса и ответа
+        question_params = set(re.findall(r'\{([A-Za-z]+)\}', question))
+        answer_params = set(re.findall(r'\{([A-Za-z]+)\}', answer_template))
+        all_params = question_params.union(answer_params)
+
+        # Генерируем значения для всех параметров
+        for param in all_params:
+            if param not in params:
+                # Если параметр не указан в конфигурации, генерируем случайное значение
+                params[param] = random.randint(1, 10)
+
+        # Заменяем параметры в вопросе
+        for param, value in params.items():
+            question = question.replace(f'{{{param}}}', str(value))
+
+        # Вычисление ответа
+        try:
+            answer = str(eval(answer_template.format(**params)))
+        except Exception as e:
+            print(f"Ошибка вычисления ответа: {e}")
+            answer = "Неверная формула ответа"
+
+        return {
+            'question': question,
+            'correct_answer': answer,
+            'params': params,
+            'template_id': template.get('id')
+        }
+
+    @staticmethod
+    def extract_parameters(template_str):
+        return list(set(re.findall(r'\{([A-Za-z]+)\}', template_str)))
 ================================================================================
 ФАЙЛ: static\css\edit_lesson.css
 ================================================================================
@@ -1546,256 +1644,6 @@ class MathEngine:
 ================================================================================
 ФАЙЛ: static\css\style.css
 ================================================================================
-
-
-.template-card {
-    background: var(--white);
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-    box-shadow: var(--shadow);
-}
-
-.template-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.template-content {
-    font-size: 14px;
-}
-
-.param-group {
-    background: var(--secondary-color);
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-}
-
-.param-control {
-    display: flex;
-    align-items: center;
-    margin: 5px 0;
-}
-
-.param-control label {
-    width: 80px;
-    margin-right: 10px;
-}
-
-.param-control input {
-    width: 60px;
-    padding: 5px;
-}
-.manage-tasks-container {
-    padding: 20px;
-}
-
-.textbooks-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.textbook-card {
-    background: var(--white);
-    border-radius: 10px;
-    padding: 25px;
-    box-shadow: var(--shadow);
-    text-align: center;
-    transition: transform 0.3s;
-}
-
-.textbook-card:hover {
-    transform: translateY(-5px);
-}
-
-.textbook-icon {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto 15px;
-    background-color: var(--secondary-color);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.textbook-icon svg {
-    width: 30px;
-    height: 30px;
-    color: var(--primary-color);
-}
-/* Стили для управления учебниками */
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.add-form {
-    background: var(--secondary-color);
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-.add-form .form-group {
-    margin-bottom: 15px;
-}
-
-.add-form label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-}
-
-.add-form .form-control {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.form-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 15px;
-}
-
-.no-textbooks {
-    text-align: center;
-    padding: 40px;
-    background: var(--secondary-color);
-    border-radius: 8px;
-    color: var(--light-text);
-}
-/* Стили для шаблонов заданий */
-.task-card {
-    background: var(--white);
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-    box-shadow: var(--shadow);
-}
-
-.task-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.task-actions {
-    display: flex;
-    gap: 5px;
-}
-
-.task-content {
-    font-size: 14px;
-}
-
-.task-field {
-    margin-bottom: 10px;
-}
-
-.task-field label {
-    font-weight: 500;
-    display: block;
-    margin-bottom: 5px;
-}
-
-.question-preview,
-.answer-preview {
-    background: var(--secondary-color);
-    padding: 8px;
-    border-radius: 4px;
-}
-
-.no-tasks {
-    text-align: center;
-    padding: 40px;
-    background: var(--secondary-color);
-    border-radius: 8px;
-    color: var(--light-text);
-}
-
-.task-form {
-    background: var(--white);
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: var(--shadow);
-    margin-bottom: 20px;
-}
-
-.hint {
-    font-size: 13px;
-    color: var(--light-text);
-    margin-top: 5px;
-}
-/* Стили для страницы шаблонов */
-.textbook-tasks-container {
-    padding: 20px;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.task-form {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    border: 1px solid #ddd;
-}
-
-.templates-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.template-card {
-    background: white;
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.template-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.template-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.btn-icon {
-    background: none;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    padding: 5px;
-}
-
-.no-templates {
-    text-align: center;
-    color: #666;
-    padding: 20px;
-}
 
 .hidden {
     display: none;
@@ -4307,36 +4155,49 @@ import random
 import re
 import json
 from typing import Dict, Any, List, Tuple
+from math_engine import MathEngine
 
 class TaskGenerator:
     @staticmethod
-    def generate_task_variant(question: str, answer_template: str, parameters: dict) -> dict:
-        # 1. Генерируем значения параметров
-        params = {k: random.randint(v['min'], v['max']) for k, v in parameters.items()}
+    def generate_task_variant(template: dict) -> dict:
+        """
+        Генерирует вариант задания на основе шаблона
+        """
+        # Генерация параметров
+        params = MathEngine.generate_parameters(template['parameters'])
         
-        # 2. Формируем вопрос с подставленными значениями
-        generated_question = question
+        # Формирование вопроса
+        question = template['question_template']
         for param, value in params.items():
-            generated_question = generated_question.replace(f'{{{param}}}', str(value))
+            question = question.replace(f'{{{param}}}', str(value))
         
-        # 3. Вычисляем ответ
-        try:
-            # Создаем локальные переменные для eval
-            locals().update(params)
-            
-            # Вычисляем ответ (убираем фигурные скобки из шаблона)
-            expr = answer_template.replace('{', '').replace('}', '')
-            computed_answer = str(eval(expr, {}, locals()))
-        except Exception as e:
-            computed_answer = f"Error: {str(e)}"
+        # Вычисление ответа
+        answer = MathEngine.evaluate_expression(template['answer_template'], params)
         
         return {
-            'question': generated_question,
-            'correct_answer': computed_answer,
-            'params': params
+            'question': question,
+            'correct_answer': answer,
+            'params': params,
+            'template_id': template.get('id')
         }
 
     @staticmethod
     def extract_parameters(template: str) -> List[str]:
         """Извлекает список параметров из шаблона"""
         return list(set(re.findall(r'\{([A-Za-z]+)\}', template)))
+
+    @staticmethod
+    def validate_template(template: dict) -> bool:
+        """Проверяет корректность шаблона"""
+        required_fields = ['question_template', 'answer_template', 'parameters']
+        if not all(field in template for field in required_fields):
+            return False
+        
+        try:
+            # Проверка генерации хотя бы одного варианта
+            variant = TaskGenerator.generate_task_variant(template)
+            if variant['correct_answer'] is None:
+                return False
+            return True
+        except:
+            return False

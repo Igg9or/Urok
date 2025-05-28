@@ -1178,25 +1178,7 @@ def save_template():
     finally:
         conn.close()
 
-def get_textbook_templates(textbook_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
 
-    conn = get_db()
-    try:
-        templates = conn.execute('''
-            SELECT * FROM task_templates WHERE textbook_id = ?
-        ''', (textbook_id,)).fetchall()
-        
-        return jsonify({
-            'success': True,
-            'templates': [dict(t) for t in templates]
-        })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-    finally:
-        conn.close()
-        
 @app.route('/api/textbooks/<int:textbook_id>/templates')
 def get_templates(textbook_id):
     if 'user_id' not in session or session['role'] != 'teacher':
@@ -1393,31 +1375,7 @@ def save_lesson_template():
         }), 500
     finally:
         conn.close()
-
-@app.route('/api/lesson_templates/<int:template_id>')
-def get_lesson_template(template_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    conn = get_db()
-    try:
-        template = conn.execute('''
-            SELECT * FROM lesson_templates WHERE id = ?
-        ''', (template_id,)).fetchone()
-
-        if not template:
-            return jsonify({'error': 'Template not found'}), 404
-
-        return jsonify({
-            'success': True,
-            'template': dict(template)
-        })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-    finally:
-        conn.close()
                 
-               
 with app.app_context():
     init_db()
 

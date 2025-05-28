@@ -1,5 +1,3 @@
-// Исправленная версия edit_lesson.js
-
 document.addEventListener('DOMContentLoaded', function() {
     const lessonId = window.location.pathname.split('/').pop();
     const tasksContainer = document.getElementById('tasksContainer');
@@ -81,78 +79,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // Генерация примера для учителя
-    function generateExample(questionTemplate, answerTemplate) {
-        const paramRegex = /\{([A-Za-z]+)\}/g;
-        const params = {};
-        let match;
-        
-        // Генерируем случайные значения для параметров (1-10)
-        while ((match = paramRegex.exec(questionTemplate + answerTemplate))) {
-            const param = match[1];
-            if (!params[param]) {
-                params[param] = Math.floor(Math.random() * 10) + 1;
-            }
-        }
-        
-        // Заменяем параметры в вопросе
-        let exampleQuestion = questionTemplate;
-        for (const [param, value] of Object.entries(params)) {
-            exampleQuestion = exampleQuestion.replace(new RegExp(`\\{${param}\\}`, 'g'), value);
-        }
-        
-        // Вычисляем ответ (безопасный eval)
-        let exampleAnswer;
-        try {
-            let answerFormula = answerTemplate;
-            for (const [param, value] of Object.entries(params)) {
-                answerFormula = answerFormula.replace(new RegExp(`\\{${param}\\}`, 'g'), value);
-            }
-            exampleAnswer = safeEval(answerFormula)?.toString() ?? "Ошибка в формуле";
-        } catch (e) {
-            exampleAnswer = "Ошибка в формуле ответа";
-        }
-        
-        return {
-            question: exampleQuestion,
-            answer: exampleAnswer,
-            params: params
-        };
-    }
-
-    // Безопасное вычисление выражения
-    function safeEval(formula) {
-        // Удаляем все потенциально опасные символы
-        const cleanFormula = formula.replace(/[^0-9+\-*/().{}\s]/g, '');
-        try {
-            return new Function('return ' + cleanFormula)();
-        } catch (e) {
-            console.error('Ошибка вычисления:', e);
-            return null;
-        }
-    }
-
-    // Обновление предпросмотра
-    function updatePreview(taskCard) {
-        const question = taskCard.querySelector('.task-question').value;
-        const answer = taskCard.querySelector('.task-answer').value;
-        const preview = taskCard.querySelector('.teacher-preview');
-        
-        if (!question || !answer) {
-            preview.classList.add('hidden');
-            return;
-        }
-        
-        const example = generateExample(question, answer);
-        
-        taskCard.querySelector('.preview-question').textContent = example.question;
-        taskCard.querySelector('.preview-answer').textContent = example.answer;
-        taskCard.querySelector('.preview-params').textContent = 
-            Object.entries(example.params).map(([k, v]) => `${k}=${v}`).join(', ');
-        
-        preview.classList.remove('hidden');
-    }
-
     // Добавление нового задания
     function addTask(question = '', answer = '') {
         const taskNumber = tasksContainer.children.length + 1;
@@ -168,56 +94,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 <label>Формула ответа:</label>
                 <textarea class="task-answer">${answer}</textarea>
             </div>
-            <div class="teacher-preview hidden">
-                <h4>Пример для учителя:</h4>
-                <div class="preview-content">
-                    <p><strong>Пример задания:</strong> <span class="preview-question"></span></p>
-                    <p><strong>Правильный ответ:</strong> <span class="preview-answer"></span></p>
-                    <p><strong>Используемые параметры:</strong> <span class="preview-params"></span></p>
-                </div>
-                <button class="btn btn-small btn-generate-preview">Сгенерировать новый пример</button>
-            </div>
-            <button class="btn btn-small btn-show-preview">Показать пример</button>
         `;
         tasksContainer.appendChild(taskCard);
-        
-        // Если добавляем из шаблона, сразу показываем пример
-        if (question && answer) {
-            const previewBtn = taskCard.querySelector('.btn-show-preview');
-            previewBtn.click();
-        }
     }
-
-    // Обновление нумерации заданий
-    function updateTaskNumbers() {
-        document.querySelectorAll('.task-card').forEach((card, index) => {
-            card.querySelector('.task-number').textContent = index + 1;
-        });
-    }
-
-    // Обработчики событий
-    document.addEventListener('click', function(e) {
-        // Показать/скрыть превью
-        if (e.target.classList.contains('btn-show-preview')) {
-            const taskCard = e.target.closest('.task-card');
-            const preview = taskCard.querySelector('.teacher-preview');
-            const isHidden = preview.classList.contains('hidden');
-            
-            if (isHidden) {
-                updatePreview(taskCard);
-                e.target.textContent = 'Скрыть пример';
-            } else {
-                preview.classList.add('hidden');
-                e.target.textContent = 'Показать пример';
-            }
-        }
-        
-        // Сгенерировать новый пример
-        if (e.target.classList.contains('btn-generate-preview')) {
-            const taskCard = e.target.closest('.task-card');
-            updatePreview(taskCard);
-        }
-    });
 
     // Удаление задания
     tasksContainer.addEventListener('click', function(e) {
@@ -240,6 +119,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // Обновление нумерации заданий
+    function updateTaskNumbers() {
+        document.querySelectorAll('.task-card').forEach((card, index) => {
+            card.querySelector('.task-number').textContent = index + 1;
+        });
+    }
 
     // Сохранение урока
     saveLessonBtn.addEventListener('click', function() {
@@ -271,6 +157,88 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         });
+    });
+    function generateExample(questionTemplate, answerTemplate) {
+        // Находим параметры в шаблоне
+        const paramRegex = /\{([A-Za-z]+)\}/g;
+        const params = {};
+        let match;
+        
+        // Генерируем случайные значения для параметров
+        while ((match = paramRegex.exec(questionTemplate + answerTemplate)) {
+            const param = match[1];
+            if (!params[param]) {
+                params[param] = Math.floor(Math.random() * 10) + 1; // Значения от 1 до 10
+            }
+        }
+        
+        // Заменяем параметры в вопросе
+        let exampleQuestion = questionTemplate;
+        for (const [param, value] of Object.entries(params)) {
+            exampleQuestion = exampleQuestion.replace(new RegExp(`\\{${param}\\}`, 'g'), value);
+        }
+        
+        // Вычисляем ответ
+        let exampleAnswer;
+        try {
+            // Заменяем параметры в формуле ответа
+            let answerFormula = answerTemplate;
+            for (const [param, value] of Object.entries(params)) {
+                answerFormula = answerFormula.replace(new RegExp(`\\{${param}\\}`, 'g'), value);
+            }
+            // Вычисляем ответ (осторожно с eval!)
+            exampleAnswer = eval(answerFormula).toString();
+        } catch (e) {
+            exampleAnswer = "Ошибка в формуле ответа";
+        }
+        
+        return {
+            question: exampleQuestion,
+            answer: exampleAnswer,
+            params: params
+        };
+    }
+
+    function updatePreview(taskCard) {
+        const question = taskCard.querySelector('.task-question').value;
+        const answer = taskCard.querySelector('.task-answer').value;
+        const preview = taskCard.querySelector('.teacher-preview');
+        
+        if (!question || !answer) {
+            return;
+        }
+        
+        const example = generateExample(question, answer);
+        
+        taskCard.querySelector('.preview-question').textContent = example.question;
+        taskCard.querySelector('.preview-answer').textContent = example.answer;
+        taskCard.querySelector('.preview-params').textContent = 
+            Object.entries(example.params).map(([k, v]) => `${k}=${v}`).join(', ');
+        
+        preview.classList.remove('hidden');
+    }
+
+    // Обработчики для кнопок предпросмотра
+    document.addEventListener('click', function(e) {
+        // Показать/скрыть превью
+        if (e.target.classList.contains('btn-show-preview')) {
+            const taskCard = e.target.closest('.task-card');
+            const preview = taskCard.querySelector('.teacher-preview');
+            const isHidden = preview.classList.contains('hidden');
+            
+            if (isHidden) {
+                updatePreview(taskCard);
+            } else {
+                preview.classList.add('hidden');
+            }
+            e.target.textContent = isHidden ? 'Скрыть пример' : 'Показать пример';
+        }
+        
+        // Сгенерировать новый пример
+        if (e.target.classList.contains('btn-generate-preview')) {
+            const taskCard = e.target.closest('.task-card');
+            updatePreview(taskCard);
+        }
     });
 
     // Добавление пустого задания

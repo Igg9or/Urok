@@ -1,0 +1,61 @@
+[
+    {
+        "textbook_id": 1,
+        "name": "Порядок действий (простой)",
+        "question_template": "Назовите порядок действий и устно вычислите: {A} - {B} : {C}",
+        "answer_template": "{A} - {B} / {C}",
+        "parameters": {
+            "A": {"min": 1000, "max": 2000, "type": "int"},
+            "B": {"min": 100, "max": 200, "type": "int", "constraints": [{"type": "multiple_of", "value": 10}]},
+            "C": {"min": 2, "max": 10, "type": "int"}
+        },
+        "conditions": "B % C == 0"
+    },
+    {
+        "textbook_id": 1,
+        "name": "Порядок действий (со скобками)",
+        "question_template": "Назовите порядок действий и устно вычислите: ({A} - {B} + {C}) : ({D} - {E})",
+        "answer_template": "({A} - {B} + {C}) / ({D} - {E})",
+        "parameters": {
+            "A": {"min": 400, "max": 600, "type": "int", "constraints": [{"type": "multiple_of", "value": 100}]},
+            "B": {"min": 50, "max": 200, "type": "int", "constraints": [{"type": "multiple_of", "value": 10}]},
+            "C": {"min": 100, "max": 300, "type": "int", "constraints": [{"type": "multiple_of", "value": 100}]},
+            "D": {"min": 300, "max": 400, "type": "int"},
+            "E": {"min": 290, "max": 399, "type": "int"}
+        },
+        "conditions": "(A - B + C) % (D - E) == 0 && (D - E) != 0"
+    },
+
+    {
+        "textbook_id": 1,
+        "name": "Задача на сложение количеств",
+        "question_template": "Один комбайнёр намолотил {A} т зерна, а второй — на {B} т меньше. Сколько зерна намолотили оба комбайнёра?",
+        "answer_template": "{A} + ({A} - {B})",
+        "parameters": {
+            "A": {"min": 100, "max": 300, "type": "int"},
+            "B": {"min": 20, "max": 100, "type": "int"},
+            "conditions": "A > B"
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "Задача на массу",
+        "question_template": "Масса яблока {A} г, а масса груши на {B} г больше. Какова масса трёх таких яблок и груши?",
+        "answer_template": "3 * {A} + ({A} + {B})",
+        "parameters": {
+            "A": {"min": 100, "max": 200, "type": "int", "constraints": [{"type": "multiple_of", "value": 10}]},
+            "B": {"min": 30, "max": 100, "type": "int", "constraints": [{"type": "multiple_of", "value": 10}]}
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "Задача на сравнение расстояний",
+        "question_template": "Расстояние от дома до школы {A} м, а расстояние от дома до стадиона {B} м. На сколько метров расстояние от дома до школы меньше расстояния от дома до стадиона?",
+        "answer_template": "{B} - {A}",
+        "parameters": {
+            "A": {"min": 300, "max": 500, "type": "int", "constraints": [{"type": "multiple_of", "value": 10}]},
+            "B": {"min": 1000, "max": 2000, "type": "int", "constraints": [{"type": "multiple_of", "value": 10}]},
+            "conditions": "B > A"
+        }
+    }
+]

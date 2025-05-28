@@ -1,5 +1,3 @@
-// Исправленная версия edit_lesson.js
-
 document.addEventListener('DOMContentLoaded', function() {
     const lessonId = window.location.pathname.split('/').pop();
     const tasksContainer = document.getElementById('tasksContainer');
@@ -81,78 +79,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // Генерация примера для учителя
-    function generateExample(questionTemplate, answerTemplate) {
-        const paramRegex = /\{([A-Za-z]+)\}/g;
-        const params = {};
-        let match;
-        
-        // Генерируем случайные значения для параметров (1-10)
-        while ((match = paramRegex.exec(questionTemplate + answerTemplate))) {
-            const param = match[1];
-            if (!params[param]) {
-                params[param] = Math.floor(Math.random() * 10) + 1;
-            }
-        }
-        
-        // Заменяем параметры в вопросе
-        let exampleQuestion = questionTemplate;
-        for (const [param, value] of Object.entries(params)) {
-            exampleQuestion = exampleQuestion.replace(new RegExp(`\\{${param}\\}`, 'g'), value);
-        }
-        
-        // Вычисляем ответ (безопасный eval)
-        let exampleAnswer;
-        try {
-            let answerFormula = answerTemplate;
-            for (const [param, value] of Object.entries(params)) {
-                answerFormula = answerFormula.replace(new RegExp(`\\{${param}\\}`, 'g'), value);
-            }
-            exampleAnswer = safeEval(answerFormula)?.toString() ?? "Ошибка в формуле";
-        } catch (e) {
-            exampleAnswer = "Ошибка в формуле ответа";
-        }
-        
-        return {
-            question: exampleQuestion,
-            answer: exampleAnswer,
-            params: params
-        };
-    }
-
-    // Безопасное вычисление выражения
-    function safeEval(formula) {
-        // Удаляем все потенциально опасные символы
-        const cleanFormula = formula.replace(/[^0-9+\-*/().{}\s]/g, '');
-        try {
-            return new Function('return ' + cleanFormula)();
-        } catch (e) {
-            console.error('Ошибка вычисления:', e);
-            return null;
-        }
-    }
-
-    // Обновление предпросмотра
-    function updatePreview(taskCard) {
-        const question = taskCard.querySelector('.task-question').value;
-        const answer = taskCard.querySelector('.task-answer').value;
-        const preview = taskCard.querySelector('.teacher-preview');
-        
-        if (!question || !answer) {
-            preview.classList.add('hidden');
-            return;
-        }
-        
-        const example = generateExample(question, answer);
-        
-        taskCard.querySelector('.preview-question').textContent = example.question;
-        taskCard.querySelector('.preview-answer').textContent = example.answer;
-        taskCard.querySelector('.preview-params').textContent = 
-            Object.entries(example.params).map(([k, v]) => `${k}=${v}`).join(', ');
-        
-        preview.classList.remove('hidden');
-    }
-
     // Добавление нового задания
     function addTask(question = '', answer = '') {
         const taskNumber = tasksContainer.children.length + 1;
@@ -188,37 +114,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Обновление нумерации заданий
-    function updateTaskNumbers() {
-        document.querySelectorAll('.task-card').forEach((card, index) => {
-            card.querySelector('.task-number').textContent = index + 1;
-        });
-    }
-
-    // Обработчики событий
-    document.addEventListener('click', function(e) {
-        // Показать/скрыть превью
-        if (e.target.classList.contains('btn-show-preview')) {
-            const taskCard = e.target.closest('.task-card');
-            const preview = taskCard.querySelector('.teacher-preview');
-            const isHidden = preview.classList.contains('hidden');
-            
-            if (isHidden) {
-                updatePreview(taskCard);
-                e.target.textContent = 'Скрыть пример';
-            } else {
-                preview.classList.add('hidden');
-                e.target.textContent = 'Показать пример';
-            }
-        }
-        
-        // Сгенерировать новый пример
-        if (e.target.classList.contains('btn-generate-preview')) {
-            const taskCard = e.target.closest('.task-card');
-            updatePreview(taskCard);
-        }
-    });
-
     // Удаление задания
     tasksContainer.addEventListener('click', function(e) {
         if (e.target.classList.contains('btn-remove-task')) {
@@ -240,6 +135,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // Обновление нумерации заданий
+    function updateTaskNumbers() {
+        document.querySelectorAll('.task-card').forEach((card, index) => {
+            card.querySelector('.task-number').textContent = index + 1;
+        });
+    }
 
     // Сохранение урока
     saveLessonBtn.addEventListener('click', function() {
@@ -272,6 +174,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
 
     // Добавление пустого задания
     addTaskBtn.addEventListener('click', function() {

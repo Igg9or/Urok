@@ -1,0 +1,52 @@
+[
+    {
+        "textbook_id": 1,
+        "name": "Порядок действий (простой)",
+        "question_template": "Назовите порядок действий и устно вычислите: {A} - {B} : {C}",
+        "answer_template": "{A} - {B} / {C}",
+        "parameters": {
+            "A": {"min": 100, "max": 200, "type": "int"},
+            "B": {"min": 60, "max": 100, "type": "int", "constraints": [{"type": "multiple_of", "value": 10}]},
+            "C": {"min": 2, "max": 10, "type": "int"},
+            "conditions": "B % C == 0"
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "Порядок действий (со скобками)",
+        "question_template": "Назовите порядок действий и устно вычислите: ({A} - {B} + {C}) : ({D} - {E})",
+        "answer_template": "({A} - {B} + {C}) / ({D} - {E})",
+        "parameters": {
+            "A": {"min": 200, "max": 400, "type": "int", "constraints": [{"type": "multiple_of", "value": 10}]},
+            "B": {"min": 30, "max": 100, "type": "int", "constraints": [{"type": "multiple_of", "value": 10}]},
+            "C": {"min": 100, "max": 300, "type": "int", "constraints": [{"type": "multiple_of", "value": 100}]},
+            "D": {"min": 300, "max": 400, "type": "int"},
+            "E": {"min": 290, "max": 399, "type": "int"},
+            "conditions": "(A - B + C) % (D - E) == 0 && (D - E) != 0"
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "Число по разрядам",
+        "question_template": "Напишите число, в котором: {H} сотен, {T} десятков, {U} единиц.",
+        "answer_template": "H * 100 + T * 10 + U",
+        "parameters": {
+            "H": {"min": 1, "max": 9, "type": "int"},
+            "T": {"min": 0, "max": 9, "type": "int"},
+            "U": {"min": 0, "max": 9, "type": "int"}
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "Сумма разрядных слагаемых",
+        "question_template": "Найдите сумму: {A} + {B} + {C} + {D} + {E}",
+        "answer_template": "A + B + C + D + E",
+        "parameters": {
+            "A": {"min": 100, "max": 900, "type": "int", "constraints": [{"type": "multiple_of", "value": 100}]},
+            "B": {"min": 10, "max": 90, "type": "int", "constraints": [{"type": "multiple_of", "value": 10}]},
+            "C": {"min": 1, "max": 9, "type": "int"},
+            "D": {"min": 1000, "max": 9000, "type": "int", "constraints": [{"type": "multiple_of", "value": 1000}]},
+            "E": {"min": 10000, "max": 90000, "type": "int", "constraints": [{"type": "multiple_of", "value": 10000}]}
+        }
+    }
+]

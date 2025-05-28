@@ -1196,7 +1196,6 @@ def get_textbook_templates(textbook_id):
         return jsonify({'error': str(e)}), 500
     finally:
         conn.close()
-        
 @app.route('/api/textbooks/<int:textbook_id>/templates')
 def get_templates(textbook_id):
     if 'user_id' not in session or session['role'] != 'teacher':

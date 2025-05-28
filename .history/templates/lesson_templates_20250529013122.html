@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Шаблоны заданий для уроков</title>
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/math_editor.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Логотип" class="header-logo">
+                <h1>Шаблоны заданий для уроков</h1>
+            </div>
+            <div class="header-right">
+                <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-secondary">← Назад</a>
+            </div>
+        </header>
+
+        <main class="templates-container">
+            <div class="templates-actions">
+                <button id="showFormBtn" class="btn btn-primary">+ Новый шаблон</button>
+                <select id="textbookSelect" class="form-control">
+                    <option value="">Выберите учебник...</option>
+                    {% for textbook in textbooks %}
+                    <option value="{{ textbook.id }}">{{ textbook.title }} ({{ textbook.grade }} класс)</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Форма создания шаблона -->
+            <div id="templateForm" class="template-form hidden">
+                <h3>Создание шаблона задания</h3>
+                <div class="form-group">
+                    <label>Название шаблона:</label>
+                    <input type="text" id="templateName" class="form-control">
+                </div>
+                
+                <div class="math-editor">
+                    <h4>Шаблон вопроса:</h4>
+                    <textarea id="questionTemplate" class="math-editor-area"></textarea>
+                </div>
+                
+                <div class="math-editor">
+                    <h4>Формула ответа:</h4>
+                    <textarea id="answerTemplate" class="math-editor-area"></textarea>
+                </div>
+                
+                <div id="paramsContainer"></div>
+                
+                <div class="form-actions">
+                    <button id="saveTemplateBtn" class="btn btn-primary">Сохранить</button>
+                    <button id="cancelBtn" class="btn btn-secondary">Отмена</button>
+                </div>
+            </div>
+
+            <!-- Список шаблонов -->
+            <div id="templatesList" class="templates-list">
+                <!-- Шаблоны будут загружаться здесь -->
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/lesson_templates.js') }}"></script>
+</body>
+</html>

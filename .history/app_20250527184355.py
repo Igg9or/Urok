@@ -1,4 +1,4 @@
-from flask import Flask, flash, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 import os, re, json, random
@@ -110,16 +110,6 @@ def init_db():
             answer_type TEXT DEFAULT 'numeric',  
             UNIQUE(textbook_id, name))
     ''')
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS lesson_templates (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        question_template TEXT NOT NULL,
-        answer_template TEXT NOT NULL,
-        parameters TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-''')
 
 
     # В функции init_db(), после создания таблиц:
@@ -333,7 +323,7 @@ def edit_lesson(lesson_id):
 
     conn = get_db()
     try:
-        # Получаем информацию об уроке
+        # Получаем урок
         lesson = conn.execute('''
             SELECT l.id, l.title, l.date, c.grade, c.letter 
             FROM lessons l
@@ -350,15 +340,13 @@ def edit_lesson(lesson_id):
             WHERE lesson_id = ?
         ''', (lesson_id,)).fetchall()
         
-        # Получаем все учебники и шаблоны уроков
+        # Получаем все учебники для выпадающего списка
         textbooks = conn.execute('SELECT * FROM textbooks ORDER BY grade, title').fetchall()
-        lesson_templates = conn.execute('SELECT * FROM lesson_templates').fetchall()
         
         return render_template('edit_lesson.html',
                             lesson=dict(lesson),
                             tasks=[dict(task) for task in tasks],
-                            textbooks=textbooks,
-                            lesson_templates=lesson_templates)
+                            textbooks=textbooks)
     finally:
         conn.close()
 
@@ -746,7 +734,38 @@ def start_lesson(lesson_id):
                             lesson=dict(lesson),
                             tasks=tasks,
                             user_id=user_id)
+
+
+    for task in base_tasks:
+        # Генерация варианта
+        variant_data = {
+            'question_template': task['question'],
+            'answer_template': task['answer'],
+            'parameters': {}  # Будем заполнять параметрами из вопроса
+        }
         
+        # Извлекаем параметры из вопроса
+        param_matches = set(re.findall(r'\{([A-Za-z]+)\}', task['question']))
+        for param in param_matches:
+            variant_data['parameters'][param] = {
+                'min': 1,
+                'max': 10,
+                'type': 'int'
+            }
+        
+        variant = TaskGenerator.generate_task_variant(variant_data)
+        
+        if variant:
+            tasks.append(variant)
+        else:
+            # Если не удалось сгенерировать, используем базовый вариант
+            tasks.append({
+                'id': task['id'],
+                'question': task['question'],
+                'correct_answer': task['answer'],
+                'params': {}
+            })
+               
     except Exception as e:
         conn.rollback()
         print(f"Error: {e}")
@@ -1178,25 +1197,7 @@ def save_template():
     finally:
         conn.close()
 
-def get_textbook_templates(textbook_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
 
-    conn = get_db()
-    try:
-        templates = conn.execute('''
-            SELECT * FROM task_templates WHERE textbook_id = ?
-        ''', (textbook_id,)).fetchall()
-        
-        return jsonify({
-            'success': True,
-            'templates': [dict(t) for t in templates]
-        })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-    finally:
-        conn.close()
-        
 @app.route('/api/textbooks/<int:textbook_id>/templates')
 def get_templates(textbook_id):
     if 'user_id' not in session or session['role'] != 'teacher':
@@ -1335,89 +1336,6 @@ def generate_from_template(template_id):
     finally:
         conn.close()
 
-# В app.py добавляем новые маршруты и изменяем существующие
-
-@app.route('/teacher/lesson_templates')
-def manage_lesson_templates():
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return redirect(url_for('login'))
-    
-    conn = get_db()
-    try:
-        # Получаем все учебники для выбора шаблонов
-        textbooks = conn.execute('SELECT * FROM textbooks ORDER BY grade, title').fetchall()
-        return render_template('lesson_templates.html',
-                            full_name=session['full_name'],
-                            textbooks=textbooks)
-    except Exception as e:
-        print(f"Error: {e}")
-        return "Произошла ошибка", 500
-    finally:
-        conn.close()
-
-@app.route('/api/lesson_templates', methods=['POST'])
-def save_lesson_template():
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    data = request.get_json()
-    required_fields = ['name', 'question_template', 'answer_template', 'parameters']
-    
-    if not all(field in data for field in required_fields):
-        return jsonify({'error': 'Missing required fields'}), 400
-
-    conn = get_db()
-    try:
-        # Сохраняем шаблон для урока (без привязки к учебнику)
-        conn.execute('''
-            INSERT INTO lesson_templates 
-            (name, question_template, answer_template, parameters)
-            VALUES (?, ?, ?, ?)
-        ''', (
-            data['name'],
-            data['question_template'],
-            data['answer_template'],
-            json.dumps(data['parameters'])
-        ))
-        
-        conn.commit()
-        return jsonify({
-            'success': True,
-            'template_id': conn.execute('SELECT last_insert_rowid()').fetchone()[0]
-        })
-    except Exception as e:
-        conn.rollback()
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-    finally:
-        conn.close()
-
-@app.route('/api/lesson_templates/<int:template_id>')
-def get_lesson_template(template_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-
-    conn = get_db()
-    try:
-        template = conn.execute('''
-            SELECT * FROM lesson_templates WHERE id = ?
-        ''', (template_id,)).fetchone()
-
-        if not template:
-            return jsonify({'error': 'Template not found'}), 404
-
-        return jsonify({
-            'success': True,
-            'template': dict(template)
-        })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-    finally:
-        conn.close()
-                
-               
 with app.app_context():
     init_db()
 

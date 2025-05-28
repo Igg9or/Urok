@@ -1,0 +1,76 @@
+Учитель:
+
+Логин: teacher1
+
+Пароль: teacher123
+
+Ученик:
+
+Логин: student1
+
+Пароль: student123
+
+$outputFile = ".\project_code.txt"
+
+# Исключаемые директории
+$excludedDirs = @(
+    "__pycache__", ".git", ".idea", "node_modules", 
+    "venv", "env", "dist", "build", "*.egg-info",
+    "*.vs", "*.vscode", "*.history"
+)
+
+# Исключаемые файлы
+$excludedFiles = @(
+    "*.pyc", "*.pyo", "*.pyd", "*.db", 
+    "*.log", "*.tmp", "*.bak", "*.swp", "*.swo", "*.min.*"
+)
+
+# Создаем выходной файл в UTF-8 с BOM (для корректного отображения русских символов)
+[System.IO.File]::WriteAllText($outputFile, "", [System.Text.Encoding]::UTF8)
+
+Get-ChildItem -Path . -Recurse -File | Where-Object {
+    ($_.Extension -in '.py', '.css', '.js', '.html', '.htm') -and
+    ($excludedFiles -notcontains $_.Name)
+} | ForEach-Object {
+    $skip = $false
+    foreach ($dir in $excludedDirs) {
+        if ($_.FullName -like "*\$dir\*") { $skip = $true; break }
+    }
+    if (-not $skip) { $_ }
+} | ForEach-Object {
+    $relativePath = $_.FullName.Substring((Get-Location).Path.Length + 1)
+    $separator = "=" * 80
+    $header = "`n$separator`nФАЙЛ: $relativePath`n$separator`n"
+    
+    # Добавляем заголовок
+    [System.IO.File]::AppendAllText($outputFile, $header, [System.Text.Encoding]::UTF8)
+    
+    # Читаем содержимое файла с автоматическим определением кодировки
+    $content = [System.IO.File]::ReadAllText($_.FullName)
+    [System.IO.File]::AppendAllText($outputFile, $content, [System.Text.Encoding]::UTF8)
+}
+
+Write-Host "Готово! Все файлы сохранены в:"
+Write-Host (Resolve-Path $outputFile).Path -ForegroundColor Green
+
+
+
+Ну вот почему тут вмеесто C ничего не подставилось? 
+Вопрос: Назовите порядок действий и устно вычислите: 110 - 50 : {C}
+
+Ответ: Неверная формула ответа
+
+И тут 
+Вопрос: Назовите порядок действий и устно вычислите: (170 - 70 + {C}) : ({D} - {E})
+
+Ответ: Неверная формула ответа
+
+
+Параметры все верно говорит Используйте параметры: A (400-600, кратно 100), B (50-200, кратно 10), C (100-300, кратно 100), D (300-400), E (290-399)
+
+
+А вот в этом задание,   Расстояние от дома до школы 150 м, а расстояние от дома до стадиона 100 м. На сколько метров расстояние от дома до школы меньше расстояния от дома до стадиона?
+
+Ответ: -50
+
+У меня в json задания стоит "conditions": "B > A", но это условиие не учитывается и получается отрицательный результат

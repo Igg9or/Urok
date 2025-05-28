@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактирование урока | Math Teaching System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/edit_lesson.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Логотип" class="header-logo">
+                <h1>Редактирование урока: {{ lesson.title }}</h1>
+            </div>
+            <div class="header-right">
+                <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-secondary">← Назад</a>
+            </div>
+        </header>
+
+        <main class="edit-lesson-container">
+            <aside class="templates-sidebar">
+                <div class="sidebar-header">
+                    <h3>Шаблоны заданий</h3>
+                    <select id="textbookSelect" class="form-control">
+                        {% for textbook in textbooks %}
+                        <option value="{{ textbook.id }}">{{ textbook.title }} ({{ textbook.grade }} класс)</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="templates-list">
+                    <div class="search-box">
+                        <input type="text" id="templateSearch" placeholder="Поиск шаблонов...">
+                    </div>
+                    
+                    <div class="template-items" id="templateItems">
+                        <!-- Шаблоны будут загружаться здесь -->
+                    </div>
+                </div>
+            </aside>
+            
+            <div class="lesson-meta">
+                <h3>Класс: {{ lesson.grade }}</h3>
+                <p>Дата проведения: {{ lesson.date }}</p>
+            </div>
+
+            <div class="tasks-section">
+                <h2>Задания урока</h2>
+                <div class="task-creation-guide">
+                    <h4>Как создавать задания:</h4>
+                    <p>Используйте параметры в фигурных скобках {A}, {B} и т.д. Они будут заменены случайными значениями для каждого ученика.</p>
+                    <p>Пример: "Решите уравнение: {A}x + {B} = {C}"</p>
+                </div>
+                
+                <div id="tasksContainer">
+                    {% for task in tasks %}
+                    <div class="task-card" data-task-id="{{ task.id }}">
+                        <div class="task-header">
+                            <h3>Задание <span class="task-number">1</span></h3>
+                            <button class="btn btn-danger btn-remove-task">Удалить</button>
+                        </div>
+                        <textarea class="task-question">{{ task.question }}</textarea>
+                        <div class="task-preview">
+                            <h4>Пример для учителя:</h4>
+                            <div class="preview-examples"></div>
+                        </div>
+                        <div class="template-params">
+    {% if 'conditions' in template.parameters %}
+    <p class="conditions">Условия: {{ template.parameters.conditions }}</p>
+    {% endif %}
+</div>
+                        <div class="answer-section">
+                            <label>Формула ответа:</label>
+                            <textarea class="task-answer">{{ task.answer }}</textarea>
+                            <p class="hint">Используйте параметры из вопроса ({A}, {B}) для расчета ответа</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button id="addTaskBtn" class="btn btn-primary">+ Добавить задание</button>
+            </div>
+
+            <div class="save-actions">
+                <button id="saveLessonBtn" class="btn btn-save">Сохранить изменения</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/edit_lesson.js') }}"></script>
+</body>
+</html>
