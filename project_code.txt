@@ -2,12 +2,14 @@
 ================================================================================
 ФАЙЛ: app.py
 ================================================================================
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, flash, render_template, request, redirect, url_for, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 import os, re, json, random
 import datetime
 from datetime import datetime as dt
+from math_engine import MathEngine
+from task_generator import TaskGenerator
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
@@ -114,6 +116,16 @@ def init_db():
             answer_type TEXT DEFAULT 'numeric',  
             UNIQUE(textbook_id, name))
     ''')
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS lesson_templates (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        question_template TEXT NOT NULL,
+        answer_template TEXT NOT NULL,
+        parameters TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+''')
 
 
     # В функции init_db(), после создания таблиц:
@@ -327,7 +339,7 @@ def edit_lesson(lesson_id):
 
     conn = get_db()
     try:
-        # Получаем урок
+        # Получаем информацию об уроке
         lesson = conn.execute('''
             SELECT l.id, l.title, l.date, c.grade, c.letter 
             FROM lessons l
@@ -344,13 +356,15 @@ def edit_lesson(lesson_id):
             WHERE lesson_id = ?
         ''', (lesson_id,)).fetchall()
         
-        # Получаем все учебники для выпадающего списка
+        # Получаем все учебники и шаблоны уроков
         textbooks = conn.execute('SELECT * FROM textbooks ORDER BY grade, title').fetchall()
+        lesson_templates = conn.execute('SELECT * FROM lesson_templates').fetchall()
         
         return render_template('edit_lesson.html',
                             lesson=dict(lesson),
                             tasks=[dict(task) for task in tasks],
-                            textbooks=textbooks)
+                            textbooks=textbooks,
+                            lesson_templates=lesson_templates)
     finally:
         conn.close()
 
@@ -1170,7 +1184,25 @@ def save_template():
     finally:
         conn.close()
 
+def get_textbook_templates(textbook_id):
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
 
+    conn = get_db()
+    try:
+        templates = conn.execute('''
+            SELECT * FROM task_templates WHERE textbook_id = ?
+        ''', (textbook_id,)).fetchall()
+        
+        return jsonify({
+            'success': True,
+            'templates': [dict(t) for t in templates]
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+        
 @app.route('/api/textbooks/<int:textbook_id>/templates')
 def get_templates(textbook_id):
     if 'user_id' not in session or session['role'] != 'teacher':
@@ -1273,22 +1305,30 @@ def generate_task():
 
 @app.route('/api/check_answer', methods=['POST'])
 def api_check_answer():
-    data = request.get_json()
-    user_answer = data.get('answer')
-    correct_answer = data.get('correct_answer')
-    params = data.get('params', {})
-    
     try:
+        data = request.get_json()
+        print("Received data:", data)  # Логирование входящих данных
+        
+        if not data or 'answer' not in data or 'correct_answer' not in data:
+            return jsonify({"error": "Invalid request data"}), 400
+            
+        user_answer = data.get('answer')
+        correct_answer = data.get('correct_answer')
+        params = data.get('params', {})
+        
         # Сравниваем математически, а не как строки
         user_val = MathEngine.evaluate_expression(user_answer, params)
         correct_val = MathEngine.evaluate_expression(correct_answer, params)
+        
+        print("User value:", user_val, "Correct value:", correct_val)  # Логирование вычислений
         
         return jsonify({
             "is_correct": abs(float(user_val) - float(correct_val)) < 1e-6,
             "evaluated_answer": user_val
         })
-    except:
-        return jsonify({"error": "Invalid expression"}), 400
+    except Exception as e:
+        print("Error in check_answer:", str(e))  # Логирование ошибок
+        return jsonify({"error": str(e)}), 500
     
 # В app.py добавить новый маршрут
 @app.route('/api/generate_from_template/<int:template_id>')
@@ -1308,7 +1348,90 @@ def generate_from_template(template_id):
         return jsonify({"error": str(e)}), 500
     finally:
         conn.close()
+
+# В app.py добавляем новые маршруты и изменяем существующие
+
+@app.route('/teacher/lesson_templates')
+def manage_lesson_templates():
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return redirect(url_for('login'))
+    
+    conn = get_db()
+    try:
+        # Получаем все учебники для выбора шаблонов
+        textbooks = conn.execute('SELECT * FROM textbooks ORDER BY grade, title').fetchall()
+        return render_template('lesson_templates.html',
+                            full_name=session['full_name'],
+                            textbooks=textbooks)
+    except Exception as e:
+        print(f"Error: {e}")
+        return "Произошла ошибка", 500
+    finally:
+        conn.close()
+
+@app.route('/api/lesson_templates', methods=['POST'])
+def save_lesson_template():
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    data = request.get_json()
+    required_fields = ['name', 'question_template', 'answer_template', 'parameters']
+    
+    if not all(field in data for field in required_fields):
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    conn = get_db()
+    try:
+        # Сохраняем шаблон для урока (без привязки к учебнику)
+        conn.execute('''
+            INSERT INTO lesson_templates 
+            (name, question_template, answer_template, parameters)
+            VALUES (?, ?, ?, ?)
+        ''', (
+            data['name'],
+            data['question_template'],
+            data['answer_template'],
+            json.dumps(data['parameters'])
+        ))
+        
+        conn.commit()
+        return jsonify({
+            'success': True,
+            'template_id': conn.execute('SELECT last_insert_rowid()').fetchone()[0]
+        })
+    except Exception as e:
+        conn.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+    finally:
+        conn.close()
+
+@app.route('/api/lesson_templates/<int:template_id>')
+def get_lesson_template(template_id):
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = get_db()
+    try:
+        template = conn.execute('''
+            SELECT * FROM lesson_templates WHERE id = ?
+        ''', (template_id,)).fetchone()
+
+        if not template:
+            return jsonify({'error': 'Template not found'}), 404
+
+        return jsonify({
+            'success': True,
+            'template': dict(template)
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
                 
+               
 with app.app_context():
     init_db()
 
@@ -1583,6 +1706,113 @@ class TaskGenerator:
 .constraint-value {
     flex: 2;
 }
+
+/* Основные стили контейнера */
+.edit-lesson-container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Боковая панель с учебниками */
+.textbook-sidebar {
+    width: 300px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    height: calc(100vh - 180px);
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    margin-bottom: 15px;
+}
+
+.templates-list {
+    margin-top: 15px;
+}
+
+/* Основная область редактирования */
+.lesson-edit-area {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Стили для списка заданий из учебника */
+.template-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.template-item:hover {
+    background: #e9f5ff;
+    border-color: #b8daff;
+}
+
+.template-item h4 {
+    margin: 0 0 5px 0;
+    color: #333;
+}
+
+.template-item p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.template-actions {
+    margin-top: 10px;
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 768px) {
+    .edit-lesson-container {
+        flex-direction: column;
+    }
+    
+    .textbook-sidebar {
+        width: 100%;
+        height: auto;
+        max-height: 300px;
+    }
+}
+/* Стили для блока предпросмотра */
+.teacher-preview {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 5px;
+    border: 1px solid #eee;
+}
+
+.teacher-preview h4 {
+    margin-top: 0;
+}
+
+.preview-content {
+    margin-bottom: 10px;
+}
+
+.preview-content p {
+    margin: 5px 0;
+}
+
+.btn-show-preview {
+    margin-top: 10px;
+    background: #e2e6ea;
+}
+
+.btn-generate-preview {
+    background: #d1ecf1;
+    color: #0c5460;
+}
 ================================================================================
 ФАЙЛ: static\css\math_editor.css
 ================================================================================
@@ -1644,6 +1874,326 @@ class TaskGenerator:
 ================================================================================
 ФАЙЛ: static\css\style.css
 ================================================================================
+
+    border-radius: 5px;
+    margin: 10px 0;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--primary-color);
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    text-align: center;
+    color: var(--light-text);
+    font-size: 14px;
+}
+
+/* Утилиты */
+.hidden {
+    display: none;
+}
+
+/* Стили для управления заданиями */
+.manage-tasks-container {
+    padding: 20px;
+}
+
+.textbooks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.textbook-card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    transition: transform 0.3s;
+}
+
+.textbook-card:hover {
+    transform: translateY(-5px);
+}
+
+.textbook-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 15px;
+    background-color: var(--secondary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.textbook-icon svg {
+    width: 30px;
+    height: 30px;
+    color: var(--primary-color);
+}
+/* Стили для управления шаблонами заданий */
+.textbook-tasks-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    padding: 20px;
+}
+
+.template-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: var(--shadow);
+}
+
+.template-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.template-content {
+    font-size: 14px;
+}
+
+.param-group {
+    background: var(--secondary-color);
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.param-control {
+    display: flex;
+    align-items: center;
+    margin: 5px 0;
+}
+
+.param-control label {
+    width: 80px;
+    margin-right: 10px;
+}
+
+.param-control input {
+    width: 60px;
+    padding: 5px;
+}
+.manage-tasks-container {
+    padding: 20px;
+}
+
+.textbooks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.textbook-card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    transition: transform 0.3s;
+}
+
+.textbook-card:hover {
+    transform: translateY(-5px);
+}
+
+.textbook-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 15px;
+    background-color: var(--secondary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.textbook-icon svg {
+    width: 30px;
+    height: 30px;
+    color: var(--primary-color);
+}
+/* Стили для управления учебниками */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.add-form {
+    background: var(--secondary-color);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.add-form .form-group {
+    margin-bottom: 15px;
+}
+
+.add-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.add-form .form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.no-textbooks {
+    text-align: center;
+    padding: 40px;
+    background: var(--secondary-color);
+    border-radius: 8px;
+    color: var(--light-text);
+}
+/* Стили для шаблонов заданий */
+.task-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: var(--shadow);
+}
+
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.task-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.task-content {
+    font-size: 14px;
+}
+
+.task-field {
+    margin-bottom: 10px;
+}
+
+.task-field label {
+    font-weight: 500;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.question-preview,
+.answer-preview {
+    background: var(--secondary-color);
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.no-tasks {
+    text-align: center;
+    padding: 40px;
+    background: var(--secondary-color);
+    border-radius: 8px;
+    color: var(--light-text);
+}
+
+.task-form {
+    background: var(--white);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+}
+
+.hint {
+    font-size: 13px;
+    color: var(--light-text);
+    margin-top: 5px;
+}
+/* Стили для страницы шаблонов */
+.textbook-tasks-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.task-form {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+}
+
+.templates-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.template-card {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.template-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.template-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.no-templates {
+    text-align: center;
+    color: #666;
+    padding: 20px;
+}
 
 .hidden {
     display: none;
@@ -2071,272 +2621,225 @@ document.addEventListener('DOMContentLoaded', function() {
 ================================================================================
 ФАЙЛ: static\js\edit_lesson.js
 ================================================================================
+// Исправленная версия edit_lesson.js
+
 document.addEventListener('DOMContentLoaded', function() {
+    const lessonId = window.location.pathname.split('/').pop();
     const tasksContainer = document.getElementById('tasksContainer');
     const addTaskBtn = document.getElementById('addTaskBtn');
     const saveLessonBtn = document.getElementById('saveLessonBtn');
-    const lessonId = window.location.pathname.split('/').pop();
+    const textbookSelect = document.getElementById('textbookSelect');
+    const templateSearch = document.getElementById('templateSearch');
+    const templatesList = document.getElementById('templatesList');
 
-    // ===== ОСНОВНЫЕ ФУНКЦИИ ДЛЯ РАБОТЫ С ЗАДАНИЯМИ =====
-    function getRandomInt(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+    // Загрузка шаблонов из учебника
+    textbookSelect.addEventListener('change', loadTemplates);
+    templateSearch.addEventListener('input', filterTemplates);
 
-    function generateExample(question, answer) {
-        const paramsEl = document.querySelector('.template-params');
-        const params = paramsEl ? JSON.parse(paramsEl.dataset.params) : {};
-        
-        // Генерация значений с учетом ограничений
-        const values = {};
-        for (const param in params) {
-            let valid = false;
-            let value;
-            const config = params[param];
-            
-            // Пытаемся сгенерировать значение, удовлетворяющее всем условиям
-            for (let i = 0; i < 100 && !valid; i++) {
-                value = config.type === 'float' ? 
-                    getRandomFloat(config.min, config.max) :
-                    getRandomInt(config.min, config.max);
-                
-                valid = true;
-                
-                // Проверяем ограничения
-                if (config.constraints) {
-                    for (const constraint of config.constraints) {
-                        if (constraint.type === 'multiple_of' && value % constraint.value !== 0) {
-                            valid = false;
-                        } else if (constraint.type === 'greater_than') {
-                            const compareTo = constraint.param ? values[constraint.param] : constraint.value;
-                            if (value <= compareTo) valid = false;
-                        }
-                        // другие проверки
-                    }
-                }
-            }
-            
-            values[param] = value || config.min; // fallback
+    // Добавление задания из шаблона
+    templatesList.addEventListener('click', function(e) {
+        if (e.target.classList.contains('btn-use-template')) {
+            const templateId = e.target.dataset.templateId;
+            addTaskFromTemplate(templateId);
         }
-        
-        // Заменяем параметры в вопросе и ответе
-        let exampleQuestion = question;
-        let exampleAnswer = answer;
-        
-        for (const param in values) {
-            const value = values[param];
-            exampleQuestion = exampleQuestion.replace(new RegExp(`\\{${param}\\}`, 'g'), value);
-            exampleAnswer = exampleAnswer.replace(new RegExp(`\\{${param}\\}`, 'g'), value);
-        }
-        
-        try {
-            exampleAnswer = eval(exampleAnswer).toString();
-        } catch (e) {
-            exampleAnswer = "Неверная формула ответа";
-        }
-        
-        return {
-            question: exampleQuestion,
-            answer: exampleAnswer,
-            params: values
-        };
-    }
+    });
 
-    function updatePreview(taskCard) {
-        const question = taskCard.querySelector('.task-question').value;
-        const answer = taskCard.querySelector('.task-answer').value;
-        const previewContainer = taskCard.querySelector('.preview-examples');
-        
-        if (!question || !answer) {
-            previewContainer.innerHTML = '<p>Введите вопрос и формулу ответа</p>';
+    // Загрузка шаблонов
+    function loadTemplates() {
+        const textbookId = textbookSelect.value;
+        if (!textbookId) {
+            templatesList.innerHTML = '<div class="empty-state"><p>Выберите учебник для просмотра заданий</p></div>';
             return;
         }
-        
-        const example = generateExample(question, answer);
-        previewContainer.innerHTML = `
-            <div class="example">
-                <p><strong>Вопрос:</strong> ${example.question}</p>
-                <p><strong>Ответ:</strong> ${example.answer}</p>
-                <p class="params">Параметры: ${JSON.stringify(example.params)}</p>
-            </div>
-        `;
+
+        fetch(`/api/textbooks/${textbookId}/templates`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    renderTemplates(data.templates);
+                }
+            });
     }
 
-    function updateTaskNumbers() {
-        const taskCards = document.querySelectorAll('.task-card');
-        taskCards.forEach((card, index) => {
-            card.querySelector('.task-number').textContent = index + 1;
-        });
-    }
-
-    // ===== ФУНКЦИОНАЛ ШАБЛОНОВ ИЗ УЧЕБНИКОВ =====
-    const textbookSelect = document.getElementById('textbookSelect');
-    const templateItems = document.getElementById('templateItems');
-    const templateSearch = document.getElementById('templateSearch');
-
-    // Загрузка шаблонов при изменении учебника
-    textbookSelect.addEventListener('change', loadTemplates);
-
-    // Поиск шаблонов
-    templateSearch.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        const items = templateItems.querySelectorAll('.template-item');
+    // Фильтрация шаблонов
+    function filterTemplates() {
+        const searchTerm = templateSearch.value.toLowerCase();
+        const items = templatesList.querySelectorAll('.template-item');
         
         items.forEach(item => {
             const text = item.textContent.toLowerCase();
             item.style.display = text.includes(searchTerm) ? 'block' : 'none';
         });
-    });
-
-    // Загрузка шаблонов из учебника
-    async function loadTemplates() {
-        
-        const textbookId = textbookSelect.value;
-        
-        
-        try {
-            const response = await fetch(`/api/textbooks/${textbookId}/templates`);
-            const data = await response.json();
-            
-            if (data.success) {
-                renderTemplates(data.templates);
-            } else {
-                throw new Error(data.error || 'Ошибка загрузки шаблонов');
-            }
-        } catch (error) {
-            console.error('Ошибка загрузки шаблонов:', error);
-            alert('Не удалось загрузить шаблоны');
-        }
     }
 
-    // Отображение списка шаблонов
+    // Отображение шаблонов
     function renderTemplates(templates) {
-        templateItems.innerHTML = templates.length ? '' : '<p>Нет шаблонов для этого учебника</p>';
-        
-        templates.forEach(template => {
-            const item = document.createElement('div');
-            item.className = 'template-item';
-            item.innerHTML = `
+        if (templates.length === 0) {
+            templatesList.innerHTML = '<div class="empty-state"><p>В этом учебнике нет шаблонов заданий</p></div>';
+            return;
+        }
+
+        templatesList.innerHTML = templates.map(template => `
+            <div class="template-item">
                 <h4>${template.name}</h4>
                 <p>${template.question_template}</p>
                 <div class="template-actions">
-                    <button class="btn btn-small btn-add-template" data-id="${template.id}">Добавить</button>
-                    <button class="btn btn-small btn-preview-template">Пример</button>
+                    <button class="btn btn-small btn-use-template" data-template-id="${template.id}">
+                        Добавить в урок
+                    </button>
                 </div>
-            `;
-            templateItems.appendChild(item);
-        });
-
-        // Обработчики для кнопок шаблонов
-        templateItems.querySelectorAll('.btn-add-template').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const templateId = this.dataset.id;
-                addTemplateToLesson(templateId);
-            });
-        });
-
-        templateItems.querySelectorAll('.btn-preview-template').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const templateItem = this.closest('.template-item');
-                const question = templateItem.querySelector('p').textContent;
-                alert(`Пример задания:\n\n${question}`);
-            });
-        });
+            </div>
+        `).join('');
     }
 
-    // Добавление шаблона в урок
-    async function addTemplateToLesson(templateId) {
-        try {
-            const response = await fetch(`/api/templates/${templateId}`);
-            const data = await response.json();
-            
-            if (data.success) {
-                const template = data.template;
-                createTaskFromTemplate(template);
-            } else {
-                throw new Error(data.error || 'Ошибка загрузки шаблона');
+    // Добавление задания из шаблона
+    function addTaskFromTemplate(templateId) {
+        fetch(`/api/templates/${templateId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const template = data.template;
+                    addTask(template.question_template, template.answer_template);
+                }
+            });
+    }
+
+    // Генерация примера для учителя
+    function generateExample(questionTemplate, answerTemplate) {
+        const paramRegex = /\{([A-Za-z]+)\}/g;
+        const params = {};
+        let match;
+        
+        // Генерируем случайные значения для параметров (1-10)
+        while ((match = paramRegex.exec(questionTemplate + answerTemplate))) {
+            const param = match[1];
+            if (!params[param]) {
+                params[param] = Math.floor(Math.random() * 10) + 1;
             }
-        } catch (error) {
-            console.error('Ошибка добавления шаблона:', error);
-            alert('Не удалось добавить шаблон');
+        }
+        
+        // Заменяем параметры в вопросе
+        let exampleQuestion = questionTemplate;
+        for (const [param, value] of Object.entries(params)) {
+            exampleQuestion = exampleQuestion.replace(new RegExp(`\\{${param}\\}`, 'g'), value);
+        }
+        
+        // Вычисляем ответ (безопасный eval)
+        let exampleAnswer;
+        try {
+            let answerFormula = answerTemplate;
+            for (const [param, value] of Object.entries(params)) {
+                answerFormula = answerFormula.replace(new RegExp(`\\{${param}\\}`, 'g'), value);
+            }
+            exampleAnswer = safeEval(answerFormula)?.toString() ?? "Ошибка в формуле";
+        } catch (e) {
+            exampleAnswer = "Ошибка в формуле ответа";
+        }
+        
+        return {
+            question: exampleQuestion,
+            answer: exampleAnswer,
+            params: params
+        };
+    }
+
+    // Безопасное вычисление выражения
+    function safeEval(formula) {
+        // Удаляем все потенциально опасные символы
+        const cleanFormula = formula.replace(/[^0-9+\-*/().{}\s]/g, '');
+        try {
+            return new Function('return ' + cleanFormula)();
+        } catch (e) {
+            console.error('Ошибка вычисления:', e);
+            return null;
         }
     }
 
-    // Создание задания из шаблона
-    function createTaskFromTemplate(template) {
-        const taskCard = document.createElement('div');
-        taskCard.className = 'task-card';
+    // Обновление предпросмотра
+    function updatePreview(taskCard) {
+        const question = taskCard.querySelector('.task-question').value;
+        const answer = taskCard.querySelector('.task-answer').value;
+        const preview = taskCard.querySelector('.teacher-preview');
         
-        // Парсим параметры шаблона
-        const params = JSON.parse(template.parameters);
-        const paramsHint = Object.keys(params).map(p => {
-            const constraints = params[p].constraints?.map(c => {
-                if (c.type === 'multiple_of') return `кратно ${c.value}`;
-                if (c.type === 'greater_than') return `> ${c.param || c.value}`;
-                // другие типы условий
-                return `${c.type} ${c.param || c.value}`;
-            }).join(', ');
-            
-            return `${p} (${params[p].min}-${params[p].max}${constraints ? ', ' + constraints : ''})`;
-        }).join(', ');
-
-        taskCard.innerHTML = `
-            <div class="task-header">
-                <h3>Задание <span class="task-number">${tasksContainer.children.length + 1}</span></h3>
-                <button class="btn btn-danger btn-remove-task">Удалить</button>
-            </div>
-            <textarea class="task-question">${template.question_template}</textarea>
-            <div class="task-preview">
-                <h4>Пример для учителя:</h4>
-                <div class="preview-examples"></div>
-            </div>
-            <div class="answer-section">
-                <label>Формула ответа:</label>
-                <textarea class="task-answer">${template.answer_template}</textarea>
-                <p class="hint">Используйте параметры: ${paramsHint}</p>
-                <div class="template-params hidden" data-params='${JSON.stringify(params)}'></div>
-            </div>
-        `;
+        if (!question || !answer) {
+            preview.classList.add('hidden');
+            return;
+        }
         
-        tasksContainer.appendChild(taskCard);
-        updateTaskNumbers();
-        updatePreview(taskCard);
+        const example = generateExample(question, answer);
         
-        // Добавляем обработчики для нового задания
-        taskCard.querySelector('.task-question').addEventListener('input', () => updatePreview(taskCard));
-        taskCard.querySelector('.task-answer').addEventListener('input', () => updatePreview(taskCard));
+        taskCard.querySelector('.preview-question').textContent = example.question;
+        taskCard.querySelector('.preview-answer').textContent = example.answer;
+        taskCard.querySelector('.preview-params').textContent = 
+            Object.entries(example.params).map(([k, v]) => `${k}=${v}`).join(', ');
         
-        // Прокручиваем к новому заданию
-        taskCard.scrollIntoView({ behavior: 'smooth' });
+        preview.classList.remove('hidden');
     }
 
-    // ===== ОСНОВНОЙ ФУНКЦИОНАЛ РЕДАКТИРОВАНИЯ УРОКА =====
     // Добавление нового задания
-    addTaskBtn.addEventListener('click', function() {
+    function addTask(question = '', answer = '') {
+        const taskNumber = tasksContainer.children.length + 1;
         const taskCard = document.createElement('div');
         taskCard.className = 'task-card';
         taskCard.innerHTML = `
             <div class="task-header">
-                <h3>Задание <span class="task-number">1</span></h3>
+                <h3>Задание <span class="task-number">${taskNumber}</span></h3>
                 <button class="btn btn-danger btn-remove-task">Удалить</button>
             </div>
-            <textarea class="task-question" placeholder="Введите вопрос с параметрами {A}, {B}..."></textarea>
-            <div class="task-preview">
-                <h4>Пример для учителя:</h4>
-                <div class="preview-examples"></div>
-            </div>
+            <textarea class="task-question">${question}</textarea>
             <div class="answer-section">
                 <label>Формула ответа:</label>
-                <textarea class="task-answer" placeholder="Введите формулу с параметрами {A}, {B}..."></textarea>
-                <p class="hint">Например: для вопроса "{A} + {B}" формула ответа будет "{A} + {B}"</p>
+                <textarea class="task-answer">${answer}</textarea>
             </div>
+            <div class="teacher-preview hidden">
+                <h4>Пример для учителя:</h4>
+                <div class="preview-content">
+                    <p><strong>Пример задания:</strong> <span class="preview-question"></span></p>
+                    <p><strong>Правильный ответ:</strong> <span class="preview-answer"></span></p>
+                    <p><strong>Используемые параметры:</strong> <span class="preview-params"></span></p>
+                </div>
+                <button class="btn btn-small btn-generate-preview">Сгенерировать новый пример</button>
+            </div>
+            <button class="btn btn-small btn-show-preview">Показать пример</button>
         `;
-        
         tasksContainer.appendChild(taskCard);
-        updateTaskNumbers();
         
-        // Добавляем обработчики для обновления превью
-        taskCard.querySelector('.task-question').addEventListener('input', () => updatePreview(taskCard));
-        taskCard.querySelector('.task-answer').addEventListener('input', () => updatePreview(taskCard));
+        // Если добавляем из шаблона, сразу показываем пример
+        if (question && answer) {
+            const previewBtn = taskCard.querySelector('.btn-show-preview');
+            previewBtn.click();
+        }
+    }
+
+    // Обновление нумерации заданий
+    function updateTaskNumbers() {
+        document.querySelectorAll('.task-card').forEach((card, index) => {
+            card.querySelector('.task-number').textContent = index + 1;
+        });
+    }
+
+    // Обработчики событий
+    document.addEventListener('click', function(e) {
+        // Показать/скрыть превью
+        if (e.target.classList.contains('btn-show-preview')) {
+            const taskCard = e.target.closest('.task-card');
+            const preview = taskCard.querySelector('.teacher-preview');
+            const isHidden = preview.classList.contains('hidden');
+            
+            if (isHidden) {
+                updatePreview(taskCard);
+                e.target.textContent = 'Скрыть пример';
+            } else {
+                preview.classList.add('hidden');
+                e.target.textContent = 'Показать пример';
+            }
+        }
+        
+        // Сгенерировать новый пример
+        if (e.target.classList.contains('btn-generate-preview')) {
+            const taskCard = e.target.closest('.task-card');
+            updatePreview(taskCard);
+        }
     });
 
     // Удаление задания
@@ -2349,9 +2852,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 fetch(`/teacher/delete_task/${taskId}`, {
                     method: 'DELETE'
                 }).then(response => {
-                    if (!response.ok) throw new Error('Ошибка удаления');
-                    taskCard.remove();
-                    updateTaskNumbers();
+                    if (response.ok) {
+                        taskCard.remove();
+                        updateTaskNumbers();
+                    }
                 });
             } else {
                 taskCard.remove();
@@ -2360,7 +2864,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Сохранение изменений
+    // Сохранение урока
     saveLessonBtn.addEventListener('click', function() {
         const tasks = [];
         document.querySelectorAll('.task-card').forEach(taskCard => {
@@ -2382,26 +2886,20 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.success) {
                 alert('Изменения сохранены!');
+                // Обновляем ID новых заданий
                 data.tasks.forEach((task, index) => {
                     if (!tasks[index].id) {
                         document.querySelectorAll('.task-card')[index].dataset.taskId = task.id;
                     }
                 });
-            } else {
-                alert('Ошибка сохранения: ' + (data.error || ''));
             }
         });
     });
 
-    // Инициализация превью для существующих заданий
-    document.querySelectorAll('.task-card').forEach(taskCard => {
-        taskCard.querySelector('.task-question').addEventListener('input', () => updatePreview(taskCard));
-        taskCard.querySelector('.task-answer').addEventListener('input', () => updatePreview(taskCard));
-        updatePreview(taskCard);
+    // Добавление пустого задания
+    addTaskBtn.addEventListener('click', function() {
+        addTask();
     });
-
-    // Первоначальная загрузка шаблонов
-    loadTemplates();
 });
 ================================================================================
 ФАЙЛ: static\js\manage_students.js
@@ -2701,10 +3199,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const correctAnswer = taskCard.querySelector('.correct-answer').textContent;
         const params = JSON.parse(taskCard.dataset.params || '{}');
         
-        if (!userAnswer) {
-            alert('Пожалуйста, введите ответ');
-            return;
-        }
+        console.log("Sending:", {  // Добавьте логирование перед отправкой
+            task_id: taskId,
+            answer: userAnswer,
+            correct_answer: correctAnswer,
+            params: params
+        });
         
         try {
             const response = await fetch('/api/check_answer', {
@@ -2718,17 +3218,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
             });
             
-            if (!response.ok) throw new Error('Ошибка сервера');
+            console.log("Response status:", response.status);  // Логирование статуса ответа
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Server error:", errorData);
+                throw new Error(errorData.error || 'Ошибка сервера');
+            }
             
             const result = await response.json();
+            console.log("Server response:", result);  // Логирование ответа сервера
+            
             showResult(taskCard, result.is_correct, result.evaluated_answer);
-            
-            // Сохраняем ответ в базу
             await saveAnswerToServer(taskId, userAnswer, result.is_correct);
-            
         } catch (error) {
             console.error('Error:', error);
-            alert('Произошла ошибка при проверке ответа');
+            alert('Произошла ошибка при проверке ответа: ' + error.message);
         }
     }
     
@@ -3490,11 +3995,9 @@ document.addEventListener('DOMContentLoaded', function() {
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Редактирование урока | Math Teaching System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/edit_lesson.css') }}">
+    <title>Редактирование урока | {{ lesson.title }}</title>
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/edit_lesson.css') }}" rel="stylesheet">
 </head>
 <body>
     <div class="dashboard-container">
@@ -3509,65 +4012,67 @@ document.addEventListener('DOMContentLoaded', function() {
         </header>
 
         <main class="edit-lesson-container">
-            <aside class="templates-sidebar">
+            <!-- Боковая панель с учебниками и заданиями -->
+            <aside class="textbook-sidebar">
                 <div class="sidebar-header">
-                    <h3>Шаблоны заданий</h3>
+                    <h3>Задания из учебников</h3>
                     <select id="textbookSelect" class="form-control">
+                        <option value="">Выберите учебник...</option>
                         {% for textbook in textbooks %}
                         <option value="{{ textbook.id }}">{{ textbook.title }} ({{ textbook.grade }} класс)</option>
                         {% endfor %}
                     </select>
+                    <input type="text" id="templateSearch" placeholder="Поиск заданий..." class="form-control">
                 </div>
                 
-                <div class="templates-list">
-                    <div class="search-box">
-                        <input type="text" id="templateSearch" placeholder="Поиск шаблонов...">
-                    </div>
-                    
-                    <div class="template-items" id="templateItems">
-                        <!-- Шаблоны будут загружаться здесь -->
+                <div class="templates-list" id="templatesList">
+                    <!-- Список заданий будет загружаться здесь -->
+                    <div class="empty-state">
+                        <p>Выберите учебник для просмотра заданий</p>
                     </div>
                 </div>
             </aside>
-            
-            <div class="lesson-meta">
-                <h3>Класс: {{ lesson.grade }}</h3>
-                <p>Дата проведения: {{ lesson.date }}</p>
-            </div>
 
-            <div class="tasks-section">
-                <h2>Задания урока</h2>
-                <div class="task-creation-guide">
-                    <h4>Как создавать задания:</h4>
-                    <p>Используйте параметры в фигурных скобках {A}, {B} и т.д. Они будут заменены случайными значениями для каждого ученика.</p>
-                    <p>Пример: "Решите уравнение: {A}x + {B} = {C}"</p>
+            <!-- Основная область редактирования -->
+            <div class="lesson-edit-area">
+                <div class="lesson-meta">
+                    <h3>Класс: {{ lesson.grade }}{{ lesson.letter }}</h3>
+                    <p>Дата проведения: {{ lesson.date }}</p>
                 </div>
-                
-                <div id="tasksContainer">
-                    {% for task in tasks %}
-                    <div class="task-card" data-task-id="{{ task.id }}">
-                        <div class="task-header">
-                            <h3>Задание <span class="task-number">1</span></h3>
-                            <button class="btn btn-danger btn-remove-task">Удалить</button>
+
+                <div class="tasks-section">
+                    <h2>Задания урока</h2>
+                    <div id="tasksContainer">
+                        {% for task in tasks %}
+                        <div class="task-card" data-task-id="{{ task.id }}">
+                            <div class="task-header">
+                                <h3>Задание <span class="task-number">{{ loop.index }}</span></h3>
+                                <button class="btn btn-danger btn-remove-task">Удалить</button>
+                            </div>
+                            <textarea class="task-question">{{ task.question }}</textarea>
+                            <div class="answer-section">
+                                <label>Формула ответа:</label>
+                                <textarea class="task-answer">{{ task.answer }}</textarea>
+                            </div>
+                            <div class="teacher-preview hidden">
+                                <h4>Пример для учителя:</h4>
+                                <div class="preview-content">
+                                    <p><strong>Пример задания:</strong> <span class="preview-question"></span></p>
+                                    <p><strong>Правильный ответ:</strong> <span class="preview-answer"></span></p>
+                                    <p><strong>Используемые параметры:</strong> <span class="preview-params"></span></p>
+                                </div>
+                                <button class="btn btn-small btn-generate-preview">Сгенерировать новый пример</button>
+                            </div>
+                            <button class="btn btn-small btn-show-preview">Показать пример</button>
                         </div>
-                        <textarea class="task-question">{{ task.question }}</textarea>
-                        <div class="task-preview">
-                            <h4>Пример для учителя:</h4>
-                            <div class="preview-examples"></div>
-                        </div>
-                        <div class="answer-section">
-                            <label>Формула ответа:</label>
-                            <textarea class="task-answer">{{ task.answer }}</textarea>
-                            <p class="hint">Используйте параметры из вопроса ({A}, {B}) для расчета ответа</p>
-                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
+                    <button id="addTaskBtn" class="btn btn-primary">+ Добавить задание</button>
                 </div>
-                <button id="addTaskBtn" class="btn btn-primary">+ Добавить задание</button>
-            </div>
 
-            <div class="save-actions">
-                <button id="saveLessonBtn" class="btn btn-save">Сохранить изменения</button>
+                <div class="save-actions">
+                    <button id="saveLessonBtn" class="btn btn-save">Сохранить урок</button>
+                </div>
             </div>
         </main>
     </div>

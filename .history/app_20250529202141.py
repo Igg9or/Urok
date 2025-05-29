@@ -1301,30 +1301,22 @@ def generate_task():
 
 @app.route('/api/check_answer', methods=['POST'])
 def api_check_answer():
+    data = request.get_json()
+    user_answer = data.get('answer')
+    correct_answer = data.get('correct_answer')
+    params = data.get('params', {})
+    
     try:
-        data = request.get_json()
-        print("Received data:", data)  # Логирование входящих данных
-        
-        if not data or 'answer' not in data or 'correct_answer' not in data:
-            return jsonify({"error": "Invalid request data"}), 400
-            
-        user_answer = data.get('answer')
-        correct_answer = data.get('correct_answer')
-        params = data.get('params', {})
-        
         # Сравниваем математически, а не как строки
         user_val = MathEngine.evaluate_expression(user_answer, params)
         correct_val = MathEngine.evaluate_expression(correct_answer, params)
-        
-        print("User value:", user_val, "Correct value:", correct_val)  # Логирование вычислений
         
         return jsonify({
             "is_correct": abs(float(user_val) - float(correct_val)) < 1e-6,
             "evaluated_answer": user_val
         })
-    except Exception as e:
-        print("Error in check_answer:", str(e))  # Логирование ошибок
-        return jsonify({"error": str(e)}), 500
+    except:
+        return jsonify({"error": "Invalid expression"}), 400
     
 # В app.py добавить новый маршрут
 @app.route('/api/generate_from_template/<int:template_id>')

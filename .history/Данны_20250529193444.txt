@@ -1,0 +1,55 @@
+Учитель:
+
+Логин: teacher1
+
+Пароль: teacher123
+
+Ученик:
+
+Логин: student1
+
+Пароль: student123
+
+$outputFile = ".\project_code.txt"
+
+# Исключаемые директории
+$excludedDirs = @(
+    "__pycache__", ".git", ".idea", "node_modules", 
+    "venv", "env", "dist", "build", "*.egg-info",
+    "*.vs", "*.vscode", "*.history"
+)
+
+# Исключаемые файлы
+$excludedFiles = @(
+    "*.pyc", "*.pyo", "*.pyd", "*.db", 
+    "*.log", "*.tmp", "*.bak", "*.swp", "*.swo", "*.min.*"
+)
+
+# Создаем выходной файл в UTF-8 с BOM (для корректного отображения русских символов)
+[System.IO.File]::WriteAllText($outputFile, "", [System.Text.Encoding]::UTF8)
+
+Get-ChildItem -Path . -Recurse -File | Where-Object {
+    ($_.Extension -in '.py', '.css', '.js', '.html', '.htm') -and
+    ($excludedFiles -notcontains $_.Name)
+} | ForEach-Object {
+    $skip = $false
+    foreach ($dir in $excludedDirs) {
+        if ($_.FullName -like "*\$dir\*") { $skip = $true; break }
+    }
+    if (-not $skip) { $_ }
+} | ForEach-Object {
+    $relativePath = $_.FullName.Substring((Get-Location).Path.Length + 1)
+    $separator = "=" * 80
+    $header = "`n$separator`nФАЙЛ: $relativePath`n$separator`n"
+    
+    # Добавляем заголовок
+    [System.IO.File]::AppendAllText($outputFile, $header, [System.Text.Encoding]::UTF8)
+    
+    # Читаем содержимое файла с автоматическим определением кодировки
+    $content = [System.IO.File]::ReadAllText($_.FullName)
+    [System.IO.File]::AppendAllText($outputFile, $content, [System.Text.Encoding]::UTF8)
+}
+
+Write-Host "Готово! Все файлы сохранены в:"
+Write-Host (Resolve-Path $outputFile).Path -ForegroundColor Green
+

@@ -4,38 +4,31 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Функция для отображения результата
     function showResult(taskCard, isCorrect, evaluatedAnswer = null) {
-    const feedback = taskCard.querySelector('.task-feedback');
-    const correctFeedback = taskCard.querySelector('.feedback-correct');
-    const incorrectFeedback = taskCard.querySelector('.feedback-incorrect');
-    const status = taskCard.querySelector('.task-status');
-    
-    if (!feedback || !correctFeedback || !incorrectFeedback || !status) {
-        console.error('Не найдены необходимые элементы DOM');
-        return;
-    }
-    
-    if (isCorrect) {
-        correctFeedback.classList.remove('hidden');
-        incorrectFeedback.classList.add('hidden');
-        status.style.backgroundColor = 'var(--success-color)';
-        completedTasks++;
-    } else {
-        correctFeedback.classList.add('hidden');
-        incorrectFeedback.classList.remove('hidden');
-        if (evaluatedAnswer) {
-            const userAnswerElement = incorrectFeedback.querySelector('.user-answer');
-            if (userAnswerElement) {
-                userAnswerElement.textContent = `Ваш ответ: ${evaluatedAnswer}`;
+        const feedback = taskCard.querySelector('.task-feedback');
+        const correctFeedback = taskCard.querySelector('.feedback-correct');
+        const incorrectFeedback = taskCard.querySelector('.feedback-incorrect');
+        const status = taskCard.querySelector('.task-status');
+        
+        if (isCorrect) {
+            correctFeedback.classList.remove('hidden');
+            incorrectFeedback.classList.add('hidden');
+            status.style.backgroundColor = 'var(--success-color)';
+            completedTasks++;
+        } else {
+            correctFeedback.classList.add('hidden');
+            incorrectFeedback.classList.remove('hidden');
+            if (evaluatedAnswer) {
+                incorrectFeedback.querySelector('.user-answer').textContent = 
+                    `Ваш ответ: ${evaluatedAnswer}`;
             }
+            status.style.backgroundColor = 'var(--error-color)';
         }
-        status.style.backgroundColor = 'var(--error-color)';
+        
+        feedback.classList.remove('hidden');
+        taskCard.querySelector('.answer-input').disabled = true;
+        taskCard.querySelector('.btn-check').disabled = true;
+        updateProgress();
     }
-    
-    feedback.classList.remove('hidden');
-    taskCard.querySelector('.answer-input').disabled = true;
-    taskCard.querySelector('.btn-check').disabled = true;
-    updateProgress();
-}
     
     // Новая функция проверки ответа через API
     async function checkAnswer(taskCard) {
@@ -43,6 +36,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const userAnswer = taskCard.querySelector('.answer-input').value.trim();
     const correctAnswer = taskCard.querySelector('.correct-answer').textContent;
     const params = JSON.parse(taskCard.dataset.params || '{}');
+    
+    console.log("Sending:", {  // Добавьте логирование перед отправкой
+        task_id: taskId,
+        answer: userAnswer,
+        correct_answer: correctAnswer,
+        params: params
+    });
     
     try {
         const response = await fetch('/api/check_answer', {
@@ -56,15 +56,16 @@ document.addEventListener('DOMContentLoaded', function() {
             })
         });
         
+        console.log("Response status:", response.status);  // Логирование статуса ответа
+        
         if (!response.ok) {
-            throw new Error('Ошибка сервера');
+            const errorData = await response.json();
+            console.error("Server error:", errorData);
+            throw new Error(errorData.error || 'Ошибка сервера');
         }
         
         const result = await response.json();
-        
-        if (result.error) {
-            throw new Error(result.error);
-        }
+        console.log("Server response:", result);  // Логирование ответа сервера
         
         showResult(taskCard, result.is_correct, result.evaluated_answer);
         await saveAnswerToServer(taskId, userAnswer, result.is_correct);
