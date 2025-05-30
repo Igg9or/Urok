@@ -1,0 +1,102 @@
+[
+    {
+        "textbook_id": 1,
+        "name": "1.1 Значение цифры 5",
+        "question_template": "Прочитайте числа: {A}; {B}; {C}; {D}; {E}; {F}. Что означает цифра 5 в записи каждого из этих чисел?",
+        "answer_template": "{A} - {A_5_pos}; {B} - {B_5_pos}; {C} - {C_5_pos}; {D} - {D_5_pos}; {E} - {E_5_pos}; {F} - {F_5_pos}",
+        "parameters": {
+            "A": {"min": 10, "max": 99, "type": "int", "constraints": [{"type": "contains", "value": "5"}]},
+            "B": {"min": 100, "max": 999, "type": "int", "constraints": [{"type": "contains", "value": "5"}]},
+            "C": {"min": 100, "max": 999, "type": "int", "constraints": [{"type": "contains", "value": "5"}]},
+            "D": {"min": 1000, "max": 9999, "type": "int", "constraints": [{"type": "contains", "value": "5"}]},
+            "E": {"min": 1000, "max": 9999, "type": "int", "constraints": [{"type": "contains", "value": "5"}]},
+            "F": {"min": 10000, "max": 99999, "type": "int", "constraints": [{"type": "contains", "value": "5"}]}
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "1.2 Значение цифры 0",
+        "question_template": "Что означает цифра 0 в записи каждого из чисел: {A}; {B}; {C}; {D}?",
+        "answer_template": "{A} - {A_0_pos}; {B} - {B_0_pos}; {C} - {C_0_pos}; {D} - {D_0_pos}",
+        "parameters": {
+            "A": {"min": 10, "max": 99, "type": "int", "constraints": [{"type": "contains", "value": "0"}, {"type": "multiple_of", "value": 10}]},
+            "B": {"min": 100, "max": 999, "type": "int", "constraints": [{"type": "contains", "value": "0"}]},
+            "C": {"min": 10000, "max": 99999, "type": "int", "constraints": [{"type": "contains", "value": "0"}]},
+            "D": {"min": 100000, "max": 999999, "type": "int", "constraints": [{"type": "contains", "value": "0"}]}
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "2. Составление чисел",
+        "question_template": "Напишите число, в котором: а) {A} сотен {B} десятков {C} единиц; б) {D} сотен {E} десятков {F} единиц; в) {G} тысяч {H} сотен {I} десятков {J} единиц",
+        "answer_template": "а) {A*100 + B*10 + C}; б) {D*100 + E*10 + F}; в) {G*1000 + H*100 + I*10 + J}",
+        "parameters": {
+            "A": {"min": 1, "max": 9, "type": "int"},
+            "B": {"min": 0, "max": 9, "type": "int"},
+            "C": {"min": 1, "max": 9, "type": "int"},
+            "D": {"min": 1, "max": 9, "type": "int"},
+            "E": {"min": 1, "max": 9, "type": "int"},
+            "F": {"min": 0, "max": 9, "type": "int"},
+            "G": {"min": 1, "max": 9, "type": "int"},
+            "H": {"min": 1, "max": 9, "type": "int"},
+            "I": {"min": 1, "max": 9, "type": "int"},
+            "J": {"min": 1, "max": 9, "type": "int"}
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "3. Запись чисел словами",
+        "question_template": "Запишите цифрами числа: а) {A_word}; б) {B_word}; в) {C_word}",
+        "answer_template": "а) {A}; б) {B}; в) {C}",
+        "parameters": {
+            "A": {"min": 100, "max": 999, "type": "int"},
+            "B": {"min": 1000, "max": 9999, "type": "int"},
+            "C": {"min": 1000000, "max": 9999999, "type": "int"},
+            "A_word": {"template": "{A}", "type": "computed"},
+            "B_word": {"template": "{B}", "type": "computed"},
+            "C_word": {"template": "{C}", "type": "computed"}
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "4. Разбиение на классы",
+        "question_template": "Разбейте на классы и прочитайте числа: {A_formatted} - {A_read}; {B_formatted} - {B_read}",
+        "answer_template": "{A} - {A_read}; {B} - {B_read}",
+        "parameters": {
+            "A": {"min": 1000, "max": 9999, "type": "int"},
+            "B": {"min": 1000000, "max": 9999999, "type": "int"},
+            "A_formatted": {"template": "{A}", "type": "computed"},
+            "B_formatted": {"template": "{B}", "type": "computed"},
+            "A_read": {"template": "{A}", "type": "computed"},
+            "B_read": {"template": "{B}", "type": "computed"}
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "5. Чтение больших чисел",
+        "question_template": "Прочитайте числа: {A}; {B}; {C}",
+        "answer_template": "{A_read}; {B_read}; {C_read}",
+        "parameters": {
+            "A": {"min": 1000000, "max": 9999999, "type": "int"},
+            "B": {"min": 1000000000, "max": 9999999999, "type": "int"},
+            "C": {"min": 100000000000, "max": 999999999999, "type": "int"},
+            "A_read": {"template": "{A}", "type": "computed"},
+            "B_read": {"template": "{B}", "type": "computed"},
+            "C_read": {"template": "{C}", "type": "computed"}
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "6. Запись числовых конструкций",
+        "question_template": "Запишите цифрами: {A_word}; {B_word}; {C_word}",
+        "answer_template": "{A}; {B}; {C}",
+        "parameters": {
+            "A": {"min": 1000, "max": 9999, "type": "int"},
+            "B": {"min": 100000, "max": 999999, "type": "int"},
+            "C": {"min": 100000000, "max": 999999999, "type": "int"},
+            "A_word": {"template": "{A}", "type": "computed"},
+            "B_word": {"template": "{B}", "type": "computed"},
+            "C_word": {"template": "{C}", "type": "computed"}
+        }
+    }
+]

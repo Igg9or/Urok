@@ -1,0 +1,127 @@
+Учитель:
+
+Логин: teacher1
+
+Пароль: teacher123
+
+Ученик:
+
+Логин: student1
+
+Пароль: student123
+
+$outputFile = ".\project_code.txt"
+
+# Исключаемые директории
+$excludedDirs = @(
+    "__pycache__", ".git", ".idea", "node_modules", 
+    "venv", "env", "dist", "build", "*.egg-info",
+    "*.vs", "*.vscode", "*.history"
+)
+
+# Исключаемые файлы
+$excludedFiles = @(
+    "*.pyc", "*.pyo", "*.pyd", "*.db", 
+    "*.log", "*.tmp", "*.bak", "*.swp", "*.swo", "*.min.*"
+)
+
+# Создаем выходной файл в UTF-8 с BOM (для корректного отображения русских символов)
+[System.IO.File]::WriteAllText($outputFile, "", [System.Text.Encoding]::UTF8)
+
+Get-ChildItem -Path . -Recurse -File | Where-Object {
+    ($_.Extension -in '.py', '.css', '.js', '.html', '.htm') -and
+    ($excludedFiles -notcontains $_.Name)
+} | ForEach-Object {
+    $skip = $false
+    foreach ($dir in $excludedDirs) {
+        if ($_.FullName -like "*\$dir\*") { $skip = $true; break }
+    }
+    if (-not $skip) { $_ }
+} | ForEach-Object {
+    $relativePath = $_.FullName.Substring((Get-Location).Path.Length + 1)
+    $separator = "=" * 80
+    $header = "`n$separator`nФАЙЛ: $relativePath`n$separator`n"
+    
+    # Добавляем заголовок
+    [System.IO.File]::AppendAllText($outputFile, $header, [System.Text.Encoding]::UTF8)
+    
+    # Читаем содержимое файла с автоматическим определением кодировки
+    $content = [System.IO.File]::ReadAllText($_.FullName)
+    [System.IO.File]::AppendAllText($outputFile, $content, [System.Text.Encoding]::UTF8)
+}
+
+Write-Host "Готово! Все файлы сохранены в:"
+Write-Host (Resolve-Path $outputFile).Path -ForegroundColor Green
+
+{
+        "textbook_id": 1,
+        "name": "Порядок действий (простой)",
+        "question_template": "Назовите порядок действий и устно вычислите: {A} - {B} : {C}",
+        "answer_template": "{A} - {B} / {C}",
+        "parameters": {
+            "A": {"min": 1000, "max": 2000, "type": "int"},
+            "B": {"min": 100, "max": 200, "type": "int", "constraints": [{"type": "multiple_of", "value": 10}]},
+            "C": {"min": 2, "max": 10, "type": "int"}
+        },
+        "conditions": "B % C == 0"
+    },
+    {
+        "textbook_id": 1,
+        "name": "Порядок действий (со скобками)",
+        "question_template": "Назовите порядок действий и устно вычислите: ({A} - {B} + {C}) : ({D} - {E})",
+        "answer_template": "({A} - {B} + {C}) / ({D} - {E})",
+        "parameters": {
+            "A": {"min": 400, "max": 600, "type": "int", "constraints": [{"type": "multiple_of", "value": 100}]},
+            "B": {"min": 50, "max": 200, "type": "int", "constraints": [{"type": "multiple_of", "value": 10}]},
+            "C": {"min": 100, "max": 300, "type": "int", "constraints": [{"type": "multiple_of", "value": 100}]},
+            "D": {"min": 300, "max": 400, "type": "int"},
+            "E": {"min": 290, "max": 399, "type": "int"}
+        },
+        "conditions": "(A - B + C) % (D - E) == 0 && (D - E) != 0"
+    },
+    {
+        "textbook_id": 1,
+        "name": "Сумма разрядных слагаемых",
+        "question_template": "Найдите сумму: {A} + {B} + {C} + {D} + {E}",
+        "answer_template": "{A} + {B} + {C} + {D} + {E}",
+        "parameters": {
+            "A": {"min": 60000, "max": 90000, "type": "int", "constraints": [{"type": "multiple_of", "value": 10000}]},
+            "B": {"min": 1000, "max": 9000, "type": "int", "constraints": [{"type": "multiple_of", "value": 1000}]},
+            "C": {"min": 100, "max": 900, "type": "int", "constraints": [{"type": "multiple_of", "value": 100}]},
+            "D": {"min": 10, "max": 90, "type": "int", "constraints": [{"type": "multiple_of", "value": 10}]},
+            "E": {"min": 1, "max": 9, "type": "int"}
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "Задача на сложение количеств",
+        "question_template": "Один комбайнёр намолотил {A} т зерна, а второй — на {B} т меньше. Сколько зерна намолотили оба комбайнёра?",
+        "answer_template": "{A} + ({A} - {B})",
+        "parameters": {
+            "A": {"min": 100, "max": 300, "type": "int"},
+            "B": {"min": 20, "max": 100, "type": "int"},
+            "conditions": "A > B"
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "Задача на массу",
+        "question_template": "Масса яблока {A} г, а масса груши на {B} г больше. Какова масса трёх таких яблок и груши?",
+        "answer_template": "3 * {A} + ({A} + {B})",
+        "parameters": {
+            "A": {"min": 100, "max": 200, "type": "int", "constraints": [{"type": "multiple_of", "value": 10}]},
+            "B": {"min": 30, "max": 100, "type": "int", "constraints": [{"type": "multiple_of", "value": 10}]}
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "Задача на сравнение расстояний",
+        "question_template": "Расстояние от дома до школы {A} м, а расстояние от дома до стадиона {B} м. На сколько метров расстояние от дома до школы меньше расстояния от дома до стадиона?",
+        "answer_template": "{B} - {A}",
+        "parameters": {
+            "A": {"min": 300, "max": 500, "type": "int", "constraints": [{"type": "multiple_of", "value": 10}]},
+            "B": {"min": 1000, "max": 2000, "type": "int", "constraints": [{"type": "multiple_of", "value": 10}]},
+            "conditions": "B > A"
+        }
+    }
+]
