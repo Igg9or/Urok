@@ -346,8 +346,7 @@ document.addEventListener('DOMContentLoaded', function() {
             tasks.push({
                 id: taskCard.dataset.taskId || null,
                 question: taskCard.querySelector('.task-question').value,
-                answer: taskCard.querySelector('.task-answer').value,
-                template_id: taskCard.dataset.templateId || null  // Добавляем template_id
+                answer: taskCard.querySelector('.task-answer').value
             });
         });
 

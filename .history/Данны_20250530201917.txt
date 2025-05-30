@@ -1,0 +1,75 @@
+Учитель:
+
+Логин: teacher1
+
+Пароль: teacher123
+
+Ученик:
+
+Логин: student1
+
+Пароль: student123
+
+$outputFile = ".\project_code.txt"
+
+# Исключаемые директории
+$excludedDirs = @(
+    "__pycache__", ".git", ".idea", "node_modules", 
+    "venv", "env", "dist", "build", "*.egg-info",
+    "*.vs", "*.vscode", "*.history"
+)
+
+# Исключаемые файлы
+$excludedFiles = @(
+    "*.pyc", "*.pyo", "*.pyd", "*.db", 
+    "*.log", "*.tmp", "*.bak", "*.swp", "*.swo", "*.min.*"
+)
+
+# Создаем выходной файл в UTF-8 с BOM (для корректного отображения русских символов)
+[System.IO.File]::WriteAllText($outputFile, "", [System.Text.Encoding]::UTF8)
+
+Get-ChildItem -Path . -Recurse -File | Where-Object {
+    ($_.Extension -in '.py', '.css', '.js', '.html', '.htm') -and
+    ($excludedFiles -notcontains $_.Name)
+} | ForEach-Object {
+    $skip = $false
+    foreach ($dir in $excludedDirs) {
+        if ($_.FullName -like "*\$dir\*") { $skip = $true; break }
+    }
+    if (-not $skip) { $_ }
+} | ForEach-Object {
+    $relativePath = $_.FullName.Substring((Get-Location).Path.Length + 1)
+    $separator = "=" * 80
+    $header = "`n$separator`nФАЙЛ: $relativePath`n$separator`n"
+    
+    # Добавляем заголовок
+    [System.IO.File]::AppendAllText($outputFile, $header, [System.Text.Encoding]::UTF8)
+    
+    # Читаем содержимое файла с автоматическим определением кодировки
+    $content = [System.IO.File]::ReadAllText($_.FullName)
+    [System.IO.File]::AppendAllText($outputFile, $content, [System.Text.Encoding]::UTF8)
+}
+
+Write-Host "Готово! Все файлы сохранены в:"
+Write-Host (Resolve-Path $outputFile).Path -ForegroundColor Green
+
+Смотри, что получилось. 
+1. Такой вывод в параметрах 
+Параметры задания:
+A: от 100 до 200 multiple_of 10
+B: от 30 до 100 multiple_of 10
+
+нужно сделать более читабельными 
+
+2. Параметры не применились 
+ример для учителя:
+Пример задания: Масса яблока 1 г, а масса груши на 5 г больше. Какова масса трёх таких яблок и груши?
+
+Правильный ответ: 9
+
+Используемые параметры: A=1, B=5
+
+Выходили такие сообщения 
+127.0.0.1 - - [30/May/2025 18:45:01] "GET /api/textbooks/1/templates HTTP/1.1" 200 -
+127.0.0.1 - - [30/May/2025 18:45:02] "GET /api/templates/31 HTTP/1.1" 200 -
+127.0.0.1 - - [30/May/2025 18:45:21] "GET /api/templates/29 HTTP/1.1" 200 -

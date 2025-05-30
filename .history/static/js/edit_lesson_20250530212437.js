@@ -343,13 +343,13 @@ document.addEventListener('DOMContentLoaded', function() {
     saveLessonBtn.addEventListener('click', function() {
         const tasks = [];
         document.querySelectorAll('.task-card').forEach(taskCard => {
-            tasks.push({
-                id: taskCard.dataset.taskId || null,
-                question: taskCard.querySelector('.task-question').value,
-                answer: taskCard.querySelector('.task-answer').value,
-                template_id: taskCard.dataset.templateId || null  // Добавляем template_id
-            });
+        tasks.push({
+            id: taskCard.dataset.taskId || null,
+            question: taskCard.querySelector('.task-question').value,
+            answer: taskCard.querySelector('.task-answer').value,
+            template_id: taskCard.dataset.templateId || null  // Добавляем template_id
         });
+    });
 
         fetch(`/teacher/update_lesson/${lessonId}`, {
             method: 'POST',

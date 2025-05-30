@@ -653,7 +653,7 @@ def start_lesson(lesson_id):
     cursor = conn.cursor()
     
     try:
-        # Проверка доступа для ученика
+        # Проверка доступа
         if session['role'] == 'student':
             cursor.execute('''
                 SELECT 1 FROM lessons l
@@ -672,13 +672,9 @@ def start_lesson(lesson_id):
         ''', (lesson_id,))
         lesson = cursor.fetchone()
         
-        if not lesson:
-            return redirect(url_for('student_lessons'))
-        
-        # Получаем задания урока
+        # Получаем базовые задания урока
         cursor.execute('''
-            SELECT id, question, answer, template_id 
-            FROM lesson_tasks
+            SELECT id, question, answer, template_id FROM lesson_tasks
             WHERE lesson_id = ?
             ORDER BY id
         ''', (lesson_id,))
@@ -687,7 +683,7 @@ def start_lesson(lesson_id):
         tasks = []
         
         for task in base_tasks:
-            # Проверяем сохраненный вариант
+            # Проверяем, есть ли сохраненный вариант
             cursor.execute('''
                 SELECT variant_data FROM student_task_variants
                 WHERE lesson_id = ? AND user_id = ? AND task_id = ?
@@ -695,15 +691,17 @@ def start_lesson(lesson_id):
             variant = cursor.fetchone()
             
             if variant:
+                # Используем сохраненный вариант
                 variant_data = json.loads(variant['variant_data'])
                 question = task['question']
-                answer_template = task['answer']  # Переименовали переменную
+                answer = task['answer']
                 
-                # Подставляем параметры
+                # Заменяем параметры в вопросе
                 for param, value in variant_data['params'].items():
                     question = question.replace(f'{{{param}}}', str(value))
                 
-                computed_answer = str(eval(answer_template.format(**variant_data['params'])))
+                # Вычисляем ответ
+                computed_answer = str(eval(answer.format(**variant_data['params'])))
                 
                 tasks.append({
                     'id': task['id'],
@@ -712,32 +710,33 @@ def start_lesson(lesson_id):
                     'params': variant_data['params']
                 })
             else:
-                # Генерация нового варианта
-                params = {}
-                question_template = task['question']
-                answer_template = task['answer']  # Переименовали переменную
-                
-                # Получаем параметры из шаблона, если есть
+                # Получаем параметры из шаблона, если задание из шаблона
+                template_params = {}
                 if task['template_id']:
-                    cursor.execute('SELECT parameters FROM task_templates WHERE id = ?', 
-                                 (task['template_id'],))
-                    template = cursor.fetchone()
-                    if template:
-                        params = MathEngine.generate_parameters(json.loads(template['parameters']))
+                    cursor.execute('''
+                        SELECT parameters FROM task_templates
+                        WHERE id = ?
+                    ''', (task['template_id'],))
+                    template_data = cursor.fetchone()
+                    if template_data:
+                        template_params = json.loads(template_data['parameters'])
                 
-                # Если параметров нет - генерируем случайные
-                if not params:
-                    param_matches = set(re.findall(r'\{([A-Za-z]+)\}', question_template))
+                # Генерация параметров
+                params = {}
+                if template_params:
+                    params = MathEngine.generate_parameters(template_params)
+                else:
+                    param_matches = set(re.findall(r'\{([A-Za-z]+)\}', task['question']))
                     for param in param_matches:
                         params[param] = random.randint(1, 10)
                 
-                # Формируем вопрос
-                generated_question = question_template
+                # Заменяем параметры в вопросе
+                generated_question = task['question']
                 for param, value in params.items():
                     generated_question = generated_question.replace(f'{{{param}}}', str(value))
                 
                 # Вычисляем ответ
-                computed_answer = str(eval(answer_template.format(**params)))
+                computed_answer = str(eval(answer.format(**params)))
                 
                 # Сохраняем вариант
                 variant_data = {
@@ -767,8 +766,8 @@ def start_lesson(lesson_id):
         
     except Exception as e:
         conn.rollback()
-        print(f"Error in start_lesson: {str(e)}")  # Логируем ошибку
-        return "Произошла ошибка при загрузке урока", 500
+        print(f"Error: {e}")
+        return "Произошла ошибка", 500
     finally:
         conn.close()
 

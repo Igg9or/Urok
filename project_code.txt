@@ -59,7 +59,9 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             lesson_id INTEGER REFERENCES lessons(id),
             question TEXT NOT NULL,
-            answer TEXT NOT NULL)
+            answer TEXT NOT NULL,
+            template_id INTEGER REFERENCES task_templates(id)
+        )
     ''')
 
     # Создаем таблицу предметов
@@ -470,39 +472,42 @@ def create_lesson():
 
 @app.route('/teacher/update_lesson/<int:lesson_id>', methods=['POST'])
 def update_lesson(lesson_id):
-    if 'user_id' not in session or session['role'] != 'teacher':
-        return jsonify({'error': 'Unauthorized'}), 401
-    
     data = request.get_json()
     conn = get_db()
     cursor = conn.cursor()
     
     try:
-        # Обновляем или добавляем задания
-        updated_tasks = []
         for task in data['tasks']:
             if task['id']:
-                # Обновление существующего задания
                 cursor.execute('''
                     UPDATE lesson_tasks 
-                    SET question = ?, answer = ?
+                    SET question = ?, answer = ?, template_id = ?
                     WHERE id = ? AND lesson_id = ?
-                ''', (task['question'], task['answer'], task['id'], lesson_id))
+                ''', (
+                    task['question'], 
+                    task['answer'],
+                    task.get('template_id'),  # Новое поле
+                    task['id'], 
+                    lesson_id
+                ))
             else:
-                # Добавление нового задания
                 cursor.execute('''
-                    INSERT INTO lesson_tasks (lesson_id, question, answer)
-                    VALUES (?, ?, ?)
-                ''', (lesson_id, task['question'], task['answer']))
-                updated_tasks.append({'id': cursor.lastrowid})
+                    INSERT INTO lesson_tasks 
+                    (lesson_id, question, answer, template_id)
+                    VALUES (?, ?, ?, ?)
+                ''', (
+                    lesson_id, 
+                    task['question'], 
+                    task['answer'],
+                    task.get('template_id')  # Новое поле
+                ))
+                task['id'] = cursor.lastrowid
         
         conn.commit()
-        return jsonify({'success': True, 'tasks': updated_tasks})
+        return jsonify({'success': True, 'tasks': data['tasks']})
     except Exception as e:
         conn.rollback()
         return jsonify({'success': False, 'error': str(e)})
-    finally:
-        conn.close()
 
 @app.route('/teacher/delete_task/<int:task_id>', methods=['DELETE'])
 def delete_task(task_id):
@@ -673,7 +678,7 @@ def start_lesson(lesson_id):
         
         # Получаем базовые задания урока
         cursor.execute('''
-            SELECT id, question, answer FROM lesson_tasks
+            SELECT id, question, answer, template_id FROM lesson_tasks
             WHERE lesson_id = ?
             ORDER BY id
         ''', (lesson_id,))
@@ -709,18 +714,28 @@ def start_lesson(lesson_id):
                     'params': variant_data['params']
                 })
             else:
-                # Генерируем новый вариант и сохраняем
-                params = {}
-                question = task['question']
-                answer = task['answer']
+                # Получаем параметры из шаблона, если задание из шаблона
+                template_params = {}
+                if task['template_id']:
+                    cursor.execute('''
+                        SELECT parameters FROM task_templates
+                        WHERE id = ?
+                    ''', (task['template_id'],))
+                    template_data = cursor.fetchone()
+                    if template_data:
+                        template_params = json.loads(template_data['parameters'])
                 
                 # Генерация параметров
-                param_matches = set(re.findall(r'\{([A-Z])\}', question))
-                for param in param_matches:
-                    params[param] = random.randint(1, 10)  # Диапазон можно настроить
+                params = {}
+                if template_params:
+                    params = MathEngine.generate_parameters(template_params)
+                else:
+                    param_matches = set(re.findall(r'\{([A-Za-z]+)\}', task['question']))
+                    for param in param_matches:
+                        params[param] = random.randint(1, 10)
                 
                 # Заменяем параметры в вопросе
-                generated_question = question
+                generated_question = task['question']
                 for param, value in params.items():
                     generated_question = generated_question.replace(f'{{{param}}}', str(value))
                 
@@ -1484,24 +1499,29 @@ class MathEngine:
         params = {}
         conditions = template_params.get('conditions', '')
         
-        # Попытки сгенерировать подходящие параметры
         for _ in range(100):  # Максимум 100 попыток
             generated = {}
             valid = True
             
-            # Генерация параметров
+            # Генерация параметров с учетом ограничений
             for param, config in template_params.items():
                 if param == 'conditions':
                     continue
                     
                 if config['type'] == 'int':
                     value = random.randint(config['min'], config['max'])
-                    # Проверка ограничений
+                    
+                    # Применяем ограничения
                     if 'constraints' in config:
                         for constraint in config['constraints']:
                             if constraint['type'] == 'multiple_of':
-                                if value % constraint['value'] != 0:
-                                    valid = False
+                                # Корректируем значение чтобы было кратно
+                                remainder = value % constraint['value']
+                                if remainder != 0:
+                                    value += (constraint['value'] - remainder)
+                                    # Проверяем не вышли ли за границы
+                                    if value > config['max']:
+                                        value -= constraint['value']
                             elif constraint['type'] == 'greater_than':
                                 if 'param' in constraint:
                                     if value <= generated.get(constraint['param'], 0):
@@ -1593,288 +1613,197 @@ class TaskGenerator:
 ================================================================================
 ФАЙЛ: static\css\edit_lesson.css
 ================================================================================
-/* Боковая панель с шаблонами */
-.templates-sidebar {
-    width: 300px;
-    background: #f8f9fa;
-    border-right: 1px solid #ddd;
-    padding: 20px;
-    height: calc(100vh - 80px);
-    position: fixed;
-    overflow-y: auto;
+
+
+.lesson-actions {
+    margin-top: 15px;
+}
+/* Стили для заданий ученика */
+.task-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
 }
 
-.sidebar-header {
+.task-question {
     margin-bottom: 15px;
+    font-size: 16px;
 }
 
-.templates-list {
+.task-question p {
+    margin: 0;
+}
+
+.task-answer {
     display: flex;
-    flex-direction: column;
+    align-items: center;
     gap: 10px;
+    margin-top: 10px;
 }
 
-.search-box {
-    margin-bottom: 15px;
-}
-
-.search-box input {
-    width: 100%;
+.answer-input {
     padding: 8px 12px;
     border: 1px solid #ddd;
     border-radius: 4px;
+    flex-grow: 1;
 }
 
-.template-item {
+.result {
+    margin-top: 10px;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.hidden {
+    display: none;
+}
+/* Основные стили урока */
+.lesson-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Roboto', sans-serif;
+}
+
+.lesson-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.lesson-header h1 {
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.lesson-meta {
+    font-size: 14px;
+    color: var(--light-text);
+    margin-top: 5px;
+}
+
+.lesson-meta span {
+    margin-right: 15px;
+}
+
+/* Стили заданий */
+.task-card {
     background: white;
-    padding: 12px;
-    border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    cursor: pointer;
-    transition: all 0.2s;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    overflow: hidden;
+    transition: all 0.3s ease;
 }
 
-.template-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+.task-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
-.template-item h4 {
-    margin: 0 0 5px 0;
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: var(--secondary-color);
+}
+
+.task-number {
+    font-weight: 500;
     color: var(--primary-color);
 }
 
-.template-item p {
-    margin: 0;
-    font-size: 14px;
-    color: var(--light-text);
+.task-status {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
 }
 
-.template-item .template-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 10px;
+.task-body {
+    padding: 20px;
 }
 
-/* Адаптация основного контента */
-.tasks-section {
-    margin-left: 320px;
-    width: calc(100% - 320px);
+.task-question {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 20px;
 }
 
-@media (max-width: 992px) {
-    .templates-sidebar {
-        width: 250px;
-    }
-    .tasks-section {
-        margin-left: 260px;
-        width: calc(100% - 260px);
-    }
-}
-
-@media (max-width: 768px) {
-    .templates-sidebar {
-        position: static;
-        width: 100%;
-        height: auto;
-        border-right: none;
-        border-bottom: 1px solid #ddd;
-    }
-    .tasks-section {
-        margin-left: 0;
-        width: 100%;
-    }
-}
-/* В edit_lesson.css */
-.param-constraints {
-    margin-top: 10px;
-    border-top: 1px dashed #ddd;
-    padding-top: 10px;
-}
-
-.constraint {
+.task-answer {
     display: flex;
     gap: 10px;
-    margin: 5px 0;
+}
+
+.answer-input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* Стили обратной связи */
+.task-feedback {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.feedback-correct {
+    color: var(--success-color);
+    display: flex;
     align-items: center;
+    gap: 10px;
 }
 
-.constraint-type {
-    flex: 1;
-}
-
-.constraint-value {
-    flex: 2;
-}
-
-/* Основные стили контейнера */
-.edit-lesson-container {
+.feedback-incorrect {
+    color: var(--error-color);
     display: flex;
-    gap: 20px;
-    padding: 20px;
+    align-items: center;
+    gap: 10px;
 }
 
-/* Боковая панель с учебниками */
-.textbook-sidebar {
-    width: 300px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 15px;
-    height: calc(100vh - 180px);
-    overflow-y: auto;
+.icon {
+    font-size: 20px;
+    font-weight: bold;
 }
 
-.sidebar-header {
-    margin-bottom: 15px;
-}
-
-.templates-list {
-    margin-top: 15px;
-}
-
-/* Основная область редактирования */
-.lesson-edit-area {
-    flex: 1;
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-/* Стили для списка заданий из учебника */
-.template-item {
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.template-item:hover {
-    background: #e9f5ff;
-    border-color: #b8daff;
-}
-
-.template-item h4 {
-    margin: 0 0 5px 0;
-    color: #333;
-}
-
-.template-item p {
-    margin: 0;
-    color: #666;
-    font-size: 14px;
-}
-
-.template-actions {
-    margin-top: 10px;
-}
-
-/* Адаптация для мобильных устройств */
-@media (max-width: 768px) {
-    .edit-lesson-container {
-        flex-direction: column;
-    }
-    
-    .textbook-sidebar {
-        width: 100%;
-        height: auto;
-        max-height: 300px;
-    }
-}
-/* Стили для блока предпросмотра */
-.teacher-preview {
-    margin-top: 15px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 5px;
-    border: 1px solid #eee;
-}
-
-.teacher-preview h4 {
-    margin-top: 0;
-}
-
-.preview-content {
-    margin-bottom: 10px;
-}
-
-.preview-content p {
-    margin: 5px 0;
-}
-
-.btn-show-preview {
-    margin-top: 10px;
-    background: #e2e6ea;
-}
-
-.btn-generate-preview {
-    background: #d1ecf1;
-    color: #0c5460;
-}
-================================================================================
-ФАЙЛ: static\css\math_editor.css
-================================================================================
-.math-editor {
-    margin-top: 20px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    padding: 15px;
-}
-
-.math-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    margin-bottom: 10px;
-}
-
-.btn-math {
-    padding: 5px 10px;
-    background: var(--secondary-color);
+.btn-hint {
+    margin-left: 15px;
+    background: none;
     border: none;
-    border-radius: 3px;
+    color: var(--primary-color);
     cursor: pointer;
+    text-decoration: underline;
 }
 
-.math-editor-area {
-    width: 100%;
-    min-height: 100px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-family: monospace;
-}
-
-.math-preview {
-    margin-top: 10px;
-    padding: 10px;
+.task-hint {
+    margin-top: 15px;
+    padding: 15px;
     background: #f9f9f9;
     border-radius: 5px;
-    min-height: 50px;
+    border-left: 3px solid var(--primary-color);
 }
 
-.param-group {
-    margin-bottom: 10px;
+/* Прогресс */
+.lesson-progress {
+    margin-top: 30px;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
-.param-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-}
-
-.param-input, .param-select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-================================================================================
-ФАЙЛ: static\css\style.css
-================================================================================
-
+.progress-bar {
+    height: 10px;
+    background: #f0f0f0;
     border-radius: 5px;
     margin: 10px 0;
     overflow: hidden;
@@ -2621,8 +2550,6 @@ document.addEventListener('DOMContentLoaded', function() {
 ================================================================================
 ФАЙЛ: static\js\edit_lesson.js
 ================================================================================
-// Исправленная версия edit_lesson.js
-
 document.addEventListener('DOMContentLoaded', function() {
     const lessonId = window.location.pathname.split('/').pop();
     const tasksContainer = document.getElementById('tasksContainer');
@@ -2631,6 +2558,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const textbookSelect = document.getElementById('textbookSelect');
     const templateSearch = document.getElementById('templateSearch');
     const templatesList = document.getElementById('templatesList');
+
+    // Кэш для хранения загруженных шаблонов
+    const templatesCache = {};
 
     // Загрузка шаблонов из учебника
     textbookSelect.addEventListener('change', loadTemplates);
@@ -2694,27 +2624,120 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Добавление задания из шаблона
     function addTaskFromTemplate(templateId) {
+        // Проверяем кэш
+        if (templatesCache[templateId]) {
+            processTemplate(templatesCache[templateId]);
+            return;
+        }
+        
         fetch(`/api/templates/${templateId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    const template = data.template;
-                    addTask(template.question_template, template.answer_template);
+                    templatesCache[templateId] = data.template;
+                    processTemplate(data.template);
                 }
             });
     }
 
+    function processTemplate(template) {
+        addTask(template.question_template, template.answer_template);
+        
+        const taskCard = tasksContainer.lastElementChild;
+        taskCard.dataset.templateId = template.id;
+        
+        // Добавляем отображение параметров
+        const paramsDiv = document.createElement('div');
+        paramsDiv.className = 'task-params';
+        paramsDiv.innerHTML = `
+            <h4>Параметры задания:</h4>
+            <div class="params-grid">
+                ${Object.entries(JSON.parse(template.parameters)).map(([param, config]) => `
+                <div class="param-group">
+                    <div class="param-name">${param}:</div>
+                    <div class="param-range">от ${config.min} до ${config.max}</div>
+                    ${config.constraints ? `
+                    <div class="param-constraints">
+                        ${config.constraints.map(c => `
+                        <div class="constraint">
+                            <span class="constraint-type">${formatConstraintType(c.type)}:</span>
+                            <span class="constraint-value">${c.value}</span>
+                        </div>
+                        `).join('')}
+                    </div>
+                    ` : ''}
+                </div>
+                `).join('')}
+            </div>
+        `;
+        
+        taskCard.insertBefore(paramsDiv, taskCard.querySelector('.teacher-preview'));
+    }
+
+    function formatConstraintType(type) {
+        const types = {
+            'multiple_of': 'Кратно',
+            'greater_than': 'Больше чем',
+            'less_than': 'Меньше чем',
+            'equals': 'Равно'
+        };
+        return types[type] || type;
+    }
+
     // Генерация примера для учителя
-    function generateExample(questionTemplate, answerTemplate) {
+    function generateExample(questionTemplate, answerTemplate, taskCard) {
         const paramRegex = /\{([A-Za-z]+)\}/g;
         const params = {};
         let match;
         
-        // Генерируем случайные значения для параметров (1-10)
+        // Находим все параметры в шаблоне
+        const allParams = new Set();
         while ((match = paramRegex.exec(questionTemplate + answerTemplate))) {
-            const param = match[1];
-            if (!params[param]) {
-                params[param] = Math.floor(Math.random() * 10) + 1;
+            allParams.add(match[1]);
+        }
+        
+        // Проверяем, есть ли сохраненные параметры из шаблона
+        let templateParams = null;
+        if (taskCard.dataset.templateId && templatesCache[taskCard.dataset.templateId]) {
+            try {
+                templateParams = JSON.parse(templatesCache[taskCard.dataset.templateId].parameters);
+            } catch (e) {
+                console.error('Error parsing template params:', e);
+            }
+        }
+        
+        // Генерируем значения с учетом ограничений
+        for (const param of allParams) {
+            if (templateParams && templateParams[param]) {
+                // Используем параметры из шаблона
+                const config = templateParams[param];
+                let value;
+                
+                if (config.type === 'int') {
+                    value = randomInt(config.min, config.max);
+                    
+                    // Применяем ограничения
+                    if (config.constraints) {
+                        for (const constraint of config.constraints) {
+                            if (constraint.type === 'multiple_of') {
+                                const remainder = value % constraint.value;
+                                if (remainder !== 0) {
+                                    value += (constraint.value - remainder);
+                                    if (value > config.max) {
+                                        value -= constraint.value;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    value = randomInt(config.min, config.max);
+                }
+                
+                params[param] = value;
+            } else {
+                // Генерируем случайное значение, если нет шаблона
+                params[param] = randomInt(1, 10);
             }
         }
         
@@ -2724,7 +2747,7 @@ document.addEventListener('DOMContentLoaded', function() {
             exampleQuestion = exampleQuestion.replace(new RegExp(`\\{${param}\\}`, 'g'), value);
         }
         
-        // Вычисляем ответ (безопасный eval)
+        // Вычисляем ответ
         let exampleAnswer;
         try {
             let answerFormula = answerTemplate;
@@ -2741,6 +2764,10 @@ document.addEventListener('DOMContentLoaded', function() {
             answer: exampleAnswer,
             params: params
         };
+    }
+
+    function randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     // Безопасное вычисление выражения
@@ -2766,7 +2793,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        const example = generateExample(question, answer);
+        const example = generateExample(question, answer, taskCard);
         
         taskCard.querySelector('.preview-question').textContent = example.question;
         taskCard.querySelector('.preview-answer').textContent = example.answer;
@@ -2871,7 +2898,8 @@ document.addEventListener('DOMContentLoaded', function() {
             tasks.push({
                 id: taskCard.dataset.taskId || null,
                 question: taskCard.querySelector('.task-question').value,
-                answer: taskCard.querySelector('.task-answer').value
+                answer: taskCard.querySelector('.task-answer').value,
+                template_id: taskCard.dataset.templateId || null  // Добавляем template_id
             });
         });
 
@@ -3166,76 +3194,75 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Функция для отображения результата
     function showResult(taskCard, isCorrect, evaluatedAnswer = null) {
-        const feedback = taskCard.querySelector('.task-feedback');
-        const correctFeedback = taskCard.querySelector('.feedback-correct');
-        const incorrectFeedback = taskCard.querySelector('.feedback-incorrect');
-        const status = taskCard.querySelector('.task-status');
-        
-        if (isCorrect) {
-            correctFeedback.classList.remove('hidden');
-            incorrectFeedback.classList.add('hidden');
-            status.style.backgroundColor = 'var(--success-color)';
-            completedTasks++;
-        } else {
-            correctFeedback.classList.add('hidden');
-            incorrectFeedback.classList.remove('hidden');
-            if (evaluatedAnswer) {
-                incorrectFeedback.querySelector('.user-answer').textContent = 
-                    `Ваш ответ: ${evaluatedAnswer}`;
-            }
-            status.style.backgroundColor = 'var(--error-color)';
-        }
-        
-        feedback.classList.remove('hidden');
-        taskCard.querySelector('.answer-input').disabled = true;
-        taskCard.querySelector('.btn-check').disabled = true;
-        updateProgress();
+    const feedback = taskCard.querySelector('.task-feedback');
+    const correctFeedback = taskCard.querySelector('.feedback-correct');
+    const incorrectFeedback = taskCard.querySelector('.feedback-incorrect');
+    const status = taskCard.querySelector('.task-status');
+    
+    if (!feedback || !correctFeedback || !incorrectFeedback || !status) {
+        console.error('Не найдены необходимые элементы DOM');
+        return;
     }
+    
+    if (isCorrect) {
+        correctFeedback.classList.remove('hidden');
+        incorrectFeedback.classList.add('hidden');
+        status.style.backgroundColor = 'var(--success-color)';
+        completedTasks++;
+    } else {
+        correctFeedback.classList.add('hidden');
+        incorrectFeedback.classList.remove('hidden');
+        if (evaluatedAnswer) {
+            const userAnswerElement = incorrectFeedback.querySelector('.user-answer');
+            if (userAnswerElement) {
+                userAnswerElement.textContent = `Ваш ответ: ${evaluatedAnswer}`;
+            }
+        }
+        status.style.backgroundColor = 'var(--error-color)';
+    }
+    
+    feedback.classList.remove('hidden');
+    taskCard.querySelector('.answer-input').disabled = true;
+    taskCard.querySelector('.btn-check').disabled = true;
+    updateProgress();
+}
     
     // Новая функция проверки ответа через API
     async function checkAnswer(taskCard) {
-        const taskId = taskCard.dataset.taskId;
-        const userAnswer = taskCard.querySelector('.answer-input').value.trim();
-        const correctAnswer = taskCard.querySelector('.correct-answer').textContent;
-        const params = JSON.parse(taskCard.dataset.params || '{}');
-        
-        console.log("Sending:", {  // Добавьте логирование перед отправкой
-            task_id: taskId,
-            answer: userAnswer,
-            correct_answer: correctAnswer,
-            params: params
+    const taskId = taskCard.dataset.taskId;
+    const userAnswer = taskCard.querySelector('.answer-input').value.trim();
+    const correctAnswer = taskCard.querySelector('.correct-answer').textContent;
+    const params = JSON.parse(taskCard.dataset.params || '{}');
+    
+    try {
+        const response = await fetch('/api/check_answer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                task_id: taskId,
+                answer: userAnswer,
+                correct_answer: correctAnswer,
+                params: params
+            })
         });
         
-        try {
-            const response = await fetch('/api/check_answer', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    task_id: taskId,
-                    answer: userAnswer,
-                    correct_answer: correctAnswer,
-                    params: params
-                })
-            });
-            
-            console.log("Response status:", response.status);  // Логирование статуса ответа
-            
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error("Server error:", errorData);
-                throw new Error(errorData.error || 'Ошибка сервера');
-            }
-            
-            const result = await response.json();
-            console.log("Server response:", result);  // Логирование ответа сервера
-            
-            showResult(taskCard, result.is_correct, result.evaluated_answer);
-            await saveAnswerToServer(taskId, userAnswer, result.is_correct);
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Произошла ошибка при проверке ответа: ' + error.message);
+        if (!response.ok) {
+            throw new Error('Ошибка сервера');
         }
+        
+        const result = await response.json();
+        
+        if (result.error) {
+            throw new Error(result.error);
+        }
+        
+        showResult(taskCard, result.is_correct, result.evaluated_answer);
+        await saveAnswerToServer(taskId, userAnswer, result.is_correct);
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Произошла ошибка при проверке ответа: ' + error.message);
     }
+}
     
     // Сохранение ответа на сервере
     async function saveAnswerToServer(taskId, answer, isCorrect) {

@@ -1,3 +1,5 @@
+// Исправленная версия edit_lesson.js
+
 document.addEventListener('DOMContentLoaded', function() {
     const lessonId = window.location.pathname.split('/').pop();
     const tasksContainer = document.getElementById('tasksContainer');
@@ -6,9 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const textbookSelect = document.getElementById('textbookSelect');
     const templateSearch = document.getElementById('templateSearch');
     const templatesList = document.getElementById('templatesList');
-
-    // Кэш для хранения загруженных шаблонов
-    const templatesCache = {};
 
     // Загрузка шаблонов из учебника
     textbookSelect.addEventListener('change', loadTemplates);
@@ -72,120 +71,56 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Добавление задания из шаблона
     function addTaskFromTemplate(templateId) {
-        // Проверяем кэш
-        if (templatesCache[templateId]) {
-            processTemplate(templatesCache[templateId]);
-            return;
-        }
-        
-        fetch(`/api/templates/${templateId}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    templatesCache[templateId] = data.template;
-                    processTemplate(data.template);
-                }
-            });
-    }
-
-    function processTemplate(template) {
-        addTask(template.question_template, template.answer_template);
-        
-        const taskCard = tasksContainer.lastElementChild;
-        taskCard.dataset.templateId = template.id;
-        
-        // Добавляем отображение параметров
-        const paramsDiv = document.createElement('div');
-        paramsDiv.className = 'task-params';
-        paramsDiv.innerHTML = `
-            <h4>Параметры задания:</h4>
-            <div class="params-grid">
-                ${Object.entries(JSON.parse(template.parameters)).map(([param, config]) => `
-                <div class="param-group">
-                    <div class="param-name">${param}:</div>
-                    <div class="param-range">от ${config.min} до ${config.max}</div>
-                    ${config.constraints ? `
-                    <div class="param-constraints">
-                        ${config.constraints.map(c => `
-                        <div class="constraint">
-                            <span class="constraint-type">${formatConstraintType(c.type)}:</span>
-                            <span class="constraint-value">${c.value}</span>
+    fetch(`/api/templates/${templateId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const template = data.template;
+                addTask(template.question_template, template.answer_template);
+                
+                // Добавляем отображение параметров
+                const taskCard = tasksContainer.lastElementChild;
+                const paramsDiv = document.createElement('div');
+                paramsDiv.className = 'task-params';
+                paramsDiv.innerHTML = `
+                <h4>Параметры задания:</h4>
+                <div class="params-grid">
+                    ${Object.entries(params).map(([param, config]) => `
+                    <div class="param-group">
+                        <div class="param-name">${param}:</div>
+                        <div class="param-range">от ${config.min} до ${config.max}</div>
+                        ${config.constraints ? `
+                        <div class="param-constraints">
+                            ${config.constraints.map(c => `
+                            <div class="constraint">
+                                <span class="constraint-type">${formatConstraintType(c.type)}:</span>
+                                <span class="constraint-value">${c.value}</span>
+                            </div>
+                            `).join('')}
                         </div>
-                        `).join('')}
+                        ` : ''}
                     </div>
-                    ` : ''}
+                    `).join('')}
                 </div>
-                `).join('')}
-            </div>
-        `;
-        
-        taskCard.insertBefore(paramsDiv, taskCard.querySelector('.teacher-preview'));
-    }
-
-    function formatConstraintType(type) {
-        const types = {
-            'multiple_of': 'Кратно',
-            'greater_than': 'Больше чем',
-            'less_than': 'Меньше чем',
-            'equals': 'Равно'
-        };
-        return types[type] || type;
-    }
+            `;
+                }
+                
+                taskCard.insertBefore(paramsDiv, taskCard.querySelector('.teacher-preview'));
+            }
+        });
+}
 
     // Генерация примера для учителя
-    function generateExample(questionTemplate, answerTemplate, taskCard) {
+    function generateExample(questionTemplate, answerTemplate) {
         const paramRegex = /\{([A-Za-z]+)\}/g;
         const params = {};
         let match;
         
-        // Находим все параметры в шаблоне
-        const allParams = new Set();
+        // Генерируем случайные значения для параметров (1-10)
         while ((match = paramRegex.exec(questionTemplate + answerTemplate))) {
-            allParams.add(match[1]);
-        }
-        
-        // Проверяем, есть ли сохраненные параметры из шаблона
-        let templateParams = null;
-        if (taskCard.dataset.templateId && templatesCache[taskCard.dataset.templateId]) {
-            try {
-                templateParams = JSON.parse(templatesCache[taskCard.dataset.templateId].parameters);
-            } catch (e) {
-                console.error('Error parsing template params:', e);
-            }
-        }
-        
-        // Генерируем значения с учетом ограничений
-        for (const param of allParams) {
-            if (templateParams && templateParams[param]) {
-                // Используем параметры из шаблона
-                const config = templateParams[param];
-                let value;
-                
-                if (config.type === 'int') {
-                    value = randomInt(config.min, config.max);
-                    
-                    // Применяем ограничения
-                    if (config.constraints) {
-                        for (const constraint of config.constraints) {
-                            if (constraint.type === 'multiple_of') {
-                                const remainder = value % constraint.value;
-                                if (remainder !== 0) {
-                                    value += (constraint.value - remainder);
-                                    if (value > config.max) {
-                                        value -= constraint.value;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    value = randomInt(config.min, config.max);
-                }
-                
-                params[param] = value;
-            } else {
-                // Генерируем случайное значение, если нет шаблона
-                params[param] = randomInt(1, 10);
+            const param = match[1];
+            if (!params[param]) {
+                params[param] = Math.floor(Math.random() * 10) + 1;
             }
         }
         
@@ -195,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
             exampleQuestion = exampleQuestion.replace(new RegExp(`\\{${param}\\}`, 'g'), value);
         }
         
-        // Вычисляем ответ
+        // Вычисляем ответ (безопасный eval)
         let exampleAnswer;
         try {
             let answerFormula = answerTemplate;
@@ -212,10 +147,6 @@ document.addEventListener('DOMContentLoaded', function() {
             answer: exampleAnswer,
             params: params
         };
-    }
-
-    function randomInt(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     // Безопасное вычисление выражения
@@ -241,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        const example = generateExample(question, answer, taskCard);
+        const example = generateExample(question, answer);
         
         taskCard.querySelector('.preview-question').textContent = example.question;
         taskCard.querySelector('.preview-answer').textContent = example.answer;
@@ -346,8 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
             tasks.push({
                 id: taskCard.dataset.taskId || null,
                 question: taskCard.querySelector('.task-question').value,
-                answer: taskCard.querySelector('.task-answer').value,
-                template_id: taskCard.dataset.templateId || null  // Добавляем template_id
+                answer: taskCard.querySelector('.task-answer').value
             });
         });
 

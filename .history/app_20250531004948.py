@@ -145,75 +145,20 @@ def init_db():
         conn.commit()
     # Добавляем тестовые данные
     try:
-        cursor.execute("SELECT COUNT(*) FROM users")
-        if cursor.fetchone()[0] == 0:
-            # Тестовые классы
-            for grade in [5, 6, 7, 8, 9, 10, 11]:
-                for letter in ['А', 'Б', 'В', 'Г']:
-                    cursor.execute(
-                        "INSERT OR IGNORE INTO classes (grade, letter) VALUES (?, ?)",
-                        (grade, letter)
-                    )
-            
-            # Тестовый учитель
+        # Проверяем, есть ли уже учитель
+        cursor.execute("SELECT id FROM users WHERE username = 'teacher1'")
+        teacher = cursor.fetchone()
+        
+        if not teacher:
+            # Создаем тестового учителя, если его нет
             cursor.execute(
                 "INSERT INTO users (username, password, role, full_name) VALUES (?, ?, ?, ?)",
                 ('teacher1', generate_password_hash('teacher123'), 'teacher', 'Иванова Мария Сергеевна')
             )
-            
-            # Тестовые ученики
-            test_students = [
-                ('student1', 'student123', '6В', 'Петров Петр'),
-                ('student2', 'student123', '6В', 'Сидорова Анна'),
-                ('student3', 'student123', '6Г', 'Кузнецов Алексей')
-            ]
-            
-            for username, password, class_name, full_name in test_students:
-                grade = int(class_name[:-1])
-                letter = class_name[-1]
-                
-                # Получаем class_id перед использованием
-                cursor.execute(
-                    "SELECT id FROM classes WHERE grade = ? AND letter = ?",
-                    (grade, letter)
-                )
-                class_row = cursor.fetchone()
-                if class_row:
-                    class_id = class_row[0]
-                    
-                    cursor.execute(
-                        "INSERT INTO users (username, password, role, full_name, class_id) VALUES (?, ?, ?, ?, ?)",
-                        (username, generate_password_hash(password), 'student', full_name, class_id)
-                    )
-            
-            # Тестовый предмет
-            cursor.execute(
-                "INSERT INTO subjects (name, description) VALUES (?, ?)",
-                ('Математика', 'Алгебра и геометрия 6 класс')
-            )
-            
-            # Тестовый учебник
-            cursor.execute(
-                "INSERT INTO textbooks (title, description, grade) VALUES (?, ?, ?)",
-                ('Макарычев', 'Алгебра для 5 класса', 5)
-            )
-            
-            # Базовые шаблоны для учебника
-            templates = [
-                ('Сложение', '{A} + {B} = ?', '{A} + {B}', '{"A": {"min": 1, "max": 10}, "B": {"min": 1, "max": 10}}'),
-                ('Вычитание', '{A} - {B} = ?', '{A} - {B}', '{"A": {"min": 1, "max": 20}, "B": {"min": 1, "max": 10}}'),
-                ('Умножение', '{A} × {B} = ?', '{A} * {B}', '{"A": {"min": 1, "max": 10}, "B": {"min": 1, "max": 10}}'),
-                ('Деление', '{A} ÷ {B} = ?', '{A} / {B}', '{"A": {"min": 1, "max": 50}, "B": {"min": 1, "max": 10}}'),
-                ('Уравнение', 'Решите: {A}x + {B} = {C}', '({C} - {B}) / {A}', '{"A": {"min": 1, "max": 5}, "B": {"min": 1, "max": 20}, "C": {"min": 10, "max": 50}}')
-            ]
-            
-            for name, question, answer, params in templates:
-                cursor.execute(
-                    "INSERT INTO task_templates (textbook_id, name, question_template, answer_template, parameters) VALUES (1, ?, ?, ?, ?)",
-                    (name, question, answer, params)
-                )
-            
-            conn.commit()
+            print("Создан тестовый учитель: teacher1 / teacher123")
+        
+        # Аналогично для других тестовых данных
+        conn.commit()
     except Exception as e:
         conn.rollback()
         print(f"Ошибка при инициализации БД: {e}")
@@ -653,7 +598,7 @@ def start_lesson(lesson_id):
     cursor = conn.cursor()
     
     try:
-        # Проверка доступа для ученика
+        # Проверка доступа
         if session['role'] == 'student':
             cursor.execute('''
                 SELECT 1 FROM lessons l
@@ -672,13 +617,9 @@ def start_lesson(lesson_id):
         ''', (lesson_id,))
         lesson = cursor.fetchone()
         
-        if not lesson:
-            return redirect(url_for('student_lessons'))
-        
-        # Получаем задания урока
+        # Получаем базовые задания урока
         cursor.execute('''
-            SELECT id, question, answer, template_id 
-            FROM lesson_tasks
+            SELECT id, question, answer, template_id FROM lesson_tasks
             WHERE lesson_id = ?
             ORDER BY id
         ''', (lesson_id,))
@@ -687,7 +628,7 @@ def start_lesson(lesson_id):
         tasks = []
         
         for task in base_tasks:
-            # Проверяем сохраненный вариант
+            # Проверяем, есть ли сохраненный вариант
             cursor.execute('''
                 SELECT variant_data FROM student_task_variants
                 WHERE lesson_id = ? AND user_id = ? AND task_id = ?
@@ -695,15 +636,17 @@ def start_lesson(lesson_id):
             variant = cursor.fetchone()
             
             if variant:
+                # Используем сохраненный вариант
                 variant_data = json.loads(variant['variant_data'])
                 question = task['question']
-                answer_template = task['answer']  # Переименовали переменную
+                answer = task['answer']
                 
-                # Подставляем параметры
+                # Заменяем параметры в вопросе
                 for param, value in variant_data['params'].items():
                     question = question.replace(f'{{{param}}}', str(value))
                 
-                computed_answer = str(eval(answer_template.format(**variant_data['params'])))
+                # Вычисляем ответ
+                computed_answer = str(eval(answer.format(**variant_data['params'])))
                 
                 tasks.append({
                     'id': task['id'],
@@ -712,32 +655,33 @@ def start_lesson(lesson_id):
                     'params': variant_data['params']
                 })
             else:
-                # Генерация нового варианта
-                params = {}
-                question_template = task['question']
-                answer_template = task['answer']  # Переименовали переменную
-                
-                # Получаем параметры из шаблона, если есть
+                # Получаем параметры из шаблона, если задание из шаблона
+                template_params = {}
                 if task['template_id']:
-                    cursor.execute('SELECT parameters FROM task_templates WHERE id = ?', 
-                                 (task['template_id'],))
-                    template = cursor.fetchone()
-                    if template:
-                        params = MathEngine.generate_parameters(json.loads(template['parameters']))
+                    cursor.execute('''
+                        SELECT parameters FROM task_templates
+                        WHERE id = ?
+                    ''', (task['template_id'],))
+                    template_data = cursor.fetchone()
+                    if template_data:
+                        template_params = json.loads(template_data['parameters'])
                 
-                # Если параметров нет - генерируем случайные
-                if not params:
-                    param_matches = set(re.findall(r'\{([A-Za-z]+)\}', question_template))
+                # Генерация параметров
+                params = {}
+                if template_params:
+                    params = MathEngine.generate_parameters(template_params)
+                else:
+                    param_matches = set(re.findall(r'\{([A-Za-z]+)\}', task['question']))
                     for param in param_matches:
                         params[param] = random.randint(1, 10)
                 
-                # Формируем вопрос
-                generated_question = question_template
+                # Заменяем параметры в вопросе
+                generated_question = task['question']
                 for param, value in params.items():
                     generated_question = generated_question.replace(f'{{{param}}}', str(value))
                 
                 # Вычисляем ответ
-                computed_answer = str(eval(answer_template.format(**params)))
+                computed_answer = str(eval(answer.format(**params)))
                 
                 # Сохраняем вариант
                 variant_data = {
@@ -767,8 +711,8 @@ def start_lesson(lesson_id):
         
     except Exception as e:
         conn.rollback()
-        print(f"Error in start_lesson: {str(e)}")  # Логируем ошибку
-        return "Произошла ошибка при загрузке урока", 500
+        print(f"Error: {e}")
+        return "Произошла ошибка", 500
     finally:
         conn.close()
 
