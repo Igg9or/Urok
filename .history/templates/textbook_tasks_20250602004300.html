@@ -58,7 +58,6 @@
                     <div class="template-header">
                         <h3>№{{ loop.index }}: {{ template.name }}</h3>
                         <div class="template-actions">
-                            <input type="checkbox" class="template-checkbox" data-id="{{ template.id }}">
                             <button class="btn-icon edit-btn">✏️</button>
                             <button class="btn-icon delete-btn">🗑️</button>
                         </div>
@@ -76,6 +75,5 @@
     </div>
 
     <script src="{{ url_for('static', filename='js/textbook_tasks.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bulk_actions.js') }}"></script>
 </body>
 </html>

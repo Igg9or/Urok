@@ -1326,11 +1326,10 @@ body {
     margin-top: 15px;
 }
 .template-checkbox {
-    display: inline-block !important;
-    width: 18px !important;
-    height: 18px !important;
-    margin-right: 10px !important;
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
     opacity: 1 !important;
     visibility: visible !important;
-    position: static !important;
 }

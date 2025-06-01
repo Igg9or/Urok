@@ -23,9 +23,9 @@
                 <button id="showFormBtn" class="btn btn-primary">+ Добавить шаблон</button>
             </div>
             <div class="bulk-actions">
-                <button id="deleteSelectedBtn" class="btn btn-danger" disabled>Удалить выбранные</button>
-                <button id="selectAllBtn" class="btn btn-secondary">Выбрать все</button>
-            </div>
+    <button id="deleteSelectedBtn" class="btn btn-danger" disabled>Удалить выбранные</button>
+    <button id="selectAllBtn" class="btn btn-secondary">Выбрать все</button>
+</div>
 
             <!-- Форма добавления -->
             <div id="taskForm" class="task-form hidden">
@@ -58,7 +58,6 @@
                     <div class="template-header">
                         <h3>№{{ loop.index }}: {{ template.name }}</h3>
                         <div class="template-actions">
-                            <input type="checkbox" class="template-checkbox" data-id="{{ template.id }}">
                             <button class="btn-icon edit-btn">✏️</button>
                             <button class="btn-icon delete-btn">🗑️</button>
                         </div>
@@ -76,6 +75,5 @@
     </div>
 
     <script src="{{ url_for('static', filename='js/textbook_tasks.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bulk_actions.js') }}"></script>
 </body>
 </html>
