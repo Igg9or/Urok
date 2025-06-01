@@ -97,15 +97,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Добавляем отображение параметров
         const paramsDiv = document.createElement('div');
         paramsDiv.className = 'task-params';
-        
-        // Парсим параметры и условия
-        const params = JSON.parse(template.parameters);
-        const conditions = params.conditions || '';
-        
         paramsDiv.innerHTML = `
             <h4>Параметры задания:</h4>
             <div class="params-grid">
-                ${Object.entries(params).filter(([key]) => key !== 'conditions').map(([param, config]) => `
+                ${Object.entries(JSON.parse(template.parameters)).map(([param, config]) => `
                 <div class="param-group">
                     <div class="param-name">${param}:</div>
                     <div class="param-range">от ${config.min} до ${config.max}</div>
@@ -121,12 +116,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     ` : ''}
                 </div>
                 `).join('')}
-                ${conditions ? `
-                <div class="conditions-group">
-                    <div class="conditions-name">Условия:</div>
-                    <div class="conditions-value">${conditions}</div>
-                </div>
-                ` : ''}
             </div>
         `;
         
@@ -145,121 +134,109 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Генерация примера для учителя
     function generateExample(questionTemplate, answerTemplate, taskCard) {
-        const paramRegex = /\{([A-Za-z]+)\}/g;
+    // Если есть шаблон (template_id), используем его параметры + conditions
+    if (taskCard.dataset.templateId && templatesCache[taskCard.dataset.templateId]) {
+        const template = templatesCache[taskCard.dataset.templateId];
+        
+        try {
+            // Получаем полные параметры из шаблона (включая conditions)
+            const templateParams = JSON.parse(template.parameters);
+            
+            // Генерируем параметры через MathEngine (учитывает conditions!)
+            const params = MathEngine.generate_parameters(templateParams);
+
+            // Проверяем, что параметры сгенерированы с учетом условий
+            if (!params || Object.keys(params).length === 0) {
+                throw new Error("Не удалось сгенерировать параметры, удовлетворяющие условиям");
+            }
+
+            // Заменяем параметры в вопросе
+            let exampleQuestion = questionTemplate;
+            for (const [param, value] of Object.entries(params)) {
+                exampleQuestion = exampleQuestion.replace(
+                    new RegExp(`\\{${param}\\}`, 'g'), 
+                    value.toString()
+                );
+            }
+
+            // Вычисляем ответ через MathEngine (для точного вычисления)
+            const computedAnswer = MathEngine.evaluate_expression(
+                answerTemplate, 
+                params
+            );
+
+            // Для деления: проверяем, должен ли ответ быть целым
+            if (templateParams.conditions && templateParams.conditions.includes('%')) {
+                const isDivisionExact = eval(templateParams.conditions.replace(/&&/g, '&&').replace(/\|\|/g, '||'));
+                if (isDivisionExact && computedAnswer.includes('.')) {
+                    throw new Error("Условие целочисленного деления не выполнено");
+                }
+            }
+
+            return {
+                question: exampleQuestion,
+                answer: computedAnswer,
+                params: params
+            };
+
+        } catch (e) {
+            console.error("Ошибка генерации примера:", e);
+            return {
+                question: "Невозможно сгенерировать пример (нарушены условия шаблона)",
+                answer: "—",
+                params: {}
+            };
+        }
+    } 
+    // Если шаблона нет, генерируем случайные параметры (старый способ)
+    else {
         const params = {};
-        let match;
-        
-        // Находим все параметры в шаблоне
         const allParams = new Set();
-        while ((match = paramRegex.exec(questionTemplate + answerTemplate))) {
+        
+        // Находим все параметры в вопросе и ответе
+        const questionParams = [...questionTemplate.matchAll(/\{([A-Za-z]+)\}/g)];
+        const answerParams = [...answerTemplate.matchAll(/\{([A-Za-z]+)\}/g)];
+        
+        [...questionParams, ...answerParams].forEach(match => {
             allParams.add(match[1]);
-        }
-        
-        // Проверяем, есть ли сохраненные параметры из шаблона
-        let templateParams = null;
-        let conditions = '';
-        if (taskCard.dataset.templateId && templatesCache[taskCard.dataset.templateId]) {
-            try {
-                templateParams = JSON.parse(templatesCache[taskCard.dataset.templateId].parameters);
-                conditions = templateParams.conditions || '';
-            } catch (e) {
-                console.error('Error parsing template params:', e);
-            }
-        }
-        
-        // Генерируем значения с учетом ограничений и условий
-        let attempts = 0;
-        const maxAttempts = 100; // Максимальное количество попыток
-        
-        generateParams: while (attempts < maxAttempts) {
-            attempts++;
-            params = {}; // Сбрасываем параметры перед каждой попыткой
-            
-            for (const param of allParams) {
-                if (templateParams && templateParams[param]) {
-                    // Используем параметры из шаблона
-                    const config = templateParams[param];
-                    let value;
-                    
-                    if (config.type === 'int') {
-                        value = randomInt(config.min, config.max);
-                        
-                        // Применяем ограничения
-                        if (config.constraints) {
-                            for (const constraint of config.constraints) {
-                                if (constraint.type === 'multiple_of') {
-                                    const remainder = value % constraint.value;
-                                    if (remainder !== 0) {
-                                        value += (constraint.value - remainder);
-                                        if (value > config.max) {
-                                            value -= constraint.value;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        value = randomInt(config.min, config.max);
-                    }
-                    
-                    params[param] = value;
-                } else {
-                    // Генерируем случайное значение, если нет шаблона
-                    params[param] = randomInt(1, 10);
-                }
-            }
-            
-            // Проверяем условия, если они есть
-            if (conditions) {
-                try {
-                    // Заменяем {param} на params.param в условиях
-                    let evalConditions = conditions;
-                    for (const param in params) {
-                        evalConditions = evalConditions.replace(
-                            new RegExp(`\\{${param}\\}`, 'g'), 
-                            params[param]
-                        );
-                    }
-                    
-                    // Выполняем проверку условий
-                    if (!eval(evalConditions)) {
-                        continue generateParams; // Условия не выполнены - пробуем снова
-                    }
-                } catch (e) {
-                    console.error('Error evaluating conditions:', e);
-                    // Если не удалось проверить условия, продолжаем
-                    break;
-                }
-            }
-            
-            // Если дошли сюда - условия выполнены или их нет
-            break;
-        }
-        
-        // Заменяем параметры в вопросе
+        });
+
+        // Генерируем случайные значения
+        allParams.forEach(param => {
+            params[param] = randomInt(1, 10);
+        });
+
+        // Формируем вопрос с подставленными параметрами
         let exampleQuestion = questionTemplate;
         for (const [param, value] of Object.entries(params)) {
-            exampleQuestion = exampleQuestion.replace(new RegExp(`\\{${param}\\}`, 'g'), value);
+            exampleQuestion = exampleQuestion.replace(
+                new RegExp(`\\{${param}\\}`, 'g'), 
+                value.toString()
+            );
         }
-        
-        // Вычисляем ответ
+
+        // Вычисляем ответ (простое eval, без сложной логики)
         let exampleAnswer;
         try {
             let answerFormula = answerTemplate;
             for (const [param, value] of Object.entries(params)) {
-                answerFormula = answerFormula.replace(new RegExp(`\\{${param}\\}`, 'g'), value);
+                answerFormula = answerFormula.replace(
+                    new RegExp(`\\{${param}\\}`, 'g'), 
+                    value.toString()
+                );
             }
             exampleAnswer = safeEval(answerFormula)?.toString() ?? "Ошибка в формуле";
         } catch (e) {
-            exampleAnswer = "Ошибка в формуле ответа";
+            exampleAnswer = "Ошибка вычисления";
         }
-        
+
         return {
             question: exampleQuestion,
             answer: exampleAnswer,
             params: params
         };
     }
+}
 
     function randomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;

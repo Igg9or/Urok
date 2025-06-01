@@ -1,0 +1,22 @@
+[
+    {
+        "textbook_id": 1,
+        "name": "Вычитание и деление",
+        "question_template": "{A} - {B} : {C}",
+        "answer_template": "{A} - {B} / {C}",
+        "parameters": {
+            "A": {
+                "min": 1000,
+                "max": 2000
+            },
+            "B": {
+                "min": 100,
+                "max": 200
+            },
+            "C": {
+                "min": 2,
+                "max": 10
+            }
+        }
+    }
+]

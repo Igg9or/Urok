@@ -1,0 +1,17 @@
+{
+    "textbook_id": 1,
+    "name": "Порядок действий",
+    "question_template": "Вычислите: ({A} - {B} + {C}) : ({D} - {E})",
+    "answer_template": "({A} - {B} + {C}) / ({D} - {E})",
+    "parameters": {
+        "A": {"type": "int", "min": 400, "max": 600, "constraints": ["multiple_of 100"]},
+        "B": {"type": "int", "min": 50, "max": 200, "constraints": ["multiple_of 10"]},
+        "C": {"type": "int", "min": 100, "max": 300, "constraints": ["multiple_of 100"]},
+        "D": {"type": "int", "min": 300, "max": 400},
+        "E": {"type": "int", "min": 290, "max": 399, "constraints": ["less_than D"]}
+    },
+    "validation": {
+        "expression": "(A - B + C) % (D - E) == 0",
+        "error_message": "Результат должен быть целым числом"
+    }
+}

@@ -9,7 +9,7 @@ class MathEngine:
         params = {}
         conditions = template_params.get('conditions', '')
         
-        for _ in range(100):  # Максимум 100 попыток
+        for _ in range(100):  # Максимум 100 попыток генерации
             generated = {}
             valid = True
             
@@ -18,23 +18,29 @@ class MathEngine:
                 if param == 'conditions':
                     continue
                     
-                if config['type'] == 'int':
+                param_type = config.get('type', 'int')
+                
+                if param_type == 'int':
                     value = random.randint(config['min'], config['max'])
                     
-                    # Применяем ограничения
                     if 'constraints' in config:
                         for constraint in config['constraints']:
                             if constraint['type'] == 'multiple_of':
-                                # Корректируем значение чтобы было кратно
                                 remainder = value % constraint['value']
                                 if remainder != 0:
                                     value += (constraint['value'] - remainder)
-                                    # Проверяем не вышли ли за границы
                                     if value > config['max']:
                                         value -= constraint['value']
+                            elif constraint['type'] == 'greater_than':
+                                if 'param' in constraint:
+                                    if value <= generated.get(constraint['param'], 0):
+                                        valid = False
+                                else:
+                                    if value <= constraint['value']:
+                                        valid = False
                     generated[param] = value
             
-            # Проверка условий
+            # Проверка условий после генерации всех параметров
             if valid and conditions:
                 try:
                     if not eval(conditions, {}, generated):

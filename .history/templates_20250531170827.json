@@ -1,0 +1,104 @@
+[
+    {
+        "textbook_id": 1,
+        "name": "22.а Сложение трехзначных чисел",
+        "question_template": "Выполните сложение: {A} + {B}",
+        "answer_template": "{A} + {B}",
+        "parameters": {
+            "A": {"min": 100, "max": 999, "type": "int"},
+            "B": {"min": 100, "max": 999, "type": "int"},
+            "conditions": "(A % 10 + B % 10) < 10 && ((A // 10 % 10) + (B // 10 % 10)) < 10"
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "22.б Вычитание трехзначных чисел",
+        "question_template": "Выполните вычитание: {A} - {B}",
+        "answer_template": "{A} - {B}",
+        "parameters": {
+            "A": {"min": 500, "max": 999, "type": "int"},
+            "B": {"min": 100, "max": 499, "type": "int"},
+            "conditions": "A > B && (A % 10) >= (B % 10) && ((A // 10 % 10) >= (B // 10 % 10))"
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "22.в Умножение трехзначного на однозначное",
+        "question_template": "Выполните умножение: {A} × {B}",
+        "answer_template": "{A} * {B}",
+        "parameters": {
+            "A": {"min": 100, "max": 999, "type": "int"},
+            "B": {"min": 2, "max": 9, "type": "int"},
+            "conditions": "(A % 10 * B) < 10 && ((A // 10 % 10) * B) < 10"
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "22.г Деление без остатка",
+        "question_template": "Выполните деление: {A} ÷ {B}",
+        "answer_template": "{A} / {B}",
+        "parameters": {
+            "A": {"min": 100, "max": 999, "type": "int"},
+            "B": {"min": 2, "max": 9, "type": "int"},
+            "conditions": "A % B == 0"
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "22.д Деление четырехзначного на однозначное",
+        "question_template": "Выполните деление: {A} ÷ {B}",
+        "answer_template": "{A} / {B}",
+        "parameters": {
+            "A": {"min": 1000, "max": 9999, "type": "int"},
+            "B": {"min": 2, "max": 9, "type": "int"},
+            "conditions": "A % B == 0"
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "22.е Умножение двузначного на трехзначное",
+        "question_template": "Выполните умножение: {A} × {B}",
+        "answer_template": "{A} * {B}",
+        "parameters": {
+            "A": {"min": 10, "max": 99, "type": "int"},
+            "B": {"min": 100, "max": 999, "type": "int"},
+            "conditions": "(A % 10 * B % 10) < 10 && ((A // 10) * (B % 10)) < 10"
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "22.ж Комбинированная операция",
+        "question_template": "Выполните действия: {A} × {B} - {C}",
+        "answer_template": "{A} * {B} - {C}",
+        "parameters": {
+            "A": {"min": 10, "max": 99, "type": "int"},
+            "B": {"min": 10, "max": 99, "type": "int"},
+            "C": {"min": 10, "max": 99, "type": "int"},
+            "conditions": "(A * B) > C"
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "22.з Деление с последующим сложением",
+        "question_template": "Выполните действия: {A} ÷ {B} + {C}",
+        "answer_template": "{A} / {B} + {C}",
+        "parameters": {
+            "A": {"min": 100, "max": 999, "type": "int"},
+            "B": {"min": 2, "max": 9, "type": "int"},
+            "C": {"min": 1, "max": 9, "type": "int"},
+            "conditions": "A % B == 0"
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "22.и Умножение с разностью в скобках",
+        "question_template": "Выполните действия: {A} × ({B} - {C})",
+        "answer_template": "{A} * ({B} - {C})",
+        "parameters": {
+            "A": {"min": 10, "max": 99, "type": "int"},
+            "B": {"min": 100, "max": 999, "type": "int"},
+            "C": {"min": 100, "max": 999, "type": "int"},
+            "conditions": "B > C && (B - C) < 100"
+        }
+    }
+]

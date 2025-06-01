@@ -1,0 +1,137 @@
+[
+    {
+        "textbook_id": 1,
+        "name": "17.а Порядок действий (вычитание и деление)",
+        "question_template": "Назовите порядок действий и устно вычислите: {A} - {B} : {C}",
+        "answer_template": "{A} - {B} / {C}",
+        "parameters": {
+            "A": {"min": 1000, "max": 2000, "type": "int"},
+            "B": {
+                "min": 100, 
+                "max": 200, 
+                "type": "int", 
+                "constraints": [
+                    {"type": "multiple_of", "value": 10},
+                    {"type": "multiple_of", "param": "C"}
+                ]
+            },
+            "C": {"min": 2, "max": 10, "type": "int"}
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "17.б Порядок действий (со скобками)",
+        "question_template": "Назовите порядок действий и устно вычислите: ({A} - {B} + {C}) : ({D} - {E})",
+        "answer_template": "({A} - {B} + {C}) / ({D} - {E})",
+        "parameters": {
+            "A": {
+                "min": 400, 
+                "max": 600, 
+                "type": "int", 
+                "constraints": [
+                    {"type": "multiple_of", "value": 100},
+                    {"type": "greater_than", "param": "B"}
+                ]
+            },
+            "B": {
+                "min": 50, 
+                "max": 200, 
+                "type": "int", 
+                "constraints": [
+                    {"type": "multiple_of", "value": 10}
+                ]
+            },
+            "C": {
+                "min": 100, 
+                "max": 300, 
+                "type": "int", 
+                "constraints": [
+                    {"type": "multiple_of", "value": 100}
+                ]
+            },
+            "D": {
+                "min": 300, 
+                "max": 400, 
+                "type": "int",
+                "constraints": [
+                    {"type": "greater_than", "param": "E", "min_diff": 1}
+                ]
+            },
+            "E": {
+                "min": 290, 
+                "max": 399, 
+                "type": "int",
+                "constraints": [
+                    {"type": "less_than", "param": "D", "min_diff": 1}
+                ]
+            }
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "19 Задача на сложение количеств",
+        "question_template": "Один комбайнёр намолотил {A} т зерна, а второй — на {B} т меньше. Сколько зерна намолотили оба комбайнёра?",
+        "answer_template": "{A} + ({A} - {B})",
+        "parameters": {
+            "A": {
+                "min": 100, 
+                "max": 300, 
+                "type": "int",
+                "constraints": [
+                    {"type": "greater_than", "param": "B"}
+                ]
+            },
+            "B": {
+                "min": 20, 
+                "max": 100, 
+                "type": "int",
+                "constraints": [
+                    {"type": "less_than", "param": "A"}
+                ]
+            }
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "21 Задача на сравнение расстояний",
+        "question_template": "Расстояние от дома до школы {A} м, а расстояние от дома до стадиона {B} м. На сколько метров расстояние от дома до школы меньше расстояния от дома до стадиона?",
+        "answer_template": "{B} - {A}",
+        "parameters": {
+            "A": {
+                "min": 300, 
+                "max": 500, 
+                "type": "int", 
+                "constraints": [
+                    {"type": "multiple_of", "value": 10},
+                    {"type": "less_than", "param": "B"}
+                ]
+            },
+            "B": {
+                "min": 1000, 
+                "max": 2000, 
+                "type": "int", 
+                "constraints": [
+                    {"type": "multiple_of", "value": 10},
+                    {"type": "greater_than", "param": "A"}
+                ]
+            }
+        }
+    },
+    {
+        "textbook_id": 1,
+        "name": "22.г Деление без остатка",
+        "question_template": "Выполните деление: {A} ÷ {B}",
+        "answer_template": "{A} / {B}",
+        "parameters": {
+            "A": {
+                "min": 100, 
+                "max": 999, 
+                "type": "int",
+                "constraints": [
+                    {"type": "multiple_of", "param": "B"}
+                ]
+            },
+            "B": {"min": 2, "max": 9, "type": "int"}
+        }
+    }
+]

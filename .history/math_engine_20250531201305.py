@@ -9,7 +9,10 @@ class MathEngine:
         params = {}
         conditions = template_params.get('conditions', '')
         
-        for _ in range(100):  # Максимум 100 попыток
+        # Максимальное количество попыток генерации
+        max_attempts = 100
+        
+        for _ in range(max_attempts):
             generated = {}
             valid = True
             
@@ -32,11 +35,19 @@ class MathEngine:
                                     # Проверяем не вышли ли за границы
                                     if value > config['max']:
                                         value -= constraint['value']
+                            elif constraint['type'] == 'greater_than':
+                                if 'param' in constraint:
+                                    if value <= generated.get(constraint['param'], 0):
+                                        valid = False
+                                else:
+                                    if value <= constraint['value']:
+                                        valid = False
                     generated[param] = value
             
             # Проверка условий
             if valid and conditions:
                 try:
+                    # Безопасная проверка условий с подставленными значениями
                     if not eval(conditions, {}, generated):
                         valid = False
                 except:
