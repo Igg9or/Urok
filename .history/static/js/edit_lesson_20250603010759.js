@@ -94,98 +94,81 @@ document.addEventListener('DOMContentLoaded', function() {
     const taskCard = tasksContainer.lastElementChild;
     taskCard.dataset.templateId = template.id;
     
-    // Генерируем пример для ученика сразу после добавления
+    // Добавляем отображение параметров
+    const paramsDiv = document.createElement('div');
+    paramsDiv.className = 'task-params';
+    
+    // Парсим параметры и условия
+    const params = JSON.parse(template.parameters);
+    const conditions = params.conditions || '';
+    
+    paramsDiv.innerHTML = `
+        <h4>Параметры задания:</h4>
+        <div class="params-grid">
+            ${Object.entries(params).filter(([key]) => key !== 'conditions').map(([param, config]) => `
+            <div class="param-group">
+                <div class="param-name">${param}:</div>
+                <div class="param-range">от ${config.min} до ${config.max}</div>
+                ${config.constraints ? `
+                <div class="param-constraints">
+                    ${config.constraints.map(c => `
+                    <div class="constraint">
+                        <span class="constraint-type">${formatConstraintType(c.type)}:</span>
+                        <span class="constraint-value">${c.value}</span>
+                    </div>
+                    `).join('')}
+                </div>
+                ` : ''}
+            </div>
+            `).join('')}
+            ${conditions ? `
+            <div class="conditions-group">
+                <div class="conditions-name">Условия:</div>
+                <div class="conditions-value">${conditions}</div>
+            </div>
+            ` : ''}
+        </div>
+        
+        <!-- Добавляем блок предпросмотра для ученика -->
+        <div class="student-preview">
+            <h4>Пример для ученика:</h4>
+            <div class="preview-content">
+                <p><strong>Задание:</strong> <span class="student-preview-question"></span></p>
+                <p><strong>Правильный ответ:</strong> <span class="student-preview-answer"></span></p>
+            </div>
+        </div>
+    `;
+    
+    taskCard.insertBefore(paramsDiv, taskCard.querySelector('.teacher-preview'));
+    
+    // Генерируем и показываем пример сразу
     generateStudentPreview(taskCard);
 }
 
     function generateStudentPreview(taskCard) {
-    console.log('Generating student preview...'); // Отладочное сообщение
+    const question = taskCard.querySelector('.task-question').value;
+    const answer = taskCard.querySelector('.task-answer').value;
     
-    const templateId = taskCard.dataset.templateId;
-    if (!templateId || !templatesCache[templateId]) {
-        console.error('No template found in cache for ID:', templateId);
-        return;
-    }
-
-    const template = templatesCache[templateId];
-    console.log('Using template:', template); // Отладочный вывод
-
+    if (!question || !answer) return;
+    
     try {
-        // Преобразуем параметры из строки JSON в объект
-        const params = typeof template.parameters === 'string' 
-            ? JSON.parse(template.parameters) 
-            : template.parameters;
-        
-        console.log('Template parameters:', params); // Отладочный вывод
-
-        // Генерируем вариант задания
-        const variant = {
-            question: template.question_template,
-            correct_answer: template.answer_template,
-            params: {}
-        };
-
-        // Генерируем значения параметров
-        const paramNames = [...new Set([
-            ...(template.question_template.match(/\{([A-Za-z]+)\}/g) || []),
-            ...(template.answer_template.match(/\{([A-Za-z]+)\}/g) || [])
-        ])].map(match => match.replace(/\{|\}/g, ''));
-
-        paramNames.forEach(param => {
-            if (params[param]) {
-                // Используем параметры из шаблона
-                variant.params[param] = randomInt(
-                    params[param].min || 1,
-                    params[param].max || 10
-                );
-            } else {
-                // Генерируем случайное значение, если параметр не определён
-                variant.params[param] = randomInt(1, 10);
-            }
+        // Используем TaskGenerator для создания примера
+        const variant = TaskGenerator.generate_task_variant({
+            question_template: question,
+            answer_template: answer,
+            parameters: '{}' // Пустые параметры, они будут сгенерированы автоматически
         });
-
-        // Подставляем параметры в вопрос
-        variant.question = template.question_template;
-        for (const [param, value] of Object.entries(variant.params)) {
-            variant.question = variant.question.replace(
-                new RegExp(`\\{${param}\\}`, 'g'), 
-                value
-            );
-        }
-
-        // Вычисляем ответ
-        try {
-            variant.correct_answer = eval(
-                template.answer_template.replace(
-                    /\{([A-Za-z]+)\}/g, 
-                    (_, p1) => variant.params[p1]
-                )
-            ).toString();
-        } catch (e) {
-            console.error('Error evaluating answer:', e);
-            variant.correct_answer = "Ошибка в формуле ответа";
-        }
-
-        console.log('Generated variant:', variant); // Отладочный вывод
-
-        // Обновляем DOM
+        
         const previewQuestion = taskCard.querySelector('.student-preview-question');
         const previewAnswer = taskCard.querySelector('.student-preview-answer');
         
         if (previewQuestion && previewAnswer) {
             previewQuestion.textContent = variant.question;
             previewAnswer.textContent = variant.correct_answer;
-        } else {
-            console.error('Preview elements not found in task card');
         }
     } catch (e) {
-        console.error('Error generating student preview:', e);
+        console.error('Ошибка генерации примера:', e);
     }
-}
-
-// Вспомогательная функция для генерации случайных чисел
-function randomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
     function formatConstraintType(type) {

@@ -634,25 +634,3 @@
 .student-preview .preview-content {
     margin-top: 10px;
 }
-.student-preview {
-    margin: 20px 0;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-}
-
-.student-preview h4 {
-    margin-top: 0;
-    color: var(--primary-color);
-    font-size: 16px;
-}
-
-.student-preview .preview-content {
-    margin-top: 10px;
-}
-
-.student-preview .preview-content p {
-    margin: 8px 0;
-    line-height: 1.5;
-}

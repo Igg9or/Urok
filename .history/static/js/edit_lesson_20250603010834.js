@@ -99,93 +99,29 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
     function generateStudentPreview(taskCard) {
-    console.log('Generating student preview...'); // Отладочное сообщение
+    const question = taskCard.querySelector('.task-question').value;
+    const answer = taskCard.querySelector('.task-answer').value;
     
-    const templateId = taskCard.dataset.templateId;
-    if (!templateId || !templatesCache[templateId]) {
-        console.error('No template found in cache for ID:', templateId);
-        return;
-    }
-
-    const template = templatesCache[templateId];
-    console.log('Using template:', template); // Отладочный вывод
-
+    if (!question || !answer) return;
+    
     try {
-        // Преобразуем параметры из строки JSON в объект
-        const params = typeof template.parameters === 'string' 
-            ? JSON.parse(template.parameters) 
-            : template.parameters;
-        
-        console.log('Template parameters:', params); // Отладочный вывод
-
-        // Генерируем вариант задания
-        const variant = {
-            question: template.question_template,
-            correct_answer: template.answer_template,
-            params: {}
-        };
-
-        // Генерируем значения параметров
-        const paramNames = [...new Set([
-            ...(template.question_template.match(/\{([A-Za-z]+)\}/g) || []),
-            ...(template.answer_template.match(/\{([A-Za-z]+)\}/g) || [])
-        ])].map(match => match.replace(/\{|\}/g, ''));
-
-        paramNames.forEach(param => {
-            if (params[param]) {
-                // Используем параметры из шаблона
-                variant.params[param] = randomInt(
-                    params[param].min || 1,
-                    params[param].max || 10
-                );
-            } else {
-                // Генерируем случайное значение, если параметр не определён
-                variant.params[param] = randomInt(1, 10);
-            }
+        // Используем TaskGenerator для создания примера
+        const variant = TaskGenerator.generate_task_variant({
+            question_template: question,
+            answer_template: answer,
+            parameters: '{}' // Пустые параметры, они будут сгенерированы автоматически
         });
-
-        // Подставляем параметры в вопрос
-        variant.question = template.question_template;
-        for (const [param, value] of Object.entries(variant.params)) {
-            variant.question = variant.question.replace(
-                new RegExp(`\\{${param}\\}`, 'g'), 
-                value
-            );
-        }
-
-        // Вычисляем ответ
-        try {
-            variant.correct_answer = eval(
-                template.answer_template.replace(
-                    /\{([A-Za-z]+)\}/g, 
-                    (_, p1) => variant.params[p1]
-                )
-            ).toString();
-        } catch (e) {
-            console.error('Error evaluating answer:', e);
-            variant.correct_answer = "Ошибка в формуле ответа";
-        }
-
-        console.log('Generated variant:', variant); // Отладочный вывод
-
-        // Обновляем DOM
+        
         const previewQuestion = taskCard.querySelector('.student-preview-question');
         const previewAnswer = taskCard.querySelector('.student-preview-answer');
         
         if (previewQuestion && previewAnswer) {
             previewQuestion.textContent = variant.question;
             previewAnswer.textContent = variant.correct_answer;
-        } else {
-            console.error('Preview elements not found in task card');
         }
     } catch (e) {
-        console.error('Error generating student preview:', e);
+        console.error('Ошибка генерации примера:', e);
     }
-}
-
-// Вспомогательная функция для генерации случайных чисел
-function randomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
     function formatConstraintType(type) {
