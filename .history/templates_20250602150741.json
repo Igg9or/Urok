@@ -70,112 +70,114 @@
   }
 },
   {
-  "textbook_id": 1,
-  "name": "21 Разница расстояний",
-  "question_template": "Расстояние от дома до школы {A} м, а до стадиона — {B} м. На сколько метров расстояние от дома до школы меньше расстояния до стадиона?",
-  "answer_template": "{B} - {A}",
-  "parameters": {
-    "A": {"type": "int", "min": 300, "max": 800, "constraints": [{"type": "multiple_of", "value": 10}]},
-    "B": {"type": "int", "min": 900, "max": 2000, "constraints": [{"type": "multiple_of", "value": 10}]},
-    "conditions": "B > A"
-  }
-},
+    "textbook_id": 1,
+    "name": "17.а Вычитание и деление",
+    "question_template": "Назовите порядок действий и вычислите: {A} - {B} : {C}",
+    "answer_template": "{A} - ({B} / {C})",
+    "parameters": {
+      "A": {
+        "type": "int",
+        "min": 1000,
+        "max": 2000
+      },
+      "B": {
+        "type": "int",
+        "min": 100,
+        "max": 200
+      },
+      "C": {
+        "type": "int",
+        "min": 2,
+        "max": 10
+      },
+      "conditions": "B % C == 0"
+    }
+  },
   {
-  "textbook_id": 1,
-  "name": "22.а Сложение",
-  "question_template": "Вычислите: {A} + {B}",
-  "answer_template": "{A} + {B}",
-  "parameters": {
-    "A": {"type": "int", "min": 600, "max": 700},
-    "B": {"type": "int", "min": 300, "max": 400}
-  }
-},
+    "textbook_id": 1,
+    "name": "17.б Скобки и ноль",
+    "question_template": "Вычислите: ({A} - {B}) - ({C} - {D})",
+    "answer_template": "({A} - {B}) - ({C} - {D})",
+    "parameters": {
+      "A": {
+        "type": "int",
+        "min": 5000,
+        "max": 6000
+      },
+      "B": {
+        "type": "int",
+        "min": 1,
+        "max": 20
+      },
+      "C": {
+        "type": "int",
+        "min": 200,
+        "max": 500
+      },
+      "D": {
+        "type": "int",
+        "min": 200,
+        "max": 500
+      },
+      "conditions": "C == D"
+    }
+  },
   {
-  "textbook_id": 1,
-  "name": "22.б Вычитание",
-  "question_template": "Вычислите: {A} - {B}",
-  "answer_template": "{A} - {B}",
-  "parameters": {
-    "A": {"type": "int", "min": 600, "max": 1000},
-    "B": {"type": "int", "min": 100, "max": 500},
-    "conditions": "A > B"
+    "textbook_id": 1,
+    "name": "17.в Скобки и деление",
+    "question_template": "Вычислите: ({A} - {B} + {C}) : ({D} - {E})",
+    "answer_template": "({A} - {B} + {C}) / ({D} - {E})",
+    "parameters": {
+      "A": {
+        "type": "int",
+        "min": 400,
+        "max": 600
+      },
+      "B": {
+        "type": "int",
+        "min": 50,
+        "max": 200
+      },
+      "C": {
+        "type": "int",
+        "min": 100,
+        "max": 300
+      },
+      "D": {
+        "type": "int",
+        "min": 300,
+        "max": 310
+      },
+      "E": {
+        "type": "int",
+        "min": 1,
+        "max": 5
+      },
+      "conditions": "(A - B + C) % (D - E) == 0"
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "17.г Простое деление",
+    "question_template": "Вычислите: {A} - {B} : {C}",
+    "answer_template": "{A} - ({B} / {C})",
+    "parameters": {
+      "A": {
+        "type": "int",
+        "min": 20,
+        "max": 30
+      },
+      "B": {
+        "type": "int",
+        "min": 10,
+        "max": 20
+      },
+      "C": {
+        "type": "int",
+        "min": 2,
+        "max": 10
+      },
+      "conditions": "B % C == 0"
+    }
   }
-},
- {
-  "textbook_id": 1,
-  "name": "22.в Умножение",
-  "question_template": "Вычислите: {A} × {B}",
-  "answer_template": "{A} * {B}",
-  "parameters": {
-    "A": {"type": "int", "min": 200, "max": 300},
-    "B": {"type": "int", "min": 5, "max": 10}
-  }
-},
-{
-  "textbook_id": 1,
-  "name": "22.г Деление",
-  "question_template": "Вычислите: {A} : {B}",
-  "answer_template": "{A} / {B}",
-  "parameters": {
-    "A": {"type": "int", "min": 700, "max": 1000},
-    "B": {"type": "int", "min": 2, "max": 10},
-    "conditions": "A % B == 0"
-  }
-},
-{
-  "textbook_id": 1,
-  "name": "22.д Деление",
-  "question_template": "Вычислите: {A} : {B}",
-  "answer_template": "{A} / {B}",
-  "parameters": {
-    "A": {"type": "int", "min": 3000, "max": 4000},
-    "B": {"type": "int", "min": 2, "max": 10},
-    "conditions": "A % B == 0"
-  }
-},
-{
-  "textbook_id": 1,
-  "name": "22.е Умножение",
-  "question_template": "Вычислите: {A} × {B}",
-  "answer_template": "{A} * {B}",
-  "parameters": {
-    "A": {"type": "int", "min": 70, "max": 90},
-    "B": {"type": "int", "min": 800, "max": 900}
-  }
-},
-{
-  "textbook_id": 1,
-  "name": "22.ж Умножение и вычитание",
-  "question_template": "Вычислите: {A} × {B} - {C}",
-  "answer_template": "{A} * {B} - {C}",
-  "parameters": {
-    "A": {"type": "int", "min": 40, "max": 60},
-    "B": {"type": "int", "min": 20, "max": 30},
-    "C": {"type": "int", "min": 70, "max": 90}
-  }
-},
-{
-  "textbook_id": 1,
-  "name": "22.з Деление и сложение",
-  "question_template": "Вычислите: {A} : {B} + {C}",
-  "answer_template": "({A} / {B}) + {C}",
-  "parameters": {
-    "A": {"type": "int", "min": 100, "max": 300},
-    "B": {"type": "int", "min": 2, "max": 10},
-    "C": {"type": "int", "min": 1, "max": 20},
-    "conditions": "A % B == 0"
-  }
-},
-{
-  "textbook_id": 1,
-  "name": "22.и Умножение и скобки",
-  "question_template": "Вычислите: {A} × ({B} - {C})",
-  "answer_template": "{A} * ({B} - {C})",
-  "parameters": {
-    "A": {"type": "int", "min": 20, "max": 40},
-    "B": {"type": "int", "min": 300, "max": 400},
-    "C": {"type": "int", "min": 20, "max": 100},
-    "conditions": "B > C"
-  }
-}
 ]

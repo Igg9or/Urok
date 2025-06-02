@@ -1,0 +1,191 @@
+[
+  {
+    "textbook_id": 1,
+    "name": "16.а Следующее за числом",
+    "question_template": "Назовите число, следующее за числом {A}",
+    "answer_template": "{A} + 1",
+    "parameters": {
+      "A": {
+        "type": "int",
+        "min": 1,
+        "max": 9998
+      }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "16.б Предыдущее число",
+    "question_template": "Назовите число, предшествующее числу {A}",
+    "answer_template": "{A} - 1",
+    "parameters": {
+      "A": {
+        "type": "int",
+        "min": 2,
+        "max": 10000
+      }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "16.в Следующее за числом",
+    "question_template": "Назовите число, следующее за числом {A}",
+    "answer_template": "{A} + 1",
+    "parameters": {
+      "A": {
+        "type": "int",
+        "min": 10000,
+        "max": 19998
+      }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "16.г Предыдущее число",
+    "question_template": "Назовите число, предшествующее числу {A}",
+    "answer_template": "{A} - 1",
+    "parameters": {
+      "A": {
+        "type": "int",
+        "min": 101,
+        "max": 1500
+      }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "16.д На 1 меньше",
+    "question_template": "Назовите число, на 1 меньшее числа {A}",
+    "answer_template": "{A} - 1",
+    "parameters": {
+      "A": {
+        "type": "int",
+        "min": 2,
+        "max": 10000
+      }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "16.е На 1 больше",
+    "question_template": "Назовите число, на 1 большее числа {A}",
+    "answer_template": "{A} + 1",
+    "parameters": {
+      "A": {
+        "type": "int",
+        "min": 1,
+        "max": 9998
+      }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "17.а Вычитание и деление",
+    "question_template": "Назовите порядок действий и вычислите: {A} - {B} : {C}",
+    "answer_template": "{A} - ({B} / {C})",
+    "parameters": {
+      "A": {
+        "type": "int",
+        "min": 1000,
+        "max": 2000
+      },
+      "B": {
+        "type": "int",
+        "min": 100,
+        "max": 200
+      },
+      "C": {
+        "type": "int",
+        "min": 2,
+        "max": 10
+      },
+      "conditions": "B % C == 0"
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "17.б Скобки и ноль",
+    "question_template": "Вычислите: ({A} - {B}) - ({C} - {D})",
+    "answer_template": "({A} - {B}) - ({C} - {D})",
+    "parameters": {
+      "A": {
+        "type": "int",
+        "min": 5000,
+        "max": 6000
+      },
+      "B": {
+        "type": "int",
+        "min": 1,
+        "max": 20
+      },
+      "C": {
+        "type": "int",
+        "min": 200,
+        "max": 500
+      },
+      "D": {
+        "type": "int",
+        "min": 200,
+        "max": 500
+      },
+      "conditions": "C == D"
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "17.в Скобки и деление",
+    "question_template": "Вычислите: ({A} - {B} + {C}) : ({D} - {E})",
+    "answer_template": "({A} - {B} + {C}) / ({D} - {E})",
+    "parameters": {
+      "A": {
+        "type": "int",
+        "min": 400,
+        "max": 600
+      },
+      "B": {
+        "type": "int",
+        "min": 50,
+        "max": 200
+      },
+      "C": {
+        "type": "int",
+        "min": 100,
+        "max": 300
+      },
+      "D": {
+        "type": "int",
+        "min": 300,
+        "max": 310
+      },
+      "E": {
+        "type": "int",
+        "min": 1,
+        "max": 5
+      },
+      "conditions": "(A - B + C) % (D - E) == 0"
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "17.г Простое деление",
+    "question_template": "Вычислите: {A} - {B} : {C}",
+    "answer_template": "{A} - ({B} / {C})",
+    "parameters": {
+      "A": {
+        "type": "int",
+        "min": 20,
+        "max": 30
+      },
+      "B": {
+        "type": "int",
+        "min": 10,
+        "max": 20
+      },
+      "C": {
+        "type": "int",
+        "min": 2,
+        "max": 10
+      },
+      "conditions": "B % C == 0"
+    }
+  }
+]

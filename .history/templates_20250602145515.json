@@ -1,0 +1,32 @@
+    [
+    {
+        "textbook_id": 1,
+        "name": "Вычитание и деление",
+        "question_template": "{A} - {B} : {C}",
+        "answer_template": "{A} - {B} / {C}",
+        "parameters": {
+            "A": {
+                "type": "int",
+                "min": 1000,
+                "max": 2000,
+                "constraints": [
+                    {"type": "multiple_of", "value": 10}
+                ]
+            },
+            "B": {
+                "type": "int",
+                "min": 100,
+                "max": 200,
+                "constraints": [
+                    {"type": "multiple_of", "value": 10}
+                ]
+            },
+            "C": {
+                "type": "int",
+                "min": 2,
+                "max": 10
+            },
+            "conditions": "B % C == 0"
+        }
+    }
+    ]
