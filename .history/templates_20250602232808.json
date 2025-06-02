@@ -1,0 +1,192 @@
+[
+  {
+    "textbook_id": 1,
+    "name": "37.а Перевод дм и см в см",
+    "question_template": "Выразите в сантиметрах: {A} дм {B} см.",
+    "answer_template": "{A} * 10 + {B}",
+    "parameters": {
+      "A": { "type": "int", "min": 5, "max": 15 },
+      "B": { "type": "int", "min": 0, "max": 9 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "37.б Перевод дм и см в см",
+    "question_template": "Выразите в сантиметрах: {A} дм {B} см.",
+    "answer_template": "{A} * 10 + {B}",
+    "parameters": {
+      "A": { "type": "int", "min": 1, "max": 9 },
+      "B": { "type": "int", "min": 0, "max": 9 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "37.в Перевод дм и см в см",
+    "question_template": "Выразите в сантиметрах: {A} дм {B} см.",
+    "answer_template": "{A} * 10 + {B}",
+    "parameters": {
+      "A": { "type": "int", "min": 10, "max": 15 },
+      "B": { "type": "int", "min": 0, "max": 9 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "38.а Перевод см в дм и см",
+    "question_template": "Выразите в дециметрах и сантиметрах: {A} см.",
+    "answer_template": "{A // 10} дм {A % 10} см",
+    "parameters": {
+      "A": { "type": "int", "min": 11, "max": 99 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "38.б Перевод см в дм и см",
+    "question_template": "Выразите в дециметрах и сантиметрах: {A} см.",
+    "answer_template": "{A // 10} дм {A % 10} см",
+    "parameters": {
+      "A": { "type": "int", "min": 100, "max": 999 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "38.в Перевод см в дм и см",
+    "question_template": "Выразите в дециметрах и сантиметрах: {A} см.",
+    "answer_template": "{A // 10} дм {A % 10} см",
+    "parameters": {
+      "A": { "type": "int", "min": 10, "max": 99 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "39.а Перевод см и мм в мм",
+    "question_template": "Выразите в миллиметрах: {A} см {B} мм.",
+    "answer_template": "{A} * 10 + {B}",
+    "parameters": {
+      "A": { "type": "int", "min": 1, "max": 20 },
+      "B": { "type": "int", "min": 0, "max": 9 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "39.б Перевод дм см мм в мм",
+    "question_template": "Выразите в миллиметрах: {A} дм {B} см {C} мм.",
+    "answer_template": "{A} * 100 + {B} * 10 + {C}",
+    "parameters": {
+      "A": { "type": "int", "min": 1, "max": 5 },
+      "B": { "type": "int", "min": 0, "max": 9 },
+      "C": { "type": "int", "min": 0, "max": 9 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "39.в Перевод см в мм",
+    "question_template": "Выразите в миллиметрах: {A} см.",
+    "answer_template": "{A} * 10",
+    "parameters": {
+      "A": { "type": "int", "min": 1, "max": 20 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "40.а Перевод мм в см и мм",
+    "question_template": "Выразите в сантиметрах и миллиметрах: {A} мм.",
+    "answer_template": "{A // 10} см {A % 10} мм",
+    "parameters": {
+      "A": { "type": "int", "min": 10, "max": 99 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "40.б Перевод мм в см и мм",
+    "question_template": "Выразите в сантиметрах и миллиметрах: {A} мм.",
+    "answer_template": "{A // 10} см {A % 10} мм",
+    "parameters": {
+      "A": { "type": "int", "min": 100, "max": 999 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "41.а Перевод км и м в м",
+    "question_template": "Выразите в метрах: {A} км {B} м.",
+    "answer_template": "{A} * 1000 + {B}",
+    "parameters": {
+      "A": { "type": "int", "min": 1, "max": 10 },
+      "B": { "type": "int", "min": 1, "max": 999 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "41.б Перевод км и м в м",
+    "question_template": "Выразите в метрах: {A} км {B} м.",
+    "answer_template": "{A} * 1000 + {B}",
+    "parameters": {
+      "A": { "type": "int", "min": 1, "max": 5 },
+      "B": { "type": "int", "min": 1, "max": 999 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "41.в Перевод км и м в м",
+    "question_template": "Выразите в метрах: {A} км {B} м.",
+    "answer_template": "{A} * 1000 + {B}",
+    "parameters": {
+      "A": { "type": "int", "min": 1, "max": 10 },
+      "B": { "type": "int", "min": 10, "max": 999 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "42.а Перевод м в км и м",
+    "question_template": "Выразите в километрах и метрах: {A} м.",
+    "answer_template": "{A // 1000} км {A % 1000} м",
+    "parameters": {
+      "A": { "type": "int", "min": 1000, "max": 9999 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "42.б Перевод м в км и м",
+    "question_template": "Выразите в километрах и метрах: {A} м.",
+    "answer_template": "{A // 1000} км {A % 1000} м",
+    "parameters": {
+      "A": { "type": "int", "min": 5000, "max": 9999 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "42.в Перевод м в км и м",
+    "question_template": "Выразите в километрах и метрах: {A} м.",
+    "answer_template": "{A // 1000} км {A % 1000} м",
+    "parameters": {
+      "A": { "type": "int", "min": 10000, "max": 20000 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "43.а Сантиметры в метре",
+    "question_template": "Сколько сантиметров в 1 метре?",
+    "answer_template": "100",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "43.б Миллиметры в метре",
+    "question_template": "Сколько миллиметров в 1 метре?",
+    "answer_template": "1000",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "43.в Миллиметры в дециметре",
+    "question_template": "Сколько миллиметров в 1 дециметре?",
+    "answer_template": "100",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "43.г Миллиметры в километре",
+    "question_template": "Сколько миллиметров в 1 километре?",
+    "answer_template": "1000000",
+    "parameters": {}
+  }
+]

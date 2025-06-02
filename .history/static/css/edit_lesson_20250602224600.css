@@ -618,3 +618,131 @@
         margin-left: 0;
     }
 }
+/* Основная структура */
+.edit-lesson-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr 250px;
+    gap: 20px;
+    min-height: calc(100vh - 80px);
+}
+
+.lesson-main-area {
+    padding: 20px 0;
+}
+
+/* Правая панель с заданиями урока */
+.lesson-tasks-sidebar {
+    background: #f8f9fa;
+    border-left: 1px solid #e0e0e0;
+    padding: 20px;
+    height: calc(100vh - 80px);
+    overflow-y: auto;
+    position: sticky;
+    top: 80px;
+}
+
+.lesson-tasks-sidebar .sidebar-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.tasks-count {
+    color: var(--light-text);
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+.lesson-tasks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.lesson-task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: all 0.2s;
+}
+
+.lesson-task-item:hover {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.task-info {
+    flex: 1;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.task-number {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.task-preview {
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.btn-remove-from-lesson {
+    color: var(--error-color);
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.btn-remove-from-lesson:hover {
+    opacity: 1;
+}
+
+/* Адаптация */
+@media (max-width: 1200px) {
+    .edit-lesson-layout {
+        grid-template-columns: 300px 1fr;
+    }
+    
+    .lesson-tasks-sidebar {
+        display: none; /* Скрываем правую панель на планшетах */
+    }
+}
+
+@media (max-width: 992px) {
+    .edit-lesson-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .textbook-sidebar-collapsible {
+        position: fixed;
+        left: -100%;
+        top: 80px;
+        width: 90%;
+        max-width: 350px;
+        height: calc(100vh - 80px);
+        z-index: 100;
+        transition: left 0.3s ease;
+    }
+    
+    .textbook-sidebar-collapsible.active {
+        left: 0;
+    }
+    
+    .lesson-main-area {
+        margin-left: 0;
+        padding: 15px;
+    }
+    
+    .lesson-tasks-sidebar {
+        display: none;
+    }
+}

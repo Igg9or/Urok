@@ -1,6 +1,1494 @@
 ﻿
 ================================================================================
+ФАЙЛ: app.py
+================================================================================
+from flask import Flask, flash, render_template, request, redirect, url_for, session, jsonify
+from werkzeug.security import generate_password_hash, check_password_hash
+import sqlite3
+import os, re, json, random
+import datetime
+from datetime import datetime as dt
+from math_engine import MathEngine
+from task_generator import TaskGenerator
 
+app = Flask(__name__)
+app.secret_key = 'your_secret_key_here'
+
+# Конфигурация БД
+DATABASE = 'database.db'
+
+def init_db():
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    
+    # Создаем таблицу классов
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS classes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            grade INTEGER NOT NULL,
+            letter TEXT NOT NULL,
+            UNIQUE(grade, letter))
+    ''')
+
+    # Создаем таблицу пользователей
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            role TEXT NOT NULL,
+            full_name TEXT,
+            class_id INTEGER REFERENCES classes(id),
+            UNIQUE(username, class_id))
+    ''')
+
+    # Создаем таблицу уроков
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS lessons (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            teacher_id INTEGER REFERENCES users(id),
+            class_id INTEGER REFERENCES classes(id),
+            title TEXT NOT NULL,
+            date TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)
+    ''')
+
+    # Создаем таблицу заданий
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS lesson_tasks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            lesson_id INTEGER REFERENCES lessons(id),
+            question TEXT NOT NULL,
+            answer TEXT NOT NULL,
+            template_id INTEGER REFERENCES task_templates(id)
+        )
+    ''')
+
+    # Создаем таблицу предметов
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS subjects (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            description TEXT)
+    ''')
+
+    # Создаем таблицу вариантов заданий
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS student_task_variants (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            lesson_id INTEGER REFERENCES lessons(id),
+            user_id INTEGER REFERENCES users(id),
+            task_id INTEGER REFERENCES lesson_tasks(id),
+            variant_data TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(lesson_id, user_id, task_id))
+    ''')
+
+    # Создаем таблицу ответов учеников
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS student_answers (
+            task_id INTEGER REFERENCES lesson_tasks(id),
+            user_id INTEGER REFERENCES users(id),
+            answer TEXT NOT NULL,
+            is_correct BOOLEAN NOT NULL,
+            answered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (task_id, user_id))
+    ''')
+
+    # Создаем таблицу учебников
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS textbooks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            description TEXT,
+            grade INTEGER NOT NULL,
+            UNIQUE(title, grade))
+    ''')
+
+    # Создаем таблицу шаблонов заданий
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS task_templates (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            textbook_id INTEGER REFERENCES textbooks(id),
+            name TEXT NOT NULL,
+            question_template TEXT NOT NULL,
+            answer_template TEXT NOT NULL,
+            parameters TEXT NOT NULL,
+            conditions TEXT,  
+            answer_type TEXT DEFAULT 'numeric',  
+            UNIQUE(textbook_id, name))
+    ''')
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS lesson_templates (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        question_template TEXT NOT NULL,
+        answer_template TEXT NOT NULL,
+        parameters TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+''')
+
+
+    # В функции init_db(), после создания таблиц:
+    cursor.execute("SELECT COUNT(*) FROM textbooks")
+    if cursor.fetchone()[0] == 0:
+        # Добавляем тестовые учебники
+        textbooks = [
+            ('Макарычев', 'Алгебра для 5 класса', 5),
+            ('Мордкович', 'Алгебра для 7-9 классов', 7),
+            ('Атанасян', 'Геометрия 7-9 классы', 7)
+        ]
+        
+        for title, description, grade in textbooks:
+            cursor.execute(
+                "INSERT INTO textbooks (title, description, grade) VALUES (?, ?, ?)",
+                (title, description, grade)
+            )
+        
+        conn.commit()
+    # Добавляем тестовые данные
+    try:
+        cursor.execute("SELECT COUNT(*) FROM users")
+        if cursor.fetchone()[0] == 0:
+            # Тестовые классы
+            for grade in [5, 6, 7, 8, 9, 10, 11]:
+                for letter in ['А', 'Б', 'В', 'Г']:
+                    cursor.execute(
+                        "INSERT OR IGNORE INTO classes (grade, letter) VALUES (?, ?)",
+                        (grade, letter)
+                    )
+            
+            # Тестовый учитель
+            cursor.execute(
+                "INSERT INTO users (username, password, role, full_name) VALUES (?, ?, ?, ?)",
+                ('teacher1', generate_password_hash('teacher123'), 'teacher', 'Иванова Мария Сергеевна')
+            )
+            
+            # Тестовые ученики
+            test_students = [
+                ('student1', 'student123', '6В', 'Петров Петр'),
+                ('student2', 'student123', '6В', 'Сидорова Анна'),
+                ('student3', 'student123', '6Г', 'Кузнецов Алексей')
+            ]
+            
+            for username, password, class_name, full_name in test_students:
+                grade = int(class_name[:-1])
+                letter = class_name[-1]
+                
+                # Получаем class_id перед использованием
+                cursor.execute(
+                    "SELECT id FROM classes WHERE grade = ? AND letter = ?",
+                    (grade, letter)
+                )
+                class_row = cursor.fetchone()
+                if class_row:
+                    class_id = class_row[0]
+                    
+                    cursor.execute(
+                        "INSERT INTO users (username, password, role, full_name, class_id) VALUES (?, ?, ?, ?, ?)",
+                        (username, generate_password_hash(password), 'student', full_name, class_id)
+                    )
+            
+            # Тестовый предмет
+            cursor.execute(
+                "INSERT INTO subjects (name, description) VALUES (?, ?)",
+                ('Математика', 'Алгебра и геометрия 6 класс')
+            )
+            
+            # Тестовый учебник
+            cursor.execute(
+                "INSERT INTO textbooks (title, description, grade) VALUES (?, ?, ?)",
+                ('Макарычев', 'Алгебра для 5 класса', 5)
+            )
+            
+            # Базовые шаблоны для учебника
+            templates = [
+                ('Сложение', '{A} + {B} = ?', '{A} + {B}', '{"A": {"min": 1, "max": 10}, "B": {"min": 1, "max": 10}}'),
+                ('Вычитание', '{A} - {B} = ?', '{A} - {B}', '{"A": {"min": 1, "max": 20}, "B": {"min": 1, "max": 10}}'),
+                ('Умножение', '{A} × {B} = ?', '{A} * {B}', '{"A": {"min": 1, "max": 10}, "B": {"min": 1, "max": 10}}'),
+                ('Деление', '{A} ÷ {B} = ?', '{A} / {B}', '{"A": {"min": 1, "max": 50}, "B": {"min": 1, "max": 10}}'),
+                ('Уравнение', 'Решите: {A}x + {B} = {C}', '({C} - {B}) / {A}', '{"A": {"min": 1, "max": 5}, "B": {"min": 1, "max": 20}, "C": {"min": 10, "max": 50}}')
+            ]
+            
+            for name, question, answer, params in templates:
+                cursor.execute(
+                    "INSERT INTO task_templates (textbook_id, name, question_template, answer_template, parameters) VALUES (1, ?, ?, ?, ?)",
+                    (name, question, answer, params)
+                )
+            
+            conn.commit()
+    except Exception as e:
+        conn.rollback()
+        print(f"Ошибка при инициализации БД: {e}")
+    finally:
+        conn.close()
+
+    
+
+def get_db():
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+@app.route('/')
+def home():
+    if 'user_id' in session:
+        if session['role'] == 'student':
+            return redirect(url_for('student_dashboard'))
+        else:
+            return redirect(url_for('teacher_dashboard'))
+    return redirect(url_for('login'))
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+        user = cursor.fetchone()
+        conn.close()
+        
+        if user and check_password_hash(user['password'], password):
+            session['user_id'] = user['id']
+            session['username'] = user['username']
+            session['role'] = user['role']
+            session['full_name'] = user['full_name']
+            
+            if user['role'] == 'student':
+                return redirect(url_for('student_dashboard'))
+            else:
+                return redirect(url_for('teacher_dashboard'))
+        else:
+            return render_template('auth.html', error="Неверное имя пользователя или пароль")
+    
+    return render_template('auth.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
+@app.route('/student/dashboard')
+def student_dashboard():
+    if 'user_id' not in session or session['role'] != 'student':
+        return redirect(url_for('login'))
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM subjects")
+    subjects = cursor.fetchall()
+    conn.close()
+    
+    return render_template('student_dashboard.html', 
+                         full_name=session['full_name'],
+                         subjects=subjects)
+
+@app.route('/teacher/dashboard')
+def teacher_dashboard():
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return redirect(url_for('login'))
+    
+    return render_template('teacher_dashboard.html', 
+                         full_name=session['full_name'])
+
+
+@app.route('/teacher/get_lessons')
+def get_lessons():
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    class_full = request.args.get('grade')  # Формат "6В"
+    grade = class_full[:-1]  # "6"
+    letter = class_full[-1]  # "В"
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        # Находим ID класса
+        cursor.execute("SELECT id FROM classes WHERE grade = ? AND letter = ?", (grade, letter))
+        class_id = cursor.fetchone()
+        
+        if not class_id:
+            return jsonify({'lessons': []})
+        
+        # Получаем уроки для этого класса
+        cursor.execute('''
+            SELECT l.id, l.title, l.date 
+            FROM lessons l
+            WHERE l.class_id = ? AND l.teacher_id = ?
+            ORDER BY l.date DESC
+        ''', (class_id[0], session['user_id']))
+        
+        lessons = cursor.fetchall()
+        return jsonify({
+            'lessons': [dict(lesson) for lesson in lessons]
+        })
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/teacher/edit_lesson/<int:lesson_id>')
+def edit_lesson(lesson_id):
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return redirect(url_for('login'))
+
+    conn = get_db()
+    try:
+        # Получаем информацию об уроке
+        lesson = conn.execute('''
+            SELECT l.id, l.title, l.date, c.grade, c.letter 
+            FROM lessons l
+            JOIN classes c ON l.class_id = c.id
+            WHERE l.id = ? AND l.teacher_id = ?
+        ''', (lesson_id, session['user_id'])).fetchone()
+        
+        if not lesson:
+            return redirect(url_for('teacher_dashboard'))
+        
+        # Получаем задания урока
+        tasks = conn.execute('''
+            SELECT id, question, answer FROM lesson_tasks 
+            WHERE lesson_id = ?
+        ''', (lesson_id,)).fetchall()
+        
+        # Получаем все учебники и шаблоны уроков
+        textbooks = conn.execute('SELECT * FROM textbooks ORDER BY grade, title').fetchall()
+        lesson_templates = conn.execute('SELECT * FROM lesson_templates').fetchall()
+        
+        return render_template('edit_lesson.html',
+                            lesson=dict(lesson),
+                            tasks=[dict(task) for task in tasks],
+                            textbooks=textbooks,
+                            lesson_templates=lesson_templates)
+    finally:
+        conn.close()
+
+@app.route('/teacher/conduct_lesson/<int:lesson_id>')
+def conduct_lesson(lesson_id):
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return redirect(url_for('login'))
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        # Получаем информацию об уроке
+        cursor.execute('''
+            SELECT l.id, l.title, l.date, c.grade, c.letter 
+            FROM lessons l
+            JOIN classes c ON l.class_id = c.id
+            WHERE l.id = ? AND l.teacher_id = ?
+        ''', (lesson_id, session['user_id']))
+        
+        lesson = cursor.fetchone()
+        if not lesson:
+            return redirect(url_for('teacher_dashboard'))
+        
+        # Получаем список учеников класса
+        cursor.execute('''
+            SELECT u.id, u.full_name
+            FROM users u
+            JOIN classes c ON u.class_id = c.id
+            JOIN lessons l ON l.class_id = c.id
+            WHERE l.id = ? AND u.role = 'student'
+            ORDER BY u.full_name
+        ''', (lesson_id,))
+        students = cursor.fetchall()
+        
+        # Получаем задания урока
+        cursor.execute('''
+            SELECT id, question FROM lesson_tasks
+            WHERE lesson_id = ?
+            ORDER BY id
+        ''', (lesson_id,))
+        tasks = cursor.fetchall()
+        
+        return render_template('conduct_lesson.html',
+                            lesson=dict(lesson),
+                            students=students,
+                            tasks=tasks)
+    except Exception as e:
+        print(f"Error: {e}")
+        return "Произошла ошибка", 500
+    finally:
+        conn.close()
+
+@app.route('/teacher/create_lesson', methods=['POST'])
+def create_lesson():
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    class_full = data['grade']  # Формат "6В"
+    
+    try:
+        grade = int(class_full[:-1])  # "6"
+        letter = class_full[-1]       # "В"
+    except:
+        return jsonify({'error': 'Invalid class format'}), 400
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        # Находим ID класса
+        cursor.execute("SELECT id FROM classes WHERE grade = ? AND letter = ?", (grade, letter))
+        class_id = cursor.fetchone()
+        
+        if not class_id:
+            return jsonify({'error': 'Class not found'}), 404
+        
+        # Создаем урок
+        cursor.execute('''
+            INSERT INTO lessons (teacher_id, class_id, title, date)
+            VALUES (?, ?, ?, ?)
+        ''', (
+            session['user_id'],
+            class_id[0],
+            data['title'],
+            data['date']
+        ))
+        
+        lesson_id = cursor.lastrowid
+        conn.commit()
+        
+        return jsonify({
+            'success': True,
+            'lesson_id': lesson_id
+        })
+    except Exception as e:
+        conn.rollback()
+        print(f"Error creating lesson: {e}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/teacher/update_lesson/<int:lesson_id>', methods=['POST'])
+def update_lesson(lesson_id):
+    data = request.get_json()
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        for task in data['tasks']:
+            if task['id']:
+                cursor.execute('''
+                    UPDATE lesson_tasks 
+                    SET question = ?, answer = ?, template_id = ?
+                    WHERE id = ? AND lesson_id = ?
+                ''', (
+                    task['question'], 
+                    task['answer'],
+                    task.get('template_id'),  # Новое поле
+                    task['id'], 
+                    lesson_id
+                ))
+            else:
+                cursor.execute('''
+                    INSERT INTO lesson_tasks 
+                    (lesson_id, question, answer, template_id)
+                    VALUES (?, ?, ?, ?)
+                ''', (
+                    lesson_id, 
+                    task['question'], 
+                    task['answer'],
+                    task.get('template_id')  # Новое поле
+                ))
+                task['id'] = cursor.lastrowid
+        
+        conn.commit()
+        return jsonify({'success': True, 'tasks': data['tasks']})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/teacher/delete_task/<int:task_id>', methods=['DELETE'])
+def delete_task(task_id):
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        # Проверяем, что задание принадлежит учителю
+        cursor.execute('''
+            DELETE FROM lesson_tasks 
+            WHERE id = ? AND lesson_id IN (
+                SELECT id FROM lessons WHERE teacher_id = ?
+            )
+        ''', (task_id, session['user_id']))
+        
+        conn.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)})
+    finally:
+        conn.close()
+
+@app.route('/teacher/manage_students')
+def manage_students():
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return redirect(url_for('login'))
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM classes ORDER BY grade, letter")
+    classes = cursor.fetchall()
+    conn.close()
+    
+    return render_template('manage_students.html', classes=classes)
+
+@app.route('/teacher/get_students')
+def get_students():
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    class_id = request.args.get('class_id')
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT id, username, full_name FROM users 
+        WHERE role = 'student' AND class_id = ?
+        ORDER BY full_name
+    ''', (class_id,))
+    students = cursor.fetchall()
+    conn.close()
+    
+    return jsonify({
+        'students': [dict(student) for student in students]
+    })
+
+@app.route('/teacher/add_student', methods=['POST'])
+def add_student():
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute('''
+            INSERT INTO users (username, password, role, full_name, class_id)
+            VALUES (?, ?, 'student', ?, ?)
+        ''', (
+            data['username'],
+            generate_password_hash(data['password']),
+            data['full_name'],
+            data['class_id']
+        ))
+        conn.commit()
+        return jsonify({'success': True})
+    except sqlite3.IntegrityError as e:
+        return jsonify({'success': False, 'error': 'Логин уже существует'})
+    finally:
+        conn.close()
+
+@app.route('/teacher/delete_student/<int:student_id>', methods=['DELETE'])
+def delete_student(student_id):
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("DELETE FROM users WHERE id = ? AND role = 'student'", (student_id,))
+        conn.commit()
+        return jsonify({'success': cursor.rowcount > 0})
+    finally:
+        conn.close()
+
+
+@app.route('/student/lessons')
+def student_lessons():
+    if 'user_id' not in session or session['role'] != 'student':
+        return redirect(url_for('login'))
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        # Получаем класс ученика
+        cursor.execute("SELECT class_id FROM users WHERE id = ?", (session['user_id'],))
+        class_id = cursor.fetchone()
+        
+        if not class_id:
+            return "У вас не указан класс", 400
+        
+        class_id = class_id[0]
+        
+        # Получаем уроки для этого класса
+        cursor.execute('''
+            SELECT l.id, l.title, l.date, u.full_name as teacher_name 
+            FROM lessons l
+            JOIN users u ON l.teacher_id = u.id
+            WHERE l.class_id = ?
+            ORDER BY l.date DESC
+        ''', (class_id,))
+        lessons = cursor.fetchall()
+        
+        return render_template('student_lessons.html', 
+                            lessons=lessons,
+                            full_name=session['full_name'])
+    except Exception as e:
+        print(f"Error: {e}")
+        return "Произошла ошибка", 500
+    finally:
+        conn.close()
+
+
+@app.route('/lesson/<int:lesson_id>')
+def start_lesson(lesson_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        # Проверка доступа для ученика
+        if session['role'] == 'student':
+            cursor.execute('''
+                SELECT 1 FROM lessons l
+                JOIN users u ON l.class_id = u.class_id
+                WHERE u.id = ? AND l.id = ?
+            ''', (user_id, lesson_id))
+            if not cursor.fetchone():
+                return redirect(url_for('student_lessons'))
+        
+        # Получаем информацию об уроке
+        cursor.execute('''
+            SELECT l.title, l.date, u.full_name as teacher_name
+            FROM lessons l
+            JOIN users u ON l.teacher_id = u.id
+            WHERE l.id = ?
+        ''', (lesson_id,))
+        lesson = cursor.fetchone()
+        
+        if not lesson:
+            return redirect(url_for('student_lessons'))
+        
+        # Получаем задания урока
+        cursor.execute('''
+            SELECT id, question, answer, template_id 
+            FROM lesson_tasks
+            WHERE lesson_id = ?
+            ORDER BY id
+        ''', (lesson_id,))
+        base_tasks = cursor.fetchall()
+        
+        tasks = []
+        
+        for task in base_tasks:
+            # Проверяем сохраненный вариант
+            cursor.execute('''
+                SELECT variant_data FROM student_task_variants
+                WHERE lesson_id = ? AND user_id = ? AND task_id = ?
+            ''', (lesson_id, user_id, task['id']))
+            variant = cursor.fetchone()
+            
+            if variant:
+                variant_data = json.loads(variant['variant_data'])
+                question = task['question']
+                answer_template = task['answer']  # Переименовали переменную
+                
+                # Подставляем параметры
+                for param, value in variant_data['params'].items():
+                    question = question.replace(f'{{{param}}}', str(value))
+                
+                computed_answer = str(eval(answer_template.format(**variant_data['params'])))
+                
+                tasks.append({
+                    'id': task['id'],
+                    'question': question,
+                    'correct_answer': computed_answer,
+                    'params': variant_data['params']
+                })
+            else:
+                # Генерация нового варианта
+                params = {}
+                question_template = task['question']
+                answer_template = task['answer']  # Переименовали переменную
+                
+                # Получаем параметры из шаблона, если есть
+                if task['template_id']:
+                    cursor.execute('SELECT parameters FROM task_templates WHERE id = ?', 
+                                 (task['template_id'],))
+                    template = cursor.fetchone()
+                    if template:
+                        params = MathEngine.generate_parameters(json.loads(template['parameters']))
+                
+                # Если параметров нет - генерируем случайные
+                if not params:
+                    param_matches = set(re.findall(r'\{([A-Za-z]+)\}', question_template))
+                    for param in param_matches:
+                        params[param] = random.randint(1, 10)
+                
+                # Формируем вопрос
+                generated_question = question_template
+                for param, value in params.items():
+                    generated_question = generated_question.replace(f'{{{param}}}', str(value))
+                
+                # Вычисляем ответ
+                computed_answer = str(eval(answer_template.format(**params)))
+                
+                # Сохраняем вариант
+                variant_data = {
+                    'params': params,
+                    'generated_question': generated_question,
+                    'computed_answer': computed_answer
+                }
+                
+                cursor.execute('''
+                    INSERT INTO student_task_variants
+                    (lesson_id, user_id, task_id, variant_data)
+                    VALUES (?, ?, ?, ?)
+                ''', (lesson_id, user_id, task['id'], json.dumps(variant_data)))
+                
+                tasks.append({
+                    'id': task['id'],
+                    'question': generated_question,
+                    'correct_answer': computed_answer,
+                    'params': params
+                })
+        
+        conn.commit()
+        return render_template('student_lesson.html',
+                            lesson=dict(lesson),
+                            tasks=tasks,
+                            user_id=user_id)
+        
+    except Exception as e:
+        conn.rollback()
+        print(f"Error in start_lesson: {str(e)}")  # Логируем ошибку
+        return "Произошла ошибка при загрузке урока", 500
+    finally:
+        conn.close()
+
+@app.route('/save_answer', methods=['POST'])
+def save_answer():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute('''
+            INSERT OR REPLACE INTO student_answers
+            (task_id, user_id, answer, is_correct, answered_at)
+            VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+        ''', (
+            data['task_id'],
+            data['user_id'],
+            data['answer'],
+            data['is_correct']
+        ))
+        conn.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
+@app.route('/check_answer', methods=['POST'])
+def check_answer():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    user_id = session['user_id']
+    task_id = data['task_id']
+    lesson_id = data['lesson_id']
+    user_answer = data['user_answer']
+    correct_answer = data['correct_answer']
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        # Проверяем ответ (можно добавить более сложную логику)
+        is_correct = str(user_answer) == str(correct_answer)
+        
+        # Сохраняем результат
+        cursor.execute('''
+            INSERT OR REPLACE INTO student_answers
+            (task_id, user_id, answer, is_correct, answered_at)
+            VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+        ''', (task_id, user_id, user_answer, is_correct))
+        
+        conn.commit()
+        
+        return jsonify({
+            'correct': is_correct,
+            'correct_answer': correct_answer
+        })
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/teacher/get_lesson_results/<int:lesson_id>')
+def get_lesson_results(lesson_id):
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        # Получаем список учеников и их ответов
+        cursor.execute('''
+            SELECT 
+                u.id as user_id, 
+                u.full_name,
+                t.id as task_id,
+                sa.answer,
+                sa.is_correct
+            FROM users u
+            JOIN lessons l ON u.class_id = l.class_id
+            JOIN lesson_tasks t ON t.lesson_id = l.id
+            LEFT JOIN student_answers sa ON sa.task_id = t.id AND sa.user_id = u.id
+            WHERE l.id = ? AND u.role = 'student'
+            ORDER BY u.full_name, t.id
+        ''', (lesson_id,))
+        
+        # Формируем структуру результатов
+        results = {}
+        for row in cursor.fetchall():
+            user_id = row['user_id']
+            if user_id not in results:
+                results[user_id] = {
+                    'user_id': user_id,
+                    'full_name': row['full_name'],
+                    'tasks': []
+                }
+            
+            results[user_id]['tasks'].append({
+                'task_id': row['task_id'],
+                'answered': row['answer'] is not None,
+                'is_correct': row['is_correct'] if row['is_correct'] is not None else False
+            })
+        
+        return jsonify({
+            'results': list(results.values())
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/get_student_answers/<int:lesson_id>/<int:user_id>')
+def get_student_answers(lesson_id, user_id):
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute('''
+            SELECT sa.task_id, sa.answer, sa.is_correct
+            FROM student_answers sa
+            JOIN lesson_tasks lt ON sa.task_id = lt.id
+            WHERE lt.lesson_id = ? AND sa.user_id = ?
+        ''', (lesson_id, user_id))
+        
+        answers = cursor.fetchall()
+        return jsonify([dict(answer) for answer in answers])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
+
+@app.route('/teacher/end_lesson/<int:lesson_id>', methods=['POST'])
+def end_lesson(lesson_id):
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    # Здесь можно добавить логику завершения урока
+    # Например, пометить урок как завершенный в базе данных
+    
+    return jsonify({'success': True})
+
+
+@app.route('/teacher/get_student_progress/<int:lesson_id>/<int:student_id>')
+def get_student_progress(lesson_id, student_id):
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        # Получаем прогресс конкретного ученика
+        cursor.execute('''
+            SELECT 
+                t.id as task_id,
+                sa.answer,
+                sa.is_correct,
+                sa.answered_at
+            FROM lesson_tasks t
+            LEFT JOIN student_answers sa ON sa.task_id = t.id AND sa.user_id = ?
+            WHERE t.lesson_id = ?
+            ORDER BY t.id
+        ''', (student_id, lesson_id))
+        
+        tasks = []
+        correct_count = 0
+        
+        for task in cursor.fetchall():
+            if task['is_correct']:
+                correct_count += 1
+            tasks.append({
+                'task_id': task['task_id'],
+                'answered': task['answer'] is not None,
+                'is_correct': task['is_correct'],
+                'answered_at': task['answered_at']
+            })
+        
+        total_tasks = len(tasks)
+        progress = round((correct_count / total_tasks) * 100) if total_tasks > 0 else 0
+        
+        return jsonify({
+            'student_id': student_id,
+            'progress': progress,
+            'tasks': tasks
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+
+@app.route('/teacher/manage_tasks')
+def manage_tasks():
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return redirect(url_for('login'))
+    
+    conn = get_db()
+    try:
+        textbooks = conn.execute('SELECT * FROM textbooks ORDER BY grade, title').fetchall()
+        return render_template('manage_tasks.html', 
+                            full_name=session['full_name'],
+                            textbooks=textbooks)
+    except Exception as e:
+        print(f"Error fetching textbooks: {e}")
+        return "Произошла ошибка при загрузке учебников", 500
+    finally:
+        conn.close()
+
+
+@app.route('/teacher/manage_tasks/<int:textbook_id>')
+def textbook_tasks(textbook_id):
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return redirect(url_for('login'))
+    
+    conn = get_db()
+    try:
+        # Получаем учебник
+        textbook = conn.execute('SELECT * FROM textbooks WHERE id = ?', (textbook_id,)).fetchone()
+        if not textbook:
+            flash('Учебник не найден', 'error')
+            return redirect(url_for('manage_tasks'))
+        
+        # Получаем шаблоны заданий с нумерацией
+        templates = conn.execute('''
+            SELECT *, 
+                   ROW_NUMBER() OVER (ORDER BY id) as task_number 
+            FROM task_templates 
+            WHERE textbook_id = ? 
+            ORDER BY id
+        ''', (textbook_id,)).fetchall()
+        
+        return render_template('textbook_tasks.html', 
+                            full_name=session['full_name'],
+                            textbook=dict(textbook),
+                            templates=templates)
+    except Exception as e:
+        print(f"Error loading textbook tasks: {e}")
+        flash('Произошла ошибка при загрузке заданий', 'error')
+        return redirect(url_for('manage_tasks'))
+    finally:
+        conn.close()
+
+@app.route('/teacher/add_task_template', methods=['POST'])
+def add_task_template():
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    
+    conn = get_db()
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO task_templates 
+            (textbook_id, name, question_template, answer_template, parameters)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (
+            data['textbook_id'],
+            data['name'],
+            data['question_template'],
+            data['answer_template'],
+            json.dumps(data['parameters'])
+        ))
+        
+        conn.commit()
+        return jsonify({
+            'success': True,
+            'template_id': cursor.lastrowid
+        })
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)})
+    finally:
+        conn.close()
+
+@app.route('/teacher/update_task_template/<int:template_id>', methods=['POST'])
+def update_task_template(template_id):
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    
+    conn = get_db()
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE task_templates SET
+                name = ?,
+                question_template = ?,
+                answer_template = ?,
+                parameters = ?
+            WHERE id = ?
+        ''', (
+            data['name'],
+            data['question_template'],
+            data['answer_template'],
+            json.dumps(data['parameters']),
+            template_id
+        ))
+        
+        conn.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)})
+    finally:
+        conn.close()
+
+@app.route('/teacher/delete_task_template/<int:template_id>', methods=['DELETE'])
+def delete_task_template(template_id):
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    conn = get_db()
+    try:
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM task_templates WHERE id = ?', (template_id,))
+        conn.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)})
+    finally:
+        conn.close()
+        
+
+@app.route('/teacher/add_textbook', methods=['POST'])
+def add_textbook():
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    title = data.get('title')
+    description = data.get('description')
+    grade = data.get('grade')
+    
+    if not title or not grade:
+        return jsonify({'success': False, 'error': 'Название и класс обязательны'})
+    
+    conn = get_db()
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO textbooks (title, description, grade)
+            VALUES (?, ?, ?)
+        ''', (title, description, grade))
+        
+        conn.commit()
+        return jsonify({
+            'success': True,
+            'textbook_id': cursor.lastrowid
+        })
+    except sqlite3.IntegrityError:
+        return jsonify({'success': False, 'error': 'Учебник с таким названием и классом уже существует'})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'error': str(e)})
+    finally:
+        conn.close()
+
+# Маршрут для сохранения шаблона
+@app.route('/api/templates', methods=['POST'])
+def save_template():
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    data = request.get_json()
+    required_fields = ['textbook_id', 'name', 'question', 'answer', 'parameters']
+    
+    if not all(field in data for field in required_fields):
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    conn = get_db()
+    try:
+        # Проверяем, существует ли учебник
+        textbook = conn.execute(
+            'SELECT 1 FROM textbooks WHERE id = ?', 
+            (data['textbook_id'],)
+        ).fetchone()
+        
+        if not textbook:
+            return jsonify({'error': 'Textbook not found'}), 404
+
+        # Сохраняем шаблон
+        conn.execute('''
+            INSERT INTO task_templates 
+            (textbook_id, name, question_template, answer_template, parameters)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (
+            data['textbook_id'],
+            data['name'],
+            data['question'],
+            data['answer'],
+            json.dumps(data['parameters'])
+        ))
+        
+        conn.commit()
+        return jsonify({
+            'success': True,
+            'template_id': conn.execute('SELECT last_insert_rowid()').fetchone()[0]
+        })
+    except sqlite3.IntegrityError as e:
+        return jsonify({
+            'success': False,
+            'error': 'Template with this name already exists'
+        }), 400
+    except Exception as e:
+        conn.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+    finally:
+        conn.close()
+
+def get_textbook_templates(textbook_id):
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = get_db()
+    try:
+        templates = conn.execute('''
+            SELECT * FROM task_templates WHERE textbook_id = ?
+        ''', (textbook_id,)).fetchall()
+        
+        return jsonify({
+            'success': True,
+            'templates': [dict(t) for t in templates]
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+        
+@app.route('/api/textbooks/<int:textbook_id>/templates')
+def get_templates(textbook_id):
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = get_db()
+    try:
+        templates = conn.execute('''
+            SELECT id, name, question_template, answer_template, parameters
+            FROM task_templates
+            WHERE textbook_id = ?
+            ORDER BY name
+        ''', (textbook_id,)).fetchall()
+        
+        return jsonify({
+            'success': True,
+            'templates': [dict(t) for t in templates]
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+    finally:
+        conn.close()
+
+# Маршрут для удаления шаблона
+@app.route('/api/templates/<int:template_id>', methods=['DELETE'])
+def delete_templates(template_id):
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = get_db()
+    try:
+        result = conn.execute(
+            'DELETE FROM task_templates WHERE id = ?', 
+            (template_id,)
+        )
+        conn.commit()
+        
+        if result.rowcount == 0:
+            return jsonify({'success': False, 'error': 'Template not found'}), 404
+            
+        return jsonify({'success': True})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+    finally:
+        conn.close()
+
+@app.route('/api/templates/<int:template_id>')
+def get_template(template_id):
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = get_db()
+    try:
+        template = conn.execute('''
+            SELECT id, textbook_id, name, question_template, answer_template, parameters
+            FROM task_templates
+            WHERE id = ?
+        ''', (template_id,)).fetchone()
+
+        if not template:
+            return jsonify({'success': False, 'error': 'Template not found'}), 404
+
+        return jsonify({
+            'success': True,
+            'template': dict(template)
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/api/generate_task', methods=['POST'])
+def generate_task():
+    data = request.get_json()
+    template_id = data.get('template_id')
+    
+    conn = get_db()
+    template = conn.execute('SELECT * FROM task_templates WHERE id = ?', [template_id]).fetchone()
+    if not template:
+        return jsonify({"error": "Template not found"}), 404
+
+    params = json.loads(template['parameters'])
+    generated_params = MathEngine.generate_parameters(params)
+    
+    question = template['question_template'].format(**generated_params)
+    answer = MathEngine.evaluate_expression(template['answer_template'], generated_params)
+    
+    return jsonify({
+        "question": question,
+        "answer": answer,
+        "params": generated_params
+    })
+
+@app.route('/api/check_answer', methods=['POST'])
+def api_check_answer():
+    try:
+        data = request.get_json()
+        print("Received data:", data)  # Логирование входящих данных
+        
+        if not data or 'answer' not in data or 'correct_answer' not in data:
+            return jsonify({"error": "Invalid request data"}), 400
+            
+        user_answer = data.get('answer')
+        correct_answer = data.get('correct_answer')
+        params = data.get('params', {})
+        
+        # Сравниваем математически, а не как строки
+        user_val = MathEngine.evaluate_expression(user_answer, params)
+        correct_val = MathEngine.evaluate_expression(correct_answer, params)
+        
+        print("User value:", user_val, "Correct value:", correct_val)  # Логирование вычислений
+        
+        return jsonify({
+            "is_correct": abs(float(user_val) - float(correct_val)) < 1e-6,
+            "evaluated_answer": user_val
+        })
+    except Exception as e:
+        print("Error in check_answer:", str(e))  # Логирование ошибок
+        return jsonify({"error": str(e)}), 500
+    
+# В app.py добавить новый маршрут
+@app.route('/api/generate_from_template/<int:template_id>')
+def generate_from_template(template_id):
+    conn = get_db()
+    try:
+        template = conn.execute('SELECT * FROM task_templates WHERE id = ?', [template_id]).fetchone()
+        if not template:
+            return jsonify({"error": "Template not found"}), 404
+        
+        template_dict = dict(template)
+        template_dict['parameters'] = json.loads(template['parameters'])
+        
+        variant = TaskGenerator.generate_task_variant(template_dict)
+        return jsonify(variant)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        conn.close()
+
+# В app.py добавляем новые маршруты и изменяем существующие
+
+@app.route('/teacher/lesson_templates')
+def manage_lesson_templates():
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return redirect(url_for('login'))
+    
+    conn = get_db()
+    try:
+        # Получаем все учебники для выбора шаблонов
+        textbooks = conn.execute('SELECT * FROM textbooks ORDER BY grade, title').fetchall()
+        return render_template('lesson_templates.html',
+                            full_name=session['full_name'],
+                            textbooks=textbooks)
+    except Exception as e:
+        print(f"Error: {e}")
+        return "Произошла ошибка", 500
+    finally:
+        conn.close()
+
+@app.route('/api/lesson_templates', methods=['POST'])
+def save_lesson_template():
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    data = request.get_json()
+    required_fields = ['name', 'question_template', 'answer_template', 'parameters']
+    
+    if not all(field in data for field in required_fields):
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    conn = get_db()
+    try:
+        # Сохраняем шаблон для урока (без привязки к учебнику)
+        conn.execute('''
+            INSERT INTO lesson_templates 
+            (name, question_template, answer_template, parameters)
+            VALUES (?, ?, ?, ?)
+        ''', (
+            data['name'],
+            data['question_template'],
+            data['answer_template'],
+            json.dumps(data['parameters'])
+        ))
+        
+        conn.commit()
+        return jsonify({
+            'success': True,
+            'template_id': conn.execute('SELECT last_insert_rowid()').fetchone()[0]
+        })
+    except Exception as e:
+        conn.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+    finally:
+        conn.close()
+
+@app.route('/api/lesson_templates/<int:template_id>')
+def get_lesson_template(template_id):
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    conn = get_db()
+    try:
+        template = conn.execute('''
+            SELECT * FROM lesson_templates WHERE id = ?
+        ''', (template_id,)).fetchone()
+
+        if not template:
+            return jsonify({'error': 'Template not found'}), 404
+
+        return jsonify({
+            'success': True,
+            'template': dict(template)
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/teacher/bulk_delete_templates', methods=['POST'])
+def bulk_delete_templates():
+    if 'user_id' not in session or session['role'] != 'teacher':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    data = request.get_json()
+    textbook_id = data['textbook_id']
+    template_ids = data['template_ids']
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        # Удаляем только шаблоны, принадлежащие указанному учебнику
+        placeholders = ','.join(['?'] * len(template_ids))
+        cursor.execute(f'''
+            DELETE FROM task_templates 
+            WHERE id IN ({placeholders}) AND textbook_id = ?
+        ''', (*template_ids, textbook_id))
+        
+        deleted_count = cursor.rowcount
+        conn.commit()
+        
+        return jsonify({
+            'success': True,
+            'deleted_count': deleted_count
+        })
+    except Exception as e:
+        conn.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+    finally:
+        conn.close()
+                
+               
+with app.app_context():
+    init_db()
+
+if __name__ == '__main__':
+    app.run(debug=True)
 ================================================================================
 ФАЙЛ: import_templates.py
 ================================================================================
@@ -194,230 +1682,35 @@ class TaskGenerator:
     width: 300px;
     background: #f8f9fa;
     border-right: 1px solid #ddd;
-    padding: 20px;
-    height: calc(100vh - 80px);
-    position: fixed;
-    overflow-y: auto;
-}
+ 
 
-.sidebar-header {
-    margin-bottom: 15px;
-}
-
-.templates-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.search-box {
-    margin-bottom: 15px;
-}
-
-.search-box input {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.template-item {
-    background: white;
-    padding: 12px;
-    border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.template-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.template-item h4 {
-    margin: 0 0 5px 0;
-    color: var(--primary-color);
-}
-
-.template-item p {
-    margin: 0;
-    font-size: 14px;
-    color: var(--light-text);
-}
-
-.template-item .template-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 10px;
-}
-
-/* Адаптация основного контента */
-.tasks-section {
-    margin-left: 320px;
-    width: calc(100% - 320px);
-}
-
-@media (max-width: 992px) {
-    .templates-sidebar {
-        width: 250px;
-    }
-    .tasks-section {
-        margin-left: 260px;
-        width: calc(100% - 260px);
-    }
-}
-
-@media (max-width: 768px) {
-    .templates-sidebar {
-        position: static;
-        width: 100%;
-        height: auto;
-        border-right: none;
-        border-bottom: 1px solid #ddd;
-    }
-    .tasks-section {
+/* Адаптация */
+@media (max-width: 1200px) {
+    .lesson-main-area {
         margin-left: 0;
-        width: 100%;
-    }
-}
-/* В edit_lesson.css */
-.param-constraints {
-    margin-top: 10px;
-    border-top: 1px dashed #ddd;
-    padding-top: 10px;
-}
-
-.constraint {
-    display: flex;
-    gap: 10px;
-    margin: 5px 0;
-    align-items: center;
-}
-
-.constraint-type {
-    flex: 1;
-}
-
-.constraint-value {
-    flex: 2;
-}
-
-/* Основные стили контейнера */
-.edit-lesson-container {
-    display: flex;
-    gap: 20px;
-    padding: 20px;
-}
-
-/* Боковая панель с учебниками */
-.textbook-sidebar {
-    width: 300px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 15px;
-    height: calc(100vh - 180px);
-    overflow-y: auto;
-}
-
-.sidebar-header {
-    margin-bottom: 15px;
-}
-
-.templates-list {
-    margin-top: 15px;
-}
-
-/* Основная область редактирования */
-.lesson-edit-area {
-    flex: 1;
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-/* Стили для списка заданий из учебника */
-.template-item {
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.template-item:hover {
-    background: #e9f5ff;
-    border-color: #b8daff;
-}
-
-.template-item h4 {
-    margin: 0 0 5px 0;
-    color: #333;
-}
-
-.template-item p {
-    margin: 0;
-    color: #666;
-    font-size: 14px;
-}
-
-.template-actions {
-    margin-top: 10px;
-}
-
-/* Адаптация для мобильных устройств */
-@media (max-width: 768px) {
-    .edit-lesson-container {
-        flex-direction: column;
+        padding-left: 20px;
+        padding-right: 20px;
     }
     
-    .textbook-sidebar {
-        width: 100%;
-        height: auto;
-        max-height: 300px;
+    .textbook-sidebar-collapsible {
+        transform: translateX(-100%);
+    }
+    
+    .textbook-sidebar-collapsible.active {
+        transform: translateX(0);
+    }
+    
+    #toggleSidebar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .lesson-main-area.sidebar-hidden {
+        margin-left: 0;
     }
 }
-/* Стили для блока предпросмотра */
-.teacher-preview {
-    margin-top: 15px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 5px;
-    border: 1px solid #eee;
-}
 
-.teacher-preview h4 {
-    margin-top: 0;
-}
-
-.preview-content {
-    margin-bottom: 10px;
-}
-
-.preview-content p {
-    margin: 5px 0;
-}
-
-.btn-show-preview {
-    margin-top: 10px;
-    background: #e2e6ea;
-}
-
-.btn-generate-preview {
-    background: #d1ecf1;
-    color: #0c5460;
-}
-.bulk-actions {
-    margin: 15px 0;
-    display: flex;
-    gap: 10px;
-}
-
-.template-checkbox {
-    margin-right: 10px;
-}
 ================================================================================
 ФАЙЛ: static\css\math_editor.css
 ================================================================================
@@ -487,1334 +1780,27 @@ class TaskGenerator:
     --text-color: #2f3542;
     --light-text: #747d8c;
     --white: #ffffff;
-    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Roboto', sans-serif;
-}
-
-body {
-    background-color: #f1f2f6;
-    color: var(--text-color);
-    line-height: 1.6;
-}
-
-/* Auth Styles */
-.auth-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.auth-card {
-    background: var(--white);
-    border-radius: 10px;
-    box-shadow: var(--shadow);
-    padding: 30px;
-    width: 100%;
-    max-width: 450px;
-}
-
-.auth-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.auth-logo {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 15px;
-}
-
-.auth-header h1 {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 5px;
-}
-
-.auth-header p {
-    color: var(--light-text);
-    font-size: 14px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-}
-
-.form-group input {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-    transition: border 0.3s;
-}
-
-.form-group input:focus {
-    border-color: var(--primary-color);
-    outline: none;
-}
-
-.btn {
-    display: inline-block;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.3s;
-    text-decoration: none;
-}
-
-.btn-primary {
-    background-color: var(--primary-color);
-    color: var(--white);
-    width: 100%;
-}
-
-.btn-primary:hover {
-    background-color: #3a56e0;
-}
-
-.alert {
-    padding: 12px;
-    border-radius: 5px;
-    margin-bottom: 20px;
-    font-size: 14px;
-}
-
-.alert-error {
-    background-color: #ffebee;
-    color: var(--error-color);
-    border: 1px solid #ffcdd2;
-}
-
-.auth-footer {
-    margin-top: 20px;
-    text-align: center;
-    font-size: 14px;
-    color: var(--light-text);
-}
-
-/* Dashboard Styles */
-.dashboard-container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-.dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 30px;
-    background-color: var(--white);
-    box-shadow: var(--shadow);
-}
-
-.header-left {
-    display: flex;
-    align-items: center;
-}
-
-.header-logo {
-    width: 40px;
-    height: 40px;
-    margin-right: 15px;
-}
-
-.header-right {
-    display: flex;
-    align-items: center;
-}
-
-.user-greeting {
-    margin-right: 20px;
-    font-weight: 500;
-}
-
-.btn-logout {
-    background-color: var(--secondary-color);
-    color: var(--primary-color);
-}
-
-.btn-logout:hover {
-    background-color: #e0e5ff;
-}
-
-.dashboard-main {
-    flex: 1;
-    padding: 30px;
-}
-
-.welcome-section {
-    text-align: center;
-    margin-bottom: 40px;
-}
-
-.welcome-section h2 {
-    font-size: 28px;
-    margin-bottom: 10px;
-}
-
-.welcome-section p {
-    color: var(--light-text);
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.subjects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-    margin-top: 30px;
-}
-
-.subject-card {
-    background: var(--white);
-    border-radius: 10px;
-    padding: 25px;
-    box-shadow: var(--shadow);
-    text-align: center;
-    transition: transform 0.3s;
-}
-
-.subject-card:hover {
-    transform: translateY(-5px);
-}
-
-.subject-icon {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto 15px;
-    background-color: var(--secondary-color);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.subject-icon svg {
-    width: 30px;
-    height: 30px;
-    color: var(--primary-color);
-}
-
-.subject-card h3 {
-    margin-bottom: 10px;
-    font-size: 20px;
-}
-
-.subject-card p {
-    color: var(--light-text);
-    margin-bottom: 20px;
-    font-size: 14px;
-}
-
-.btn-subject {
-    background-color: var(--primary-color);
-    color: var(--white);
-    padding: 8px 20px;
-    font-size: 14px;
-}
-
-/* Teacher Dashboard */
-.teacher-dashboard .welcome-section {
-    text-align: left;
-    margin-bottom: 30px;
-}
-
-.teacher-actions {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-}
-
-.action-card {
-    background: var(--white);
-    border-radius: 10px;
-    padding: 25px;
-    box-shadow: var(--shadow);
-    transition: transform 0.3s;
-}
-
-.action-card:hover {
-    transform: translateY(-5px);
-}
-
-.action-card h3 {
-    margin-bottom: 10px;
-    font-size: 18px;
-}
-
-.action-card p {
-    color: var(--light-text);
-    margin-bottom: 20px;
-    font-size: 14px;
-}
-
-.btn-action {
-    background-color: var(--primary-color);
-    color: var(--white);
-    padding: 8px 20px;
-    font-size: 14px;
-}
-/* Добавляем в style.css */
-.class-selection {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: var(--shadow);
-    margin-bottom: 20px;
-}
-
-.grade-buttons, .letter-buttons {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin: 15px 0;
-}
-
-.btn-grade, .btn-letter {
-    padding: 8px 15px;
-    background: var(--secondary-color);
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-.btn-grade:hover, .btn-letter:hover {
-    background: #d0d8ff;
-}
-
-.btn-grade.active, .btn-letter.active {
-    background: var(--primary-color);
-    color: white;
-}
-
-.hidden {
-    display: none;
-}
-
-/* Модальное окно */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.modal-content {
-    background: white;
-    padding: 25px;
-    border-radius: 8px;
-    width: 80%;
-    max-width: 700px;
-    max-height: 90vh;
-    overflow-y: auto;
-}
-
-.close {
-    float: right;
-    font-size: 24px;
-    cursor: pointer;
-}
-
-.task-template textarea {
-    width: 100%;
-    min-height: 100px;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-.parameters {
-    margin: 15px 0;
-}
-
-.param-control {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-    align-items: center;
-}
-
-.param-control input {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-.btn-small {
-    padding: 5px 10px;
-    font-size: 14px;
-}
-/* Стили для модального окна */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.modal.hidden {
-    display: none;
-}
-
-.modal:not(.hidden) {
-    display: flex;
-}
-
-.modal-content {
-    background: white;
-    padding: 25px;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 600px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-/* Стили для параметров */
-.param-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-
-.param-row input {
-    width: 80px;
-    padding: 6px;
-}
-
-.btn-remove-param {
-    background: #ff4757;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-}
-
-/* Стили для списка уроков */
-.lessons-list {
-    margin-top: 30px;
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: var(--shadow);
-}
-
-.lessons-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-    margin-top: 15px;
-}
-
-.lesson-card {
-    display: flex;
-    flex-direction: column;
-    background: var(--secondary-color);
-    padding: 15px;
-    border-radius: 8px;
-    transition: transform 0.3s;
-}
-
-.lesson-card:hover {
-    transform: translateY(-3px);
-}
-
-.lesson-icon {
-    width: 40px;
-    height: 40px;
-    background: var(--primary-color);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 10px;
-}
-
-.lesson-icon svg {
-    width: 20px;
-    height: 20px;
-    color: white;
-}
-
-.lesson-info h4 {
-    margin-bottom: 5px;
-}
-
-.lesson-info p {
-    color: var(--light-text);
-    font-size: 14px;
-}
-
-.lesson-actions {
-    margin-top: 15px;
-    display: flex;
-    gap: 10px;
-}
-
-.btn-small {
-    padding: 6px 12px;
-    font-size: 14px;
-}
-
-.edit-lesson-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.lesson-meta {
-    background: var(--secondary-color);
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-.tasks-section {
-    margin-top: 30px;
-}
-
-.task-card {
-    background: white;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: var(--shadow);
-    margin-bottom: 15px;
-}
-
-.task-question, .task-answer {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    min-height: 60px;
-}
-
-.btn-remove-task {
-    background: var(--error-color);
-    color: white;
-}
-
-.save-actions {
-    margin-top: 30px;
-    text-align: center;
-}
-
-.btn-save {
-    background: var(--success-color);
-    padding: 12px 30px;
-}
-/* Стили для редактирования урока */
-.edit-lesson-container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 30px;
-}
-
-.task-creation-guide {
-    background: var(--secondary-color);
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-.task-creation-guide h4 {
-    margin-bottom: 10px;
-    color: var(--primary-color);
-}
-
-.task-card {
-    background: var(--white);
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: var(--shadow);
-    margin-bottom: 20px;
-}
-
-.task-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.task-header h3 {
-    margin: 0;
-    color: var(--primary-color);
-}
-
-.task-question, .task-answer {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    margin-bottom: 15px;
-    font-size: 16px;
-    min-height: 80px;
-    resize: vertical;
-}
-
-.task-question:focus, .task-answer:focus {
-    border-color: var(--primary-color);
-    outline: none;
-}
-
-.task-preview {
-    background: #f9f9f9;
-    padding: 15px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-}
-
-.task-preview h4 {
-    margin-top: 0;
-    color: var(--light-text);
-    font-size: 14px;
-}
-
-.example {
-    background: white;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-}
-
-.example p {
-    margin: 5px 0;
-}
-
-.params {
-    font-size: 12px;
-    color: var(--light-text);
-}
-
-.answer-section {
-    margin-top: 15px;
-}
-
-.answer-section label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-}
-
-.hint {
-    font-size: 13px;
-    color: var(--light-text);
-    margin-top: 5px;
-}
-.task-number {
-    color: var(--primary-color);
-    font-weight: bold;
-}
-
-/* Стили для списка уроков ученика */
-.lessons-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.lesson-card {
-    background: var(--white);
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: var(--shadow);
-    transition: transform 0.3s;
-}
-
-.lesson-card:hover {
-    transform: translateY(-5px);
-}
-
-.lesson-icon {
-    width: 50px;
-    height: 50px;
-    background: var(--primary-color);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 15px;
-}
-
-.lesson-icon svg {
-    width: 24px;
-    height: 24px;
-    color: white;
-}
-
-.lesson-info h3 {
-    margin-bottom: 10px;
-    color: var(--primary-color);
-}
-
-.lesson-info p {
-    color: var(--light-text);
-    margin-bottom: 5px;
-    font-size: 14px;
-}
-
-.lesson-actions {
-    margin-top: 15px;
-}
-/* Стили для заданий ученика */
-.task-card {
-    background: var(--white);
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 20px;
-    box-shadow: var(--shadow);
-}
-
-.task-question {
-    margin-bottom: 15px;
-    font-size: 16px;
-}
-
-.task-question p {
-    margin: 0;
-}
-
-.task-answer {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.answer-input {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    flex-grow: 1;
-}
-
-.result {
-    margin-top: 10px;
-    padding: 8px;
-    border-radius: 4px;
-}
-
-.hidden {
-    display: none;
-}
-/* Основные стили урока */
-.lesson-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: 'Roboto', sans-serif;
-}
-
-.lesson-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #eee;
-}
-
-.lesson-header h1 {
-    color: var(--primary-color);
-    margin: 0;
-}
-
-.lesson-meta {
-    font-size: 14px;
-    color: var(--light-text);
-    margin-top: 5px;
-}
-
-.lesson-meta span {
-    margin-right: 15px;
-}
-
-/* Стили заданий */
-.task-card {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-.task-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-.task-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    background: var(--secondary-color);
-}
+ 
 
-.task-number {
-    font-weight: 500;
-    color: var(--primary-color);
+.preview-params {
+    font-family: monospace;
+    color: #666;
 }
-
-.task-status {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: 2px solid #ddd;
-}
-
-.task-body {
-    padding: 20px;
-}
-
-.task-question {
-    font-size: 16px;
-    line-height: 1.6;
-    margin-bottom: 20px;
-}
-
-.task-answer {
-    display: flex;
-    gap: 10px;
-}
-
-.answer-input {
-    flex: 1;
-    padding: 10px 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-}
-
-/* Стили обратной связи */
-.task-feedback {
-    margin-top: 15px;
-    padding: 15px;
-    border-radius: 5px;
-}
-
-.feedback-correct {
-    color: var(--success-color);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.feedback-incorrect {
-    color: var(--error-color);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
+/* Иконки */
 .icon {
-    font-size: 20px;
-    font-weight: bold;
-}
-
-.btn-hint {
-    margin-left: 15px;
-    background: none;
-    border: none;
-    color: var(--primary-color);
-    cursor: pointer;
-    text-decoration: underline;
-}
-
-.task-hint {
-    margin-top: 15px;
-    padding: 15px;
-    background: #f9f9f9;
-    border-radius: 5px;
-    border-left: 3px solid var(--primary-color);
-}
-
-/* Прогресс */
-.lesson-progress {
-    margin-top: 30px;
-    padding: 20px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.progress-bar {
-    height: 10px;
-    background: #f0f0f0;
-    border-radius: 5px;
-    margin: 10px 0;
-    overflow: hidden;
-}
-
-.progress-fill {
-    height: 100%;
-    background: var(--primary-color);
-    transition: width 0.3s ease;
-}
-
-.progress-text {
-    text-align: center;
-    color: var(--light-text);
-    font-size: 14px;
-}
-
-/* Утилиты */
-.hidden {
-    display: none;
-}
-
-/* Стили для управления заданиями */
-.manage-tasks-container {
-    padding: 20px;
-}
-
-.textbooks-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.textbook-card {
-    background: var(--white);
-    border-radius: 10px;
-    padding: 25px;
-    box-shadow: var(--shadow);
-    text-align: center;
-    transition: transform 0.3s;
-}
-
-.textbook-card:hover {
-    transform: translateY(-5px);
-}
-
-.textbook-icon {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto 15px;
-    background-color: var(--secondary-color);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.textbook-icon svg {
-    width: 30px;
-    height: 30px;
-    color: var(--primary-color);
-}
-/* Стили для управления шаблонами заданий */
-.textbook-tasks-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
-    padding: 20px;
-}
-
-.template-card {
-    background: var(--white);
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-    box-shadow: var(--shadow);
-}
-
-.template-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.template-content {
-    font-size: 14px;
-}
-
-.param-group {
-    background: var(--secondary-color);
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-}
-
-.param-control {
-    display: flex;
-    align-items: center;
-    margin: 5px 0;
-}
-
-.param-control label {
-    width: 80px;
-    margin-right: 10px;
-}
-
-.param-control input {
-    width: 60px;
-    padding: 5px;
-}
-.manage-tasks-container {
-    padding: 20px;
-}
-
-.textbooks-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.textbook-card {
-    background: var(--white);
-    border-radius: 10px;
-    padding: 25px;
-    box-shadow: var(--shadow);
-    text-align: center;
-    transition: transform 0.3s;
-}
-
-.textbook-card:hover {
-    transform: translateY(-5px);
-}
-
-.textbook-icon {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto 15px;
-    background-color: var(--secondary-color);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.textbook-icon svg {
-    width: 30px;
-    height: 30px;
-    color: var(--primary-color);
-}
-/* Стили для управления учебниками */
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.add-form {
-    background: var(--secondary-color);
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-.add-form .form-group {
-    margin-bottom: 15px;
-}
-
-.add-form label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-}
-
-.add-form .form-control {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.form-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 15px;
-}
-
-.no-textbooks {
-    text-align: center;
-    padding: 40px;
-    background: var(--secondary-color);
-    border-radius: 8px;
-    color: var(--light-text);
-}
-/* Стили для шаблонов заданий */
-.task-card {
-    background: var(--white);
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-    box-shadow: var(--shadow);
-}
-
-.task-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.task-actions {
-    display: flex;
-    gap: 5px;
-}
-
-.task-content {
-    font-size: 14px;
-}
-
-.task-field {
-    margin-bottom: 10px;
-}
-
-.task-field label {
-    font-weight: 500;
-    display: block;
-    margin-bottom: 5px;
-}
-
-.question-preview,
-.answer-preview {
-    background: var(--secondary-color);
-    padding: 8px;
-    border-radius: 4px;
-}
-
-.no-tasks {
-    text-align: center;
-    padding: 40px;
-    background: var(--secondary-color);
-    border-radius: 8px;
-    color: var(--light-text);
-}
-
-.task-form {
-    background: var(--white);
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: var(--shadow);
-    margin-bottom: 20px;
-}
-
-.hint {
-    font-size: 13px;
-    color: var(--light-text);
-    margin-top: 5px;
-}
-/* Стили для страницы шаблонов */
-.textbook-tasks-container {
-    padding: 20px;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.task-form {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    border: 1px solid #ddd;
-}
-
-.templates-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.template-card {
-    background: white;
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.template-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.template-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.btn-icon {
-    background: none;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    padding: 5px;
-}
-
-.no-templates {
-    text-align: center;
-    color: #666;
-    padding: 20px;
-}
-
-.hidden {
-    display: none;
-}
-/* Стили для страницы шаблонов */
-.textbook-tasks-container {
-    padding: 20px;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.task-form {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    border: 1px solid #ddd;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-}
-
-.form-hint {
-    color: #666;
-    font-size: 0.9em;
-}
-
-.params-container {
-    margin: 15px 0;
-}
-
-.param-group {
-    background: #fff;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    border: 1px solid #eee;
-}
-
-.param-row {
-    display: flex;
-    gap: 15px;
-    margin-top: 5px;
-}
-
-.templates-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.template-card {
-    background: white;
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.template-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.template-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.btn-icon {
-    background: none;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    padding: 5px;
-}
-
-.no-templates {
-    text-align: center;
-    color: #666;
-    padding: 20px;
-}
-
-.hidden {
-    display: none;
-}
-
-.form-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 15px;
-}
-.template-checkbox {
-    display: inline-block !important;
-    width: 18px !important;
-    height: 18px !important;
-    margin-right: 10px !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    position: static !important;
-}
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.icon-book { background-image: url('/static/images/icons/book.svg'); }
+.icon-search { background-image: url('/static/images/icons/search.svg'); }
+.icon-save { background-image: url('/static/images/icons/save.svg'); }
+/* Добавьте остальные иконки по аналогии */
 ================================================================================
 ФАЙЛ: static\css\teacher_dashboard.css
 ================================================================================
@@ -3672,38 +3658,64 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </header>
 
-        <main class="edit-lesson-container">
-            <!-- Боковая панель с учебниками и заданиями -->
-            <aside class="textbook-sidebar">
+        <main class="edit-lesson-layout">
+            <!-- Боковая панель с учебниками -->
+            <aside class="textbook-sidebar-collapsible">
                 <div class="sidebar-header">
-                    <h3>Задания из учебников</h3>
-                    <select id="textbookSelect" class="form-control">
-                        <option value="">Выберите учебник...</option>
-                        {% for textbook in textbooks %}
-                        <option value="{{ textbook.id }}">{{ textbook.title }} ({{ textbook.grade }} класс)</option>
-                        {% endfor %}
-                    </select>
-                    <input type="text" id="templateSearch" placeholder="Поиск заданий..." class="form-control">
+                    <h3><i class="icon-book"></i> Задания из учебников</h3>
+                    <div class="sidebar-controls">
+                        <select id="textbookSelect" class="form-select">
+                            <option value="">Выберите учебник...</option>
+                            {% for textbook in textbooks %}
+                            <option value="{{ textbook.id }}">{{ textbook.title }} ({{ textbook.grade }} класс)</option>
+                            {% endfor %}
+                        </select>
+                        <div class="search-box with-icon">
+                            <i class="icon-search"></i>
+                            <input type="text" id="templateSearch" placeholder="Поиск заданий...">
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="templates-list" id="templatesList">
-                    <!-- Список заданий будет загружаться здесь -->
-                    <div class="empty-state">
-                        <p>Выберите учебник для просмотра заданий</p>
+                <div class="templates-list-container">
+                    <div id="templatesList" class="templates-list">
+                        <div class="empty-state">
+                            <i class="icon-book-open"></i>
+                            <p>Выберите учебник для просмотра заданий</p>
+                        </div>
                     </div>
                 </div>
             </aside>
 
-            <!-- Основная область редактирования -->
-            <div class="lesson-edit-area">
-                <div class="lesson-meta">
-                    <h3>Класс: {{ lesson.grade }}{{ lesson.letter }}</h3>
-                    <p>Дата проведения: {{ lesson.date }}</p>
+            <!-- Основная область с заданиями -->
+            <div class="lesson-main-area">
+                <div class="lesson-header">
+                    <div>
+                        <h1>{{ lesson.title }}</h1>
+                        <div class="lesson-meta">
+                            <span><i class="icon-class"></i> {{ lesson.grade }}{{ lesson.letter }} класс</span>
+                            <span><i class="icon-calendar"></i> {{ lesson.date }}</span>
+                        </div>
+                    </div>
+                    <button id="toggleSidebar" class="btn btn-icon">
+                        <i class="icon-menu"></i>
+                    </button>
                 </div>
 
-                <div class="tasks-section">
-                    <h2>Задания урока</h2>
-                    <div id="tasksContainer">
+                <div class="tasks-fullwidth-section">
+                    <div class="section-toolbar">
+                        <h2><i class="icon-tasks"></i> Задания урока</h2>
+                        <div class="toolbar-actions">
+                            <button id="addTaskBtn" class="btn btn-primary">
+                                <i class="icon-plus"></i> Новое задание
+                            </button>
+                            <button id="saveLessonBtn" class="btn btn-save">
+                                <i class="icon-save"></i> Сохранить
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="tasksContainer" class="tasks-container">
                         {% for task in tasks %}
                         <div class="task-card" data-task-id="{{ task.id }}">
                             <div class="task-header">
@@ -3728,16 +3740,32 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         {% endfor %}
                     </div>
-                    <button id="addTaskBtn" class="btn btn-primary">+ Добавить задание</button>
-                </div>
-
-                <div class="save-actions">
-                    <button id="saveLessonBtn" class="btn btn-save">Сохранить урок</button>
                 </div>
             </div>
         </main>
     </div>
 
+    <!-- Добавьте этот скрипт перед закрывающим тегом body -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Управление боковой панелью
+        const toggleBtn = document.getElementById('toggleSidebar');
+        const sidebar = document.querySelector('.textbook-sidebar-collapsible');
+        const mainArea = document.querySelector('.lesson-main-area');
+
+        if (toggleBtn && sidebar && mainArea) {
+            toggleBtn.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+                mainArea.classList.toggle('sidebar-hidden');
+            });
+        }
+
+        // Здесь можно добавить остальной JavaScript из edit_lesson.js
+        // Или оставить как есть, если он подключается отдельно
+    });
+    </script>
+
+    <!-- Подключение основного скрипта -->
     <script src="{{ url_for('static', filename='js/edit_lesson.js') }}"></script>
 </body>
 </html>

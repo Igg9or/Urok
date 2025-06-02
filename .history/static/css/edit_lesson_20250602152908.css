@@ -1,0 +1,231 @@
+/* Боковая панель с шаблонами */
+.templates-sidebar {
+    width: 300px;
+    background: #f8f9fa;
+    border-right: 1px solid #ddd;
+    padding: 20px;
+    height: calc(100vh - 80px);
+    position: fixed;
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    margin-bottom: 15px;
+}
+
+.templates-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.search-box {
+    margin-bottom: 15px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.template-item {
+    background: white;
+    padding: 12px;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.template-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.template-item h4 {
+    margin: 0 0 5px 0;
+    color: var(--primary-color);
+}
+
+.template-item p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--light-text);
+}
+
+.template-item .template-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+/* Адаптация основного контента */
+.tasks-section {
+    margin-left: 320px;
+    width: calc(100% - 320px);
+}
+
+@media (max-width: 992px) {
+    .templates-sidebar {
+        width: 250px;
+    }
+    .tasks-section {
+        margin-left: 260px;
+        width: calc(100% - 260px);
+    }
+}
+
+@media (max-width: 768px) {
+    .templates-sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid #ddd;
+    }
+    .tasks-section {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+/* В edit_lesson.css */
+.param-constraints {
+    margin-top: 10px;
+    border-top: 1px dashed #ddd;
+    padding-top: 10px;
+}
+
+.constraint {
+    display: flex;
+    gap: 10px;
+    margin: 5px 0;
+    align-items: center;
+}
+
+.constraint-type {
+    flex: 1;
+}
+
+.constraint-value {
+    flex: 2;
+}
+
+/* Основные стили контейнера */
+.edit-lesson-container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Боковая панель с учебниками */
+.textbook-sidebar {
+    width: 300px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    height: calc(100vh - 180px);
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    margin-bottom: 15px;
+}
+
+.templates-list {
+    margin-top: 15px;
+}
+
+/* Основная область редактирования */
+.lesson-edit-area {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-left: 0; /* Убираем отступ слева */
+    width: 100%; /* Занимаем всю доступную ширину */
+}
+
+/* Стили для списка заданий из учебника */
+.template-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.template-item:hover {
+    background: #e9f5ff;
+    border-color: #b8daff;
+}
+
+.template-item h4 {
+    margin: 0 0 5px 0;
+    color: #333;
+}
+
+.template-item p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.template-actions {
+    margin-top: 10px;
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 768px) {
+    .edit-lesson-container {
+        flex-direction: column;
+    }
+    
+    .textbook-sidebar {
+        width: 100%;
+        height: auto;
+        max-height: 300px;
+    }
+}
+/* Стили для блока предпросмотра */
+.teacher-preview {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 5px;
+    border: 1px solid #eee;
+}
+
+.teacher-preview h4 {
+    margin-top: 0;
+}
+
+.preview-content {
+    margin-bottom: 10px;
+}
+
+.preview-content p {
+    margin: 5px 0;
+}
+
+.btn-show-preview {
+    margin-top: 10px;
+    background: #e2e6ea;
+}
+
+.btn-generate-preview {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+.bulk-actions {
+    margin: 15px 0;
+    display: flex;
+    gap: 10px;
+}
+
+.template-checkbox {
+    margin-right: 10px;
+}

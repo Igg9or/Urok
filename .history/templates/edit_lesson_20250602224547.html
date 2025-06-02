@@ -19,10 +19,10 @@
         </header>
 
         <main class="edit-lesson-layout">
-            <!-- Боковая панель с учебниками -->
+            <!-- Левая панель с шаблонами -->
             <aside class="textbook-sidebar-collapsible">
                 <div class="sidebar-header">
-                    <h3><i class="icon-book"></i> Задания из учебников</h3>
+                    <h3><i class="icon-book"></i> Шаблоны заданий</h3>
                     <div class="sidebar-controls">
                         <select id="textbookSelect" class="form-select">
                             <option value="">Выберите учебник...</option>
@@ -47,7 +47,7 @@
                 </div>
             </aside>
 
-            <!-- Основная область с заданиями -->
+            <!-- Центральная область с заданиями -->
             <div class="lesson-main-area">
                 <div class="lesson-header">
                     <div>
@@ -77,7 +77,7 @@
 
                     <div id="tasksContainer" class="tasks-container">
                         {% for task in tasks %}
-                        <div class="task-card" data-task-id="{{ task.id }}">
+                        <div class="task-card" data-task-id="{{ task.id }}" data-template-id="{{ task.template_id }}">
                             <div class="task-header">
                                 <h3>Задание <span class="task-number">{{ loop.index }}</span></h3>
                                 <button class="btn btn-danger btn-remove-task">Удалить</button>
@@ -102,30 +102,94 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Правая панель с заданиями урока -->
+            <aside class="lesson-tasks-sidebar">
+                <div class="sidebar-header">
+                    <h3><i class="icon-list"></i> Задания в уроке</h3>
+                    <p class="tasks-count">{{ tasks|length }} заданий</p>
+                </div>
+                
+                <div class="lesson-tasks-list">
+                    {% for task in tasks %}
+                    <div class="lesson-task-item" data-task-id="{{ task.id }}">
+                        <div class="task-info">
+                            <span class="task-number">{{ loop.index }}.</span>
+                            <span class="task-preview">{{ task.question|truncate(50) }}</span>
+                        </div>
+                        <button class="btn btn-icon btn-remove-from-lesson" title="Удалить из урока">
+                            <i class="icon-trash"></i>
+                        </button>
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="icon-info"></i>
+                        <p>Нет заданий в уроке</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </aside>
         </main>
     </div>
 
-    <!-- Добавьте этот скрипт перед закрывающим тегом body -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Управление боковой панелью
-        const toggleBtn = document.getElementById('toggleSidebar');
-        const sidebar = document.querySelector('.textbook-sidebar-collapsible');
+        // Управление боковыми панелями
+        const toggleLeftBtn = document.getElementById('toggleSidebar');
+        const leftSidebar = document.querySelector('.textbook-sidebar-collapsible');
         const mainArea = document.querySelector('.lesson-main-area');
 
-        if (toggleBtn && sidebar && mainArea) {
-            toggleBtn.addEventListener('click', function() {
-                sidebar.classList.toggle('active');
+        if (toggleLeftBtn && leftSidebar && mainArea) {
+            toggleLeftBtn.addEventListener('click', function() {
+                leftSidebar.classList.toggle('active');
                 mainArea.classList.toggle('sidebar-hidden');
             });
         }
 
-        // Здесь можно добавить остальной JavaScript из edit_lesson.js
-        // Или оставить как есть, если он подключается отдельно
+        // Удаление задания из урока (правая панель)
+        document.querySelectorAll('.btn-remove-from-lesson').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const taskItem = this.closest('.lesson-task-item');
+                const taskId = taskItem.dataset.taskId;
+                
+                if (confirm('Удалить это задание из урока?')) {
+                    // Удаляем из правой панели
+                    taskItem.remove();
+                    
+                    // Удаляем основную карточку задания
+                    const taskCard = document.querySelector(`.task-card[data-task-id="${taskId}"]`);
+                    if (taskCard) {
+                        taskCard.remove();
+                    }
+                    
+                    // Обновляем нумерацию
+                    updateTaskNumbers();
+                    
+                    // Можно добавить AJAX-запрос для удаления на сервере
+                    // fetch(`/teacher/delete_task/${taskId}`, { method: 'DELETE' });
+                }
+            });
+        });
+
+        // Обновление нумерации заданий
+        function updateTaskNumbers() {
+            // Обновляем в центральной области
+            document.querySelectorAll('.task-card').forEach((card, index) => {
+                card.querySelector('.task-number').textContent = index + 1;
+            });
+            
+            // Обновляем в правой панели
+            document.querySelectorAll('.lesson-task-item').forEach((item, index) => {
+                item.querySelector('.task-number').textContent = `${index + 1}.`;
+            });
+            
+            // Обновляем счетчик
+            const count = document.querySelectorAll('.lesson-task-item').length;
+            document.querySelector('.tasks-count').textContent = `${count} заданий`;
+        }
     });
     </script>
 
-    <!-- Подключение основного скрипта -->
     <script src="{{ url_for('static', filename='js/edit_lesson.js') }}"></script>
 </body>
 </html>

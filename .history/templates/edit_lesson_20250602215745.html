@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактирование урока | {{ lesson.title }}</title>
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/edit_lesson.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Логотип" class="header-logo">
+                <h1>Редактирование урока: {{ lesson.title }}</h1>
+            </div>
+            <div class="header-right">
+                <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-secondary">← Назад</a>
+            </div>
+        </header>
+
+        <main class="edit-lesson-layout">
+        <!-- Боковая панель с учебниками -->
+        <aside class="textbook-sidebar-collapsible">
+            <div class="sidebar-header">
+                <h3><i class="icon-book"></i> Задания из учебников</h3>
+                <div class="sidebar-controls">
+                    <select id="textbookSelect" class="form-select">
+                        <option value="">Выберите учебник...</option>
+                        {% for textbook in textbooks %}
+                        <option value="{{ textbook.id }}">{{ textbook.title }} ({{ textbook.grade }} класс)</option>
+                        {% endfor %}
+                    </select>
+                    <div class="search-box with-icon">
+                        <i class="icon-search"></i>
+                        <input type="text" id="templateSearch" placeholder="Поиск заданий...">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="templates-list-container">
+                <div id="templatesList" class="templates-list">
+                    <!-- Список будет заполняться динамически -->
+                    <div class="empty-state">
+                        <i class="icon-book-open"></i>
+                        <p>Выберите учебник для просмотра заданий</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Основная область -->
+        <div class="lesson-content-area">
+            <div class="lesson-header-card">
+                <div>
+                    <h2>{{ lesson.title }}</h2>
+                    <div class="lesson-meta">
+                        <span class="meta-item"><i class="icon-class"></i> {{ lesson.grade }}{{ lesson.letter }} класс</span>
+                        <span class="meta-item"><i class="icon-calendar"></i> {{ lesson.date }}</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button id="saveLessonBtn" class="btn btn-primary btn-save">
+                        <i class="icon-save"></i> Сохранить урок
+                    </button>
+                </div>
+            </div>
+
+            <div class="tasks-section">
+                <div class="section-header">
+                    <h3><i class="icon-tasks"></i> Задания урока</h3>
+                    <button id="addTaskBtn" class="btn btn-secondary">
+                        <i class="icon-plus"></i> Добавить задание
+                    </button>
+                </div>
+
+                <div id="tasksContainer" class="tasks-grid">
+                    {% for task in tasks %}
+                    <!-- Карточка задания будет здесь -->
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/edit_lesson.js') }}"></script>
+</body>
+</html>

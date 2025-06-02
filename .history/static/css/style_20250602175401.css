@@ -1382,18 +1382,3 @@ body {
     font-family: monospace;
     color: #666;
 }
-/* Иконки */
-.icon {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    margin-right: 8px;
-    vertical-align: middle;
-}
-
-.icon-book { background-image: url('/static/images/icons/book.svg'); }
-.icon-search { background-image: url('/static/images/icons/search.svg'); }
-.icon-save { background-image: url('/static/images/icons/save.svg'); }
-/* Добавьте остальные иконки по аналогии */

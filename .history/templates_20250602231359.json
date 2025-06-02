@@ -1,0 +1,215 @@
+[
+  {
+    "textbook_id": 1,
+    "name": "23.а Следующее за числом",
+    "question_template": "Запишите натуральное число, следующее за числом {A}.",
+    "answer_template": "{A} + 1",
+    "parameters": {
+      "A": {"type": "int", "min": 100, "max": 999999}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "23.б Меньшее на 1",
+    "question_template": "Запишите натуральное число, на 1 меньшее {A}.",
+    "answer_template": "{A} - 1",
+    "parameters": {
+      "A": {"type": "int", "min": 101, "max": 1000000}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "23.в Предшествующее миллиону",
+    "question_template": "Какое число предшествует числу {A}?",
+    "answer_template": "{A} - 1",
+    "parameters": {
+      "A": {"type": "int", "min": 1000000, "max": 1000000}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "23.г Большее на 1",
+    "question_template": "Какое число на 1 больше числа {A}?",
+    "answer_template": "{A} + 1",
+    "parameters": {
+      "A": {"type": "int", "min": 999999999, "max": 999999999}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "23.д Меньшее на 1",
+    "question_template": "Какое число на 1 меньше числа {A}?",
+    "answer_template": "{A} - 1",
+    "parameters": {
+      "A": {"type": "int", "min": 56300, "max": 56300}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "24.а Двадцать четыре",
+    "question_template": "Запишите цифрами число: двадцать четыре.",
+    "answer_template": "24",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "24.б Двести сорок",
+    "question_template": "Запишите цифрами число: двести сорок.",
+    "answer_template": "240",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "24.в 627 тысяч 300",
+    "question_template": "Запишите цифрами число: шестьсот двадцать семь тысяч триста.",
+    "answer_template": "627300",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "24.г Три миллиона",
+    "question_template": "Запишите цифрами число: три миллиона восемьсот тысяч четыре.",
+    "answer_template": "3800004",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "24.д 400 млн",
+    "question_template": "Запишите цифрами число: четыреста миллионов семьдесят тысяч двести шесть.",
+    "answer_template": "400070206",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "24.е 95 миллиардов",
+    "question_template": "Запишите цифрами число: девяносто пять миллиардов триста восемь миллионов шестьсот тысяч семьсот сорок пять.",
+    "answer_template": "95308600745",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "24.ж 10 миллиардов",
+    "question_template": "Запишите цифрами число: десять миллиардов сто миллионов семьдесят пять тысяч три.",
+    "answer_template": "10100075003",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "24.з 9 миллиардов",
+    "question_template": "Запишите цифрами число: девять миллиардов пять тысяч шесть.",
+    "answer_template": "9000005006",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "25.а 86 тыс.",
+    "question_template": "Запишите цифрами число: {A} тыс.",
+    "answer_template": "{A} * 1000",
+    "parameters": {
+      "A": {"type": "int", "min": 10, "max": 99, "constraints": [{"type": "multiple_of", "value": 1}]}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "25.б 11 млн.",
+    "question_template": "Запишите цифрами число: {A} млн.",
+    "answer_template": "{A} * 1000000",
+    "parameters": {
+      "A": {"type": "int", "min": 10, "max": 99, "constraints": [{"type": "multiple_of", "value": 1}]}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "25.в 367 млрд.",
+    "question_template": "Запишите цифрами число: {A} млрд.",
+    "answer_template": "{A} * 1000000000",
+    "parameters": {
+      "A": {"type": "int", "min": 100, "max": 999, "constraints": [{"type": "multiple_of", "value": 1}]}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "26 Девять четвёрок",
+    "question_template": "Напишите девять раз подряд цифру 4. Запишите словами получившееся число.",
+    "answer_template": "444444444",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "27 Сумма чисел из 2 и 3",
+    "question_template": "Составьте все двузначные числа из цифр {A} и {B}. Найдите их сумму.",
+    "answer_template": "{A*10 + B + B*10 + A}",
+    "parameters": {
+      "A": {"type": "int", "min": 1, "max": 9},
+      "B": {"type": "int", "min": 1, "max": 9},
+      "conditions": "A != B"
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "28 Коровы на фермах",
+    "question_template": "На одной ферме {A} коров, а на другой — на {B} коров больше. Сколько коров на двух фермах?",
+    "answer_template": "{A} + ({A} + {B})",
+    "parameters": {
+      "A": {"type": "int", "min": 500, "max": 1000},
+      "B": {"type": "int", "min": 100, "max": 500}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "29 Разница расстояний",
+    "question_template": "Расстояние от школы до кинотеатра {A} м, а от кинотеатра до дома — {B} м. На сколько первое расстояние меньше второго?",
+    "answer_template": "{B} - {A}",
+    "parameters": {
+      "A": {"type": "int", "min": 300, "max": 800, "constraints": [{"type": "multiple_of", "value": 10}]},
+      "B": {"type": "int", "min": 810, "max": 1500, "constraints": [{"type": "multiple_of", "value": 10}]},
+      "conditions": "B > A"
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "30.а Арифметика",
+    "question_template": "Вычислите: {A} + {B} * {C}",
+    "answer_template": "{A} + {B} * {C}",
+    "parameters": {
+      "A": {"type": "int", "min": 100, "max": 300},
+      "B": {"type": "int", "min": 10, "max": 40},
+      "C": {"type": "int", "min": 10, "max": 30}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "30.б Скобки и умножение",
+    "question_template": "Вычислите: ({A} + {B}) * {C}",
+    "answer_template": "({A} + {B}) * {C}",
+    "parameters": {
+      "A": {"type": "int", "min": 50, "max": 100},
+      "B": {"type": "int", "min": 10, "max": 50},
+      "C": {"type": "int", "min": 10, "max": 30}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "30.в Деление и сложение",
+    "question_template": "Вычислите: {A} : {B} + {C}",
+    "answer_template": "{A} // {B} + {C}",
+    "parameters": {
+      "A": {"type": "int", "min": 10000, "max": 20000, "constraints": [{"type": "multiple_of", "value": 36}]},
+      "B": {"type": "int", "min": 36, "max": 36},
+      "C": {"type": "int", "min": 100, "max": 200},
+      "conditions": "A % B == 0"
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "30.г Деление со скобками",
+    "question_template": "Вычислите: {A} : ({B} + {C})",
+    "answer_template": "{A} // ({B} + {C})",
+    "parameters": {
+      "B": {"type": "int", "min": 30, "max": 40},
+      "C": {"type": "int", "min": 25, "max": 35},
+      "A": {"type": "int", "min": 50000, "max": 60000},
+      "conditions": "(B + C) > 0 and A % (B + C) == 0"
+    }
+  }
+]
