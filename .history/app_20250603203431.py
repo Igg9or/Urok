@@ -693,59 +693,65 @@ def start_lesson(lesson_id):
                 WHERE lesson_id = ? AND user_id = ? AND task_id = ?
             ''', (lesson_id, user_id, task['id']))
             variant = cursor.fetchone()
-
+            
             if variant:
-                # Используем уже сохраненный вариант (как раньше)
                 variant_data = json.loads(variant['variant_data'])
-                question = variant_data.get('generated_question', task['question'])
-                computed_answer = variant_data.get('computed_answer', '')
-                params = variant_data.get('params', {})
-                # Ничего не пересчитываем — всегда как при генерации!
+                question = task['question']
+                answer_template = task['answer']  # Переименовали переменную
+                
+                # Подставляем параметры
+                for param, value in variant_data['params'].items():
+                    question = question.replace(f'{{{param}}}', str(value))
+                
+                computed_answer = str(eval(answer_template.format(**variant_data['params'])))
+                
                 tasks.append({
                     'id': task['id'],
                     'question': question,
                     'correct_answer': computed_answer,
-                    'params': params
+                    'params': variant_data['params']
                 })
             else:
-                # Генерация нового варианта через TaskGenerator
+                # Генерация нового варианта
+                params = {}
+                question_template = task['question']
+                answer_template = task['answer']  # Переименовали переменную
+                
+                # Получаем параметры из шаблона, если есть
                 if task['template_id']:
-                    cursor.execute('SELECT * FROM task_templates WHERE id = ?', (task['template_id'],))
-                    template_row = cursor.fetchone()
-                    if template_row:
-                        template_dict = dict(template_row)
-                        template_dict['parameters'] = json.loads(template_row['parameters'])
-                        variant = TaskGenerator.generate_task_variant(template_dict)
-                        generated_question = variant['question']
-                        computed_answer = variant['correct_answer']
-                        params = variant['params']
-                    else:
-                        # Если шаблон не найден — fallback
-                        generated_question = task['question']
-                        computed_answer = task['answer']
-                        params = {}
-                else:
-                    # Старые задания без шаблона
-                    params = {}
-                    param_matches = set(re.findall(r'\{([A-Za-z]+)\}', task['question']))
+                    cursor.execute('SELECT parameters FROM task_templates WHERE id = ?', 
+                                 (task['template_id'],))
+                    template = cursor.fetchone()
+                    if template:
+                        params = MathEngine.generate_parameters(json.loads(template['parameters']))
+                
+                # Если параметров нет - генерируем случайные
+                if not params:
+                    param_matches = set(re.findall(r'\{([A-Za-z]+)\}', question_template))
                     for param in param_matches:
                         params[param] = random.randint(1, 10)
-                    generated_question = task['question']
-                    for param, value in params.items():
-                        generated_question = generated_question.replace(f'{{{param}}}', str(value))
-                    computed_answer = "?"
-
-                # Сохраняем вариант для этого ученика
+                
+                # Формируем вопрос
+                generated_question = question_template
+                for param, value in params.items():
+                    generated_question = generated_question.replace(f'{{{param}}}', str(value))
+                
+                # Вычисляем ответ
+                computed_answer = str(eval(answer_template.format(**params)))
+                
+                # Сохраняем вариант
                 variant_data = {
                     'params': params,
                     'generated_question': generated_question,
                     'computed_answer': computed_answer
                 }
+                
                 cursor.execute('''
                     INSERT INTO student_task_variants
                     (lesson_id, user_id, task_id, variant_data)
                     VALUES (?, ?, ?, ?)
                 ''', (lesson_id, user_id, task['id'], json.dumps(variant_data)))
+                
                 tasks.append({
                     'id': task['id'],
                     'question': generated_question,

@@ -753,12 +753,6 @@ def start_lesson(lesson_id):
                     'params': params
                 })
         
-        conn.commit()
-        return render_template('student_lesson.html',
-                            lesson=dict(lesson),
-                            tasks=tasks,
-                            user_id=user_id)
-        
     except Exception as e:
         conn.rollback()
         print(f"Error in start_lesson: {str(e)}")  # Логируем ошибку
@@ -1316,7 +1310,7 @@ def api_check_answer():
         user_answer = data['answer'].replace(" ", "")  # Удаляем пробелы
         correct_answer = data['correct_answer']
         answer_type = data.get('answer_type', 'numeric')
-        
+
         if answer_type == 'string':
             # Сравнение строк без учета регистра и лишних пробелов
             is_correct = user_answer.strip().lower() == correct_answer.strip().lower()
