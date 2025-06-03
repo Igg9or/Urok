@@ -1277,49 +1277,41 @@ def generate_task():
 def api_check_answer():
     try:
         data = request.get_json()
-        user_answer = data['answer']
+        user_answer = data['answer'].replace(" ", "")  # Удаляем пробелы
         correct_answer = data['correct_answer']
         answer_type = data.get('answer_type', 'numeric')
         
         if answer_type == 'string':
-            # Сравнение строк без учёта регистра и лишних пробелов между словами
-            ua = str(user_answer).strip().lower()
-            ca = str(correct_answer).strip().lower()
-            # Приводим к одному пробелу между словами
-            ua = ' '.join(ua.split())
-            ca = ' '.join(ca.split())
-            is_correct = ua == ca
+            # Сравнение строк без учета регистра и лишних пробелов
+            is_correct = user_answer.strip().lower() == correct_answer.strip().lower()
             return jsonify({"is_correct": is_correct, "correct_answer": correct_answer})
         
-        elif answer_type == 'algebraic':
+        if answer_type == 'algebraic':
+            # Нормализуем ответы (приводим к одинаковому виду)
             def normalize_expr(expr):
                 expr = expr.replace(" ", "").replace("+-", "-")
+                # Добавляем 1 если перед переменной нет коэффициента (x -> 1x)
                 expr = re.sub(r'(?<!\d)([xyz])', r'1\1', expr)
                 return expr
-            norm_user = normalize_expr(str(user_answer))
-            norm_correct = normalize_expr(str(correct_answer))
+            
+            norm_user = normalize_expr(user_answer)
+            norm_correct = normalize_expr(correct_answer)
+            
+            # Сравниваем нормализованные выражения
             is_correct = norm_user == norm_correct
             return jsonify({
                 "is_correct": is_correct,
                 "correct_answer": correct_answer
             })
         else:
-            # Числовые ответы
-            try:
-                user_val = float(str(user_answer).replace(',', '.'))
-                correct_val = float(str(correct_answer).replace(',', '.'))
-                is_correct = abs(user_val - correct_val) < 1e-6
-            except Exception:
-                # Если не удалось привести к числу — сравниваем как строки
-                ua = str(user_answer).strip().lower()
-                ca = str(correct_answer).strip().lower()
-                is_correct = ua == ca
-            return jsonify({"is_correct": is_correct, "correct_answer": correct_answer})
+            # Старая логика для числовых ответов
+            user_val = float(user_answer)
+            correct_val = float(correct_answer)
+            is_correct = abs(user_val - correct_val) < 1e-6
+            return jsonify({"is_correct": is_correct})
             
     except Exception as e:
-        print(f"Ошибка при проверке ответа: {e}")
         return jsonify({"error": str(e)}), 500
-
     
 # В app.py добавить новый маршрут
 @app.route('/api/generate_from_template/<int:template_id>')
