@@ -6,7 +6,7 @@ from sympy import symbols, simplify
 
 class MathEngine:
     @staticmethod
-    def generate_parameters(template_params):
+        def generate_parameters(template_params):
         params = {}
         conditions = template_params.get('conditions', '')
         # 1. Собираем все ключи типа choice для согласованного выбора

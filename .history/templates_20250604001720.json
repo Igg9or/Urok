@@ -1,0 +1,14 @@
+[
+  {
+    "textbook_id": 1,
+    "name": "Умножение одночленов 44.а",
+    "question_template": "Выполните умножение: {A}{X} {B}{Y}.",
+    "answer_template": "{A * B}{X}{Y}",
+    "parameters": {
+      "A": { "type": "int", "min": 2, "max": 9 },
+      "B": { "type": "int", "min": 2, "max": 9 },
+      "X": { "type": "choice", "values": ["x", "a", "p"] },
+      "Y": { "type": "choice", "values": ["y", "b", "q"] }
+    }
+  },
+]

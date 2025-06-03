@@ -1,0 +1,104 @@
+[
+  {
+    "textbook_id": 2,
+    "name": "Умножение одночленов 44.а",
+    "question_template": "Выполните умножение: {A}{X} {B}{Y}.",
+    "answer_template": "{A * B}{X}{Y}",
+    "parameters": {
+      "A": { "type": "int", "min": 2, "max": 9 },
+      "B": { "type": "int", "min": 2, "max": 9 },
+      "X": { "type": "choice", "values": ["x", "a", "p"] },
+      "Y": { "type": "choice", "values": ["y", "b", "q"] }
+    }
+  },
+  
+{
+    "textbook_id": 1,
+    "name": "52.а Запишите цифрами",
+    "question_template": "Запишите цифрами число: десять миллионов пять тысяч двадцать три.",
+    "answer_template": "{10005023}",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "52.б Запишите цифрами",
+    "question_template": "Запишите цифрами число: три миллиарда восемьдесят девять тысяч триста пять.",
+    "answer_template": "{300890305}",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "52.в Запишите цифрами",
+    "question_template": "Запишите цифрами число: десять миллиардов два миллиона шестьдесят четыре тысячи.",
+    "answer_template": "{10002064000}",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "52.г Запишите цифрами",
+    "question_template": "Запишите цифрами число: пятнадцать миллиардов два миллиона двести восемьдесят тысяч семь.",
+    "answer_template": "{15002280007}",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "52.д Запишите цифрами",
+    "question_template": "Запишите цифрами число: пятьсот четыре миллиарда восемьдесят девять.",
+    "answer_template": "{504000000089}",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "52.е Запишите цифрами",
+    "question_template": "Запишите цифрами число: один миллиард один миллион восемьсот.",
+    "answer_template": "{1001000800}",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "52.ж Запишите цифрами",
+    "question_template": "Запишите цифрами число: один миллион одна тысяча двадцать.",
+    "answer_template": "{1001020}",
+    "parameters": {}
+  },
+  {
+  "textbook_id": 1,
+  "name": "53.а Сложение устно",
+  "question_template": "Вычислите: {A} + {B}",
+  "answer_template": "{A + B}",
+  "parameters": {
+    "A": { "type": "choice", "values": [8, 16, 28, 19] },
+    "B": { "type": "choice", "values": [7, 9, 15, 21] }
+  }
+},
+{
+  "textbook_id": 1,
+  "name": "53.б Вычитание устно",
+  "question_template": "Вычислите: {A} – {B}",
+  "answer_template": "{A - B}",
+  "parameters": {
+    "A": { "type": "choice", "values": [11, 16, 12, 15] },
+    "B": { "type": "choice", "values": [3, 7, 5, 0] }
+  }
+},
+{
+  "textbook_id": 1,
+  "name": "53.в Умножение устно",
+  "question_template": "Вычислите: {A} * {B}",
+  "answer_template": "{A * B}",
+  "parameters": {
+    "A": { "type": "choice", "values": [9, 8, 9, 0] },
+    "B": { "type": "choice", "values": [9, 8, 9, 7] }
+  }
+},
+{
+  "textbook_id": 1,
+  "name": "53.г Деление устно (большие числа)",
+  "question_template": "Вычислите: {A} : {B}",
+  "answer_template": "{A // B}",
+  "parameters": {
+    "A": { "type": "choice", "values": [45, 64, 49, 48] },
+    "B": { "type": "choice", "values": [9, 8, 7, 8] }
+  }
+}
+]
