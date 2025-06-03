@@ -1,0 +1,289 @@
+[
+  {
+    "textbook_id": 1,
+    "name": "16.а Следующее за числом",
+    "question_template": "Назовите число, следующее за числом {A}.",
+    "answer_template": "{A + 1}",
+    "parameters": {
+      "A": {"type": "int", "min": 10, "max": 9998}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "16.б Предшествующее числу",
+    "question_template": "Назовите число, предшествующее числу {A}.",
+    "answer_template": "{A - 1}",
+    "parameters": {
+      "A": {"type": "int", "min": 101, "max": 10000}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "16.в Следующее за большим числом",
+    "question_template": "Назовите число, следующее за числом {A}.",
+    "answer_template": "{A + 1}",
+    "parameters": {
+      "A": {"type": "int", "min": 10000, "max": 19998, "constraints": [{"type": "multiple_of", "value": 1}]}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "16.г Предшествующее большому числу",
+    "question_template": "Назовите число, предшествующее числу {A}.",
+    "answer_template": "{A - 1}",
+    "parameters": {
+      "A": {"type": "int", "min": 1001, "max": 5000, "constraints": [{"type": "multiple_of", "value": 100}]}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "16.д На 1 меньше",
+    "question_template": "Назовите число, на 1 меньше числа {A}.",
+    "answer_template": "{A - 1}",
+    "parameters": {
+      "A": {"type": "int", "min": 200, "max": 9999, "constraints": [{"type": "multiple_of", "value": 1}]}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "16.е На 1 больше",
+    "question_template": "Назовите число, на 1 больше числа {A}.",
+    "answer_template": "{A + 1}",
+    "parameters": {
+      "A": {"type": "int", "min": 1000, "max": 8998, "constraints": [{"type": "multiple_of", "value": 1}]}
+    }
+  },
+
+  {
+    "textbook_id": 1,
+    "name": "17.а Порядок действий (вычитание и деление)",
+    "question_template": "Назовите порядок действий и устно вычислите: {A} - {B} : {C}",
+    "answer_template": "{A - B // C}",
+    "parameters": {
+      "A": {"type": "int", "min": 1000, "max": 2000, "constraints": [{"type": "multiple_of", "value": 10}]},
+      "B": {"type": "int", "min": 100, "max": 300, "constraints": [{"type": "multiple_of", "value": 10}]},
+      "C": {"type": "int", "min": 2, "max": 10},
+      "conditions": "B % C == 0"
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "17.б Порядок действий (разность и разность)",
+    "question_template": "Назовите порядок действий и устно вычислите: ({A} - {B}) - ({C} - {D})",
+    "answer_template": "{A - B - (C - D)}",
+    "parameters": {
+      "A": {"type": "int", "min": 1000, "max": 6000, "constraints": [{"type": "multiple_of", "value": 1}]},
+      "B": {"type": "int", "min": 1, "max": 10},
+      "C": {"type": "int", "min": 100, "max": 500, "constraints": [{"type": "multiple_of", "value": 10}]},
+      "D": {"type": "int", "min": 100, "max": 500, "constraints": [{"type": "multiple_of", "value": 10}]},
+      "conditions": "A > B and C >= D"
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "17.в Порядок действий (скобки и деление)",
+    "question_template": "Назовите порядок действий и устно вычислите: ({A} - {B} + {C}) : ({D} - {E})",
+    "answer_template": "{(A - B + C) // (D - E)}",
+    "parameters": {
+      "A": {"type": "int", "min": 400, "max": 800, "constraints": [{"type": "multiple_of", "value": 100}]},
+      "B": {"type": "int", "min": 100, "max": 300, "constraints": [{"type": "multiple_of", "value": 100}]},
+      "C": {"type": "int", "min": 100, "max": 400, "constraints": [{"type": "multiple_of", "value": 100}]},
+      "D": {"type": "int", "min": 300, "max": 350},
+      "E": {"type": "int", "min": 1, "max": 2},
+      "conditions": "(A - B + C) % (D - E) == 0 and D > E"
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "17.г Порядок действий (вычитание и деление)",
+    "question_template": "Назовите порядок действий и устно вычислите: {A} - {B} : {C}",
+    "answer_template": "{A - B // C}",
+    "parameters": {
+      "A": {"type": "int", "min": 15, "max": 25},
+      "B": {"type": "int", "min": 10, "max": 20, "constraints": [{"type": "multiple_of", "value": 2}]},
+      "C": {"type": "int", "min": 2, "max": 5},
+      "conditions": "B % C == 0"
+    }
+  },
+
+  {
+    "textbook_id": 1,
+    "name": "18.а Найдите сумму",
+    "question_template": "Найдите сумму: {A} + {B} + {C} + {D} + {E}",
+    "answer_template": "{A + B + C + D + E}",
+    "parameters": {
+      "A": {"type": "int", "min": 50000, "max": 80000, "constraints": [{"type": "multiple_of", "value": 10000}]},
+      "B": {"type": "int", "min": 1000, "max": 9000, "constraints": [{"type": "multiple_of", "value": 1000}]},
+      "C": {"type": "int", "min": 100, "max": 900, "constraints": [{"type": "multiple_of", "value": 100}]},
+      "D": {"type": "int", "min": 10, "max": 90, "constraints": [{"type": "multiple_of", "value": 10}]},
+      "E": {"type": "int", "min": 1, "max": 9}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "18.б Найдите сумму",
+    "question_template": "Найдите сумму: {A} + {B} + {C} + {D} + {E}",
+    "answer_template": "{A + B + C + D + E}",
+    "parameters": {
+      "A": {"type": "int", "min": 2000000, "max": 5000000, "constraints": [{"type": "multiple_of", "value": 1000000}]},
+      "B": {"type": "int", "min": 10000, "max": 90000, "constraints": [{"type": "multiple_of", "value": 10000}]},
+      "C": {"type": "int", "min": 1000, "max": 9000, "constraints": [{"type": "multiple_of", "value": 1000}]},
+      "D": {"type": "int", "min": 100, "max": 900, "constraints": [{"type": "multiple_of", "value": 100}]},
+      "E": {"type": "int", "min": 1, "max": 9}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "18.в Найдите сумму",
+    "question_template": "Найдите сумму: {A} + {B} + {C} + {D}",
+    "answer_template": "{A + B + C + D}",
+    "parameters": {
+      "A": {"type": "int", "min": 800000, "max": 900000, "constraints": [{"type": "multiple_of", "value": 100000}]},
+      "B": {"type": "int", "min": 1000, "max": 9000, "constraints": [{"type": "multiple_of", "value": 1000}]},
+      "C": {"type": "int", "min": 100, "max": 900, "constraints": [{"type": "multiple_of", "value": 100}]},
+      "D": {"type": "int", "min": 10, "max": 90, "constraints": [{"type": "multiple_of", "value": 10}]}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "18.г Найдите сумму",
+    "question_template": "Найдите сумму: {A} + {B} + {C}",
+    "answer_template": "{A + B + C}",
+    "parameters": {
+      "A": {"type": "int", "min": 4000, "max": 9000, "constraints": [{"type": "multiple_of", "value": 1000}]},
+      "B": {"type": "int", "min": 100, "max": 900, "constraints": [{"type": "multiple_of", "value": 100}]},
+      "C": {"type": "int", "min": 1, "max": 9}
+    }
+  },
+
+  {
+    "textbook_id": 1,
+    "name": "19. Оба комбайнёра",
+    "question_template": "Один комбайнёр намолотил {A} т зерна, а второй — на {B} т меньше. Сколько зерна намолотили оба комбайнёра?",
+    "answer_template": "{A + (A - B)}",
+    "parameters": {
+      "A": {"type": "int", "min": 100, "max": 300, "constraints": [{"type": "multiple_of", "value": 1}]},
+      "B": {"type": "int", "min": 10, "max": 80, "constraints": [{"type": "multiple_of", "value": 1}]},
+      "conditions": "A > B"
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "20. Масса яблок и груши",
+    "question_template": "Масса яблока {A} г, а масса груши на {B} г больше. Какова масса трёх таких яблок и груши?",
+    "answer_template": "{A * 3 + (A + B)}",
+    "parameters": {
+      "A": {"type": "int", "min": 100, "max": 200, "constraints": [{"type": "multiple_of", "value": 10}]},
+      "B": {"type": "int", "min": 10, "max": 90, "constraints": [{"type": "multiple_of", "value": 10}]}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "21. Разница расстояний",
+    "question_template": "Расстояние от дома до школы {A} м, а до стадиона — {B} м. На сколько метров расстояние от дома до школы меньше расстояния до стадиона?",
+    "answer_template": "{B - A}",
+    "parameters": {
+      "A": {"type": "int", "min": 300, "max": 800, "constraints": [{"type": "multiple_of", "value": 10}]},
+      "B": {"type": "int", "min": 900, "max": 2000, "constraints": [{"type": "multiple_of", "value": 10}]},
+      "conditions": "B > A"
+    }
+  },
+
+  {
+    "textbook_id": 1,
+    "name": "22.а Сложение",
+    "question_template": "Выполните действия: {A} + {B}",
+    "answer_template": "{A + B}",
+    "parameters": {
+      "A": {"type": "int", "min": 600, "max": 700},
+      "B": {"type": "int", "min": 300, "max": 400}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "22.б Вычитание",
+    "question_template": "Выполните действия: {A} - {B}",
+    "answer_template": "{A - B}",
+    "parameters": {
+      "A": {"type": "int", "min": 800, "max": 999},
+      "B": {"type": "int", "min": 200, "max": 799}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "22.в Умножение",
+    "question_template": "Выполните действия: {A} × {B}",
+    "answer_template": "{A * B}",
+    "parameters": {
+      "A": {"type": "int", "min": 20, "max": 300, "constraints": [{"type": "multiple_of", "value": 2}]},
+      "B": {"type": "int", "min": 2, "max": 15}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "22.г Деление",
+    "question_template": "Выполните действия: {A} : {B}",
+    "answer_template": "{A // B}",
+    "parameters": {
+      "A": {"type": "int", "min": 800, "max": 999, "constraints": [{"type": "multiple_of", "value": 7}]},
+      "B": {"type": "int", "min": 7, "max": 14},
+      "conditions": "A % B == 0"
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "22.д Деление",
+    "question_template": "Выполните действия: {A} : {B}",
+    "answer_template": "{A // B}",
+    "parameters": {
+      "A": {"type": "int", "min": 1800, "max": 3600, "constraints": [{"type": "multiple_of", "value": 6}]},
+      "B": {"type": "int", "min": 6, "max": 18},
+      "conditions": "A % B == 0"
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "22.е Умножение",
+    "question_template": "Выполните действия: {A} × {B}",
+    "answer_template": "{A * B}",
+    "parameters": {
+      "A": {"type": "int", "min": 70, "max": 90, "constraints": [{"type": "multiple_of", "value": 1}]},
+      "B": {"type": "int", "min": 800, "max": 850}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "22.ж Умножение и вычитание",
+    "question_template": "Выполните действия: {A} × {B} - {C}",
+    "answer_template": "{A * B - C}",
+    "parameters": {
+      "A": {"type": "int", "min": 50, "max": 60},
+      "B": {"type": "int", "min": 20, "max": 25},
+      "C": {"type": "int", "min": 70, "max": 90}
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "22.з Деление и сложение",
+    "question_template": "Выполните действия: {A} : {B} + {C}",
+    "answer_template": "{A // B + C}",
+    "parameters": {
+      "A": {"type": "int", "min": 160, "max": 220, "constraints": [{"type": "multiple_of", "value": 32}]},
+      "B": {"type": "int", "min": 16, "max": 32, "constraints": [{"type": "multiple_of", "value": 16}]},
+      "C": {"type": "int", "min": 5, "max": 15},
+      "conditions": "A % B == 0"
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "22.и Умножение и скобки",
+    "question_template": "Выполните действия: {A} × ({B} - {C})",
+    "answer_template": "{A * (B - C)}",
+    "parameters": {
+      "A": {"type": "int", "min": 20, "max": 30},
+      "B": {"type": "int", "min": 300, "max": 350},
+      "C": {"type": "int", "min": 270, "max": 299},
+      "conditions": "B > C"
+    }
+  }
+]
