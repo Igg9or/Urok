@@ -1,0 +1,20 @@
+[
+  {
+    "textbook_id": 1,
+    "name": "38.в Перевод см в дм и см",
+    "question_template": "Выразите в дециметрах и сантиметрах: {A} см.",
+    "answer_template": "{dm} + {cm}",
+    "parameters": {
+        "A": { 
+            "type": "int", 
+            "min": 10, 
+            "max": 99,
+            "constraints": [{"type": "multiple_of", "value": 1}]
+            
+        }
+          "dm": "A // 10",
+      "cm": "A % 10"
+    },
+    "conditions": "dm = A // 10; cm = A % 10"
+}
+]

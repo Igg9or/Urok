@@ -1,0 +1,10 @@
+[
+  {
+    "question_template": "Выразите в дециметрах и сантиметрах: {A} см.",
+    "answer_template": "{dm} дм {cm} см",
+    "conditions": "dm = A // 10; cm = A % 10",
+    "parameters": {
+        "A": {"min": 10, "max": 99}
+    }
+}
+]

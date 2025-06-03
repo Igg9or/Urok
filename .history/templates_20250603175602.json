@@ -1,0 +1,13 @@
+{
+    "textbook_id": 1,
+    "name": "Приведение подобных слагаемых",
+    "question_template": "Приведите подобные слагаемые: {A}x + {B}y - {C}x - {D}y",
+    "answer_template": "({A}-{C})x+({B}-{D})y",
+    "parameters": {
+        "A": {"type": "float", "min": 1, "max": 9, "step": 0.5},
+        "B": {"type": "float", "min": 1, "max": 9, "step": 0.5},
+        "C": {"type": "float", "min": 1, "max": 9, "step": 0.5},
+        "D": {"type": "float", "min": 1, "max": 9, "step": 0.5}
+    },
+    "answer_type": "algebraic"
+}

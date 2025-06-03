@@ -1323,27 +1323,35 @@ def generate_task():
 def api_check_answer():
     try:
         data = request.get_json()
-        print("Received data:", data)  # Логирование входящих данных
+        user_answer = data['answer'].replace(" ", "")  # Удаляем пробелы
+        correct_answer = data['correct_answer']
+        answer_type = data.get('answer_type', 'numeric')
         
-        if not data or 'answer' not in data or 'correct_answer' not in data:
-            return jsonify({"error": "Invalid request data"}), 400
+        if answer_type == 'algebraic':
+            # Нормализуем ответы (приводим к одинаковому виду)
+            def normalize_expr(expr):
+                expr = expr.replace(" ", "").replace("+-", "-")
+                # Добавляем 1 если перед переменной нет коэффициента (x -> 1x)
+                expr = re.sub(r'(?<!\d)([xyz])', r'1\1', expr)
+                return expr
             
-        user_answer = data.get('answer')
-        correct_answer = data.get('correct_answer')
-        params = data.get('params', {})
-        
-        # Сравниваем математически, а не как строки
-        user_val = MathEngine.evaluate_expression(user_answer, params)
-        correct_val = MathEngine.evaluate_expression(correct_answer, params)
-        
-        print("User value:", user_val, "Correct value:", correct_val)  # Логирование вычислений
-        
-        return jsonify({
-            "is_correct": abs(float(user_val) - float(correct_val)) < 1e-6,
-            "evaluated_answer": user_val
-        })
+            norm_user = normalize_expr(user_answer)
+            norm_correct = normalize_expr(correct_answer)
+            
+            # Сравниваем нормализованные выражения
+            is_correct = norm_user == norm_correct
+            return jsonify({
+                "is_correct": is_correct,
+                "correct_answer": correct_answer
+            })
+        else:
+            # Старая логика для числовых ответов
+            user_val = float(user_answer)
+            correct_val = float(correct_answer)
+            is_correct = abs(user_val - correct_val) < 1e-6
+            return jsonify({"is_correct": is_correct})
+            
     except Exception as e:
-        print("Error in check_answer:", str(e))  # Логирование ошибок
         return jsonify({"error": str(e)}), 500
     
 # В app.py добавить новый маршрут
@@ -1529,6 +1537,7 @@ print("✅ Шаблоны успешно загружены в базу данн
 import random
 import sympy
 from sympy.parsing.sympy_parser import parse_expr
+from sympy import symbols, simplify
 
 class MathEngine:
     @staticmethod
@@ -1575,16 +1584,29 @@ class MathEngine:
         # Если не удалось сгенерировать - возвращаем последний вариант
         return generated
 
+    
     @staticmethod
     def evaluate_expression(expr, params):
         try:
-            # Безопасный eval с sympy
-            local_dict = {k: sympy.Integer(v) if isinstance(v, int) else sympy.Float(v) 
-                         for k, v in params.items()}
-            return str(parse_expr(expr, local_dict=local_dict).evalf())
+            # Заменяем параметры в выражении
+            for param, value in params.items():
+                expr = expr.replace(f'{{{param}}}', str(value))
+            
+            # Парсим выражение с помощью sympy
+            parsed = parse_expr(expr, evaluate=True)
+            
+            # Если выражение содержит переменные - упрощаем
+            if any(symbol in str(parsed) for symbol in ['x', 'y', 'z']):
+                simplified = sympy.simplify(parsed)
+                return str(simplified).replace('*', '')  # Убираем * для красоты
+            
+            # Для числовых выражений вычисляем значение
+            return str(float(parsed.evalf()))
+            
         except Exception as e:
             print(f"Error evaluating expression: {expr} with params {params}. Error: {e}")
             return None
+
 ================================================================================
 ФАЙЛ: migrate_db.py
 ================================================================================
@@ -1668,7 +1690,8 @@ class TaskGenerator:
             'question': question,
             'correct_answer': answer,
             'params': params,
-            'template_id': template.get('id')
+            'template_id': template.get('id'),
+            'answer_type': template.get('answer_type', 'numeric')
         }
 
     @staticmethod
@@ -1683,114 +1706,33 @@ class TaskGenerator:
     background: #f8f9fa;
     border-right: 1px solid #ddd;
     padding: 20px;
- 
-        grid-template-columns: 1fr;
-    }
-    
-    .textbook-sidebar {
-        order: 2;
-        margin-top: 30px;
-    }
-}
-/* Новая структура лейаута */
-.edit-lesson-layout {
-    display: flex;
-    position: relative;
-    min-height: calc(100vh - 80px);
-}
-
-/* Боковая панель (теперь скрываемая) */
-.textbook-sidebar-collapsible {
-    width: 350px;
-    background: var(--secondary-color);
-    border-right: 1px solid #e0e0e0;
     height: calc(100vh - 80px);
     position: fixed;
-    left: 0;
-    top: 80px;
-    z-index: 100;
-    transition: transform 0.3s ease;
     overflow-y: auto;
-    padding: 20px;
-}
 
-/* Основная область */
-.lesson-main-area {
-    flex: 1;
-    margin-left: 350px; /* Ширина боковой панели */
-    padding: 30px;
-    transition: margin-left 0.3s ease;
 }
-
-/* Полноразмерная секция заданий */
-.tasks-fullwidth-section {
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
-}
-
-.tasks-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-/* Шапка урока */
-.lesson-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #eee;
-}
-
-/* Карточка задания (новая версия) */
-.task-card {
-    background: white;
-    border-radius: 12px;
-    padding: 25px;
-    box-shadow: var(--shadow);
+.student-preview {
+    margin: 20px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
     border: 1px solid #e0e0e0;
 }
 
-/* Кнопка для скрытия/показа боковой панели */
-#toggleSidebar {
-    display: none;
-    background: var(--secondary-color);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
+.student-preview h4 {
+    margin-top: 0;
+    color: var(--primary-color);
+    font-size: 16px;
 }
 
-/* Адаптация */
-@media (max-width: 1200px) {
-    .lesson-main-area {
-        margin-left: 0;
-        padding-left: 20px;
-        padding-right: 20px;
-    }
-    
-    .textbook-sidebar-collapsible {
-        transform: translateX(-100%);
-    }
-    
-    .textbook-sidebar-collapsible.active {
-        transform: translateX(0);
-    }
-    
-    #toggleSidebar {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .lesson-main-area.sidebar-hidden {
-        margin-left: 0;
-    }
+.student-preview .preview-content {
+    margin-top: 10px;
 }
 
+.student-preview .preview-content p {
+    margin: 8px 0;
+    line-height: 1.5;
+}
 ================================================================================
 ФАЙЛ: static\css\math_editor.css
 ================================================================================
@@ -1854,7 +1796,23 @@ class TaskGenerator:
 ================================================================================
 :root {
     --primary-color: #4a6bff;
- 
+    --secondary-color: #f5f7ff;
+    --error-color: #ff4757;
+    --success-color: #2ed573;
+    --text-color: #2f3542;
+    --light-text: #747d8c;
+  
+}
+
+.btn-save:hover {
+    background: #25a05e;
+}
+
+/* Стили для превью */
+.teacher-preview {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 15px;
     margin-top: 15px;
     border: 1px dashed #d0d0d0;
 }
@@ -2295,49 +2253,104 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function processTemplate(template) {
-        addTask(template.question_template, template.answer_template);
-        
-        const taskCard = tasksContainer.lastElementChild;
-        taskCard.dataset.templateId = template.id;
-        
-        // Добавляем отображение параметров
-        const paramsDiv = document.createElement('div');
-        paramsDiv.className = 'task-params';
-        
-        // Парсим параметры и условия
-        const params = JSON.parse(template.parameters);
-        const conditions = params.conditions || '';
-        
-        paramsDiv.innerHTML = `
-            <h4>Параметры задания:</h4>
-            <div class="params-grid">
-                ${Object.entries(params).filter(([key]) => key !== 'conditions').map(([param, config]) => `
-                <div class="param-group">
-                    <div class="param-name">${param}:</div>
-                    <div class="param-range">от ${config.min} до ${config.max}</div>
-                    ${config.constraints ? `
-                    <div class="param-constraints">
-                        ${config.constraints.map(c => `
-                        <div class="constraint">
-                            <span class="constraint-type">${formatConstraintType(c.type)}:</span>
-                            <span class="constraint-value">${c.value}</span>
-                        </div>
-                        `).join('')}
-                    </div>
-                    ` : ''}
-                </div>
-                `).join('')}
-                ${conditions ? `
-                <div class="conditions-group">
-                    <div class="conditions-name">Условия:</div>
-                    <div class="conditions-value">${conditions}</div>
-                </div>
-                ` : ''}
-            </div>
-        `;
-        
-        taskCard.insertBefore(paramsDiv, taskCard.querySelector('.teacher-preview'));
+    addTask(template.question_template, template.answer_template);
+    
+    const taskCard = tasksContainer.lastElementChild;
+    taskCard.dataset.templateId = template.id;
+    
+    // Генерируем пример для ученика сразу после добавления
+    generateStudentPreview(taskCard);
+}
+
+    function generateStudentPreview(taskCard) {
+    console.log('Generating student preview...'); // Отладочное сообщение
+    
+    const templateId = taskCard.dataset.templateId;
+    if (!templateId || !templatesCache[templateId]) {
+        console.error('No template found in cache for ID:', templateId);
+        return;
     }
+
+    const template = templatesCache[templateId];
+    console.log('Using template:', template); // Отладочный вывод
+
+    try {
+        // Преобразуем параметры из строки JSON в объект
+        const params = typeof template.parameters === 'string' 
+            ? JSON.parse(template.parameters) 
+            : template.parameters;
+        
+        console.log('Template parameters:', params); // Отладочный вывод
+
+        // Генерируем вариант задания
+        const variant = {
+            question: template.question_template,
+            correct_answer: template.answer_template,
+            params: {}
+        };
+
+        // Генерируем значения параметров
+        const paramNames = [...new Set([
+            ...(template.question_template.match(/\{([A-Za-z]+)\}/g) || []),
+            ...(template.answer_template.match(/\{([A-Za-z]+)\}/g) || [])
+        ])].map(match => match.replace(/\{|\}/g, ''));
+
+        paramNames.forEach(param => {
+            if (params[param]) {
+                // Используем параметры из шаблона
+                variant.params[param] = randomInt(
+                    params[param].min || 1,
+                    params[param].max || 10
+                );
+            } else {
+                // Генерируем случайное значение, если параметр не определён
+                variant.params[param] = randomInt(1, 10);
+            }
+        });
+
+        // Подставляем параметры в вопрос
+        variant.question = template.question_template;
+        for (const [param, value] of Object.entries(variant.params)) {
+            variant.question = variant.question.replace(
+                new RegExp(`\\{${param}\\}`, 'g'), 
+                value
+            );
+        }
+
+        // Вычисляем ответ
+        try {
+            variant.correct_answer = eval(
+                template.answer_template.replace(
+                    /\{([A-Za-z]+)\}/g, 
+                    (_, p1) => variant.params[p1]
+                )
+            ).toString();
+        } catch (e) {
+            console.error('Error evaluating answer:', e);
+            variant.correct_answer = "Ошибка в формуле ответа";
+        }
+
+        console.log('Generated variant:', variant); // Отладочный вывод
+
+        // Обновляем DOM
+        const previewQuestion = taskCard.querySelector('.student-preview-question');
+        const previewAnswer = taskCard.querySelector('.student-preview-answer');
+        
+        if (previewQuestion && previewAnswer) {
+            previewQuestion.textContent = variant.question;
+            previewAnswer.textContent = variant.correct_answer;
+        } else {
+            console.error('Preview elements not found in task card');
+        }
+    } catch (e) {
+        console.error('Error generating student preview:', e);
+    }
+}
+
+// Вспомогательная функция для генерации случайных чисел
+function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
     function formatConstraintType(type) {
         const types = {
@@ -2506,38 +2519,47 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Добавление нового задания
     function addTask(question = '', answer = '') {
-        const taskNumber = tasksContainer.children.length + 1;
-        const taskCard = document.createElement('div');
-        taskCard.className = 'task-card';
-        taskCard.innerHTML = `
-            <div class="task-header">
-                <h3>Задание <span class="task-number">${taskNumber}</span></h3>
-                <button class="btn btn-danger btn-remove-task">Удалить</button>
-            </div>
-            <textarea class="task-question">${question}</textarea>
-            <div class="answer-section">
-                <label>Формула ответа:</label>
-                <textarea class="task-answer">${answer}</textarea>
-            </div>
-            <div class="teacher-preview hidden">
-                <h4>Пример для учителя:</h4>
-                <div class="preview-content">
-                    <p><strong>Пример задания:</strong> <span class="preview-question"></span></p>
-                    <p><strong>Правильный ответ:</strong> <span class="preview-answer"></span></p>
-                    <p><strong>Используемые параметры:</strong> <span class="preview-params"></span></p>
-                </div>
-                <button class="btn btn-small btn-generate-preview">Сгенерировать новый пример</button>
-            </div>
-            <button class="btn btn-small btn-show-preview">Показать пример</button>
-        `;
-        tasksContainer.appendChild(taskCard);
+    const taskNumber = tasksContainer.children.length + 1;
+    const taskCard = document.createElement('div');
+    taskCard.className = 'task-card';
+    taskCard.innerHTML = `
+        <div class="task-header">
+            <h3>Задание <span class="task-number">${taskNumber}</span></h3>
+            <button class="btn btn-danger btn-remove-task">Удалить</button>
+        </div>
+        <textarea class="task-question">${question}</textarea>
+        <div class="answer-section">
+            <label>Формула ответа:</label>
+            <textarea class="task-answer">${answer}</textarea>
+        </div>
         
-        // Если добавляем из шаблона, сразу показываем пример
-        if (question && answer) {
-            const previewBtn = taskCard.querySelector('.btn-show-preview');
-            previewBtn.click();
-        }
+        <!-- Добавленный блок для предпросмотра ученика -->
+        <div class="student-preview">
+            <h4>Пример для ученика:</h4>
+            <div class="preview-content">
+                <p><strong>Задание:</strong> <span class="student-preview-question"></span></p>
+                <p><strong>Правильный ответ:</strong> <span class="student-preview-answer"></span></p>
+            </div>
+        </div>
+        
+        <div class="teacher-preview hidden">
+            <h4>Пример для учителя:</h4>
+            <div class="preview-content">
+                <p><strong>Пример задания:</strong> <span class="preview-question"></span></p>
+                <p><strong>Правильный ответ:</strong> <span class="preview-answer"></span></p>
+                <p><strong>Используемые параметры:</strong> <span class="preview-params"></span></p>
+            </div>
+            <button class="btn btn-small btn-generate-preview">Сгенерировать новый пример</button>
+        </div>
+        <button class="btn btn-small btn-show-preview">Показать пример</button>
+    `;
+    tasksContainer.appendChild(taskCard);
+    
+    // Если добавляем из шаблона, сразу показываем пример для ученика
+    if (question && answer) {
+        generateStudentPreview(taskCard);
     }
+}
 
     // Обновление нумерации заданий
     function updateTaskNumbers() {
