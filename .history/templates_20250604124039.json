@@ -108,5 +108,12 @@
     "D": { "type": "float", "min": 42.00, "max": 43.00, "constraints": [{"type": "multiple_of", "value": 0.01}] },
     "E": { "type": "float", "min": 42.00, "max": 43.00, "constraints": [{"type": "multiple_of", "value": 0.01}] }
   }
-}
+},
+
+
+
+
+
+
+
 ]

@@ -1,0 +1,24 @@
+[
+{
+  "textbook_id": 4,
+  "name": "1.1 Среднее арифметическое двух чисел на координатной прямой",
+  "question_template": "На координатной прямой отмечены числа {A} и {B}. Найдите их среднее арифметическое и укажите это число на прямой.",
+  "answer_template": "{round((A + B) / 2, 2)}",
+  "parameters": {
+    "A": { "type": "float", "min": 2, "max": 10, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "B": { "type": "float", "min": 11, "max": 20, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.2 Среднее арифметическое координат на отрезке",
+  "question_template": "На прямой NM = NK. Координаты точек N и K равны {N} и {K}. Найдите координату точки M (симметрично относительно N), а также среднее арифметическое координат M и K.",
+  "answer_template": "{round(N - abs(K - N), 2)}; {round(((N - abs(K - N)) + K) / 2, 2)}",
+  "parameters": {
+    "N": { "type": "float", "min": 5, "max": 15, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "K": { "type": "float", "min": 8, "max": 20, "constraints": [{"type": "multiple_of", "value": 0.1}], "conditions": "K > N" }
+  }
+},
+
+
+]

@@ -64,49 +64,8 @@
       "D": { "type": "float", "min": 5, "max": 9, "constraints": [{"type": "multiple_of", "value": 0.001}] },
       "E": { "type": "float", "min": 5, "max": 9, "constraints": [{"type": "multiple_of", "value": 0.001}] }
     }
-  },
-  {
-  "textbook_id": 4,
-  "name": "1.4 Средняя температура за неделю",
-  "question_template": "За неделю были зафиксированы температуры в 12:00: {T1}; {T2}; {T3}; {T4}; {T5}; {T6}; {T7} (°C). Найдите среднюю температуру недели, округлите до десятых.",
-  "answer_template": "{round((T1 + T2 + T3 + T4 + T5 + T6 + T7) / 7, 1)}",
-  "parameters": {
-    "T1": { "type": "float", "min": 2.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
-    "T2": { "type": "float", "min": 2.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
-    "T3": { "type": "float", "min": 2.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
-    "T4": { "type": "float", "min": 2.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
-    "T5": { "type": "float", "min": 2.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
-    "T6": { "type": "float", "min": 2.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
-    "T7": { "type": "float", "min": 2.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] }
   }
-},
-{
-  "textbook_id": 4,
-  "name": "1.5 Средняя оценка за четверть",
-  "question_template": "У ученика за четверть по литературе оценки: {A}, {B}, {C}, {D}, {E}, {F}, {G}, {H}. Найдите среднюю оценку за четверть.",
-  "answer_template": "{round((A + B + C + D + E + F + G + H) / 8, 2)}",
-  "parameters": {
-    "A": { "type": "int", "min": 3, "max": 5 },
-    "B": { "type": "int", "min": 3, "max": 5 },
-    "C": { "type": "int", "min": 3, "max": 5 },
-    "D": { "type": "int", "min": 3, "max": 5 },
-    "E": { "type": "int", "min": 3, "max": 5 },
-    "F": { "type": "int", "min": 3, "max": 5 },
-    "G": { "type": "int", "min": 3, "max": 5 },
-    "H": { "type": "int", "min": 3, "max": 5 }
-  }
-},
-{
-  "textbook_id": 4,
-  "name": "1.6 Среднее арифметическое с округлением до сотых",
-  "question_template": "Чему равно среднее арифметическое чисел: {A}; {B}; {C}; {D}; {E}? Округлите до сотых.",
-  "answer_template": "{round((A + B + C + D + E) / 5, 2)}",
-  "parameters": {
-    "A": { "type": "float", "min": 42.00, "max": 43.00, "constraints": [{"type": "multiple_of", "value": 0.01}] },
-    "B": { "type": "float", "min": 42.00, "max": 43.00, "constraints": [{"type": "multiple_of", "value": 0.01}] },
-    "C": { "type": "float", "min": 42.00, "max": 43.00, "constraints": [{"type": "multiple_of", "value": 0.01}] },
-    "D": { "type": "float", "min": 42.00, "max": 43.00, "constraints": [{"type": "multiple_of", "value": 0.01}] },
-    "E": { "type": "float", "min": 42.00, "max": 43.00, "constraints": [{"type": "multiple_of", "value": 0.01}] }
-  }
-}
+
+
+
 ]

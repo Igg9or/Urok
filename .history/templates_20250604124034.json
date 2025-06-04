@@ -96,17 +96,10 @@
     "H": { "type": "int", "min": 3, "max": 5 }
   }
 },
-{
-  "textbook_id": 4,
-  "name": "1.6 Среднее арифметическое с округлением до сотых",
-  "question_template": "Чему равно среднее арифметическое чисел: {A}; {B}; {C}; {D}; {E}? Округлите до сотых.",
-  "answer_template": "{round((A + B + C + D + E) / 5, 2)}",
-  "parameters": {
-    "A": { "type": "float", "min": 42.00, "max": 43.00, "constraints": [{"type": "multiple_of", "value": 0.01}] },
-    "B": { "type": "float", "min": 42.00, "max": 43.00, "constraints": [{"type": "multiple_of", "value": 0.01}] },
-    "C": { "type": "float", "min": 42.00, "max": 43.00, "constraints": [{"type": "multiple_of", "value": 0.01}] },
-    "D": { "type": "float", "min": 42.00, "max": 43.00, "constraints": [{"type": "multiple_of", "value": 0.01}] },
-    "E": { "type": "float", "min": 42.00, "max": 43.00, "constraints": [{"type": "multiple_of", "value": 0.01}] }
-  }
-}
+
+
+
+
+
+
 ]

@@ -1,0 +1,512 @@
+[
+  {
+    "textbook_id": 2,
+    "name": "Умножение одночленов 44.а",
+    "question_template": "Выполните умножение: {A}{X} {B}{Y}.",
+    "answer_template": "{A * B}{X}{Y}",
+    "parameters": {
+      "A": { "type": "int", "min": 2, "max": 9 },
+      "B": { "type": "int", "min": 2, "max": 9 },
+      "X": { "type": "choice", "values": ["x", "a", "p"] },
+      "Y": { "type": "choice", "values": ["y", "b", "q"] }
+    }
+  },
+  
+{
+    "textbook_id": 1,
+    "name": "52.а Запишите цифрами",
+    "question_template": "Запишите цифрами число: десять миллионов пять тысяч двадцать три.",
+    "answer_template": "{10005023}",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "52.б Запишите цифрами",
+    "question_template": "Запишите цифрами число: три миллиарда восемьдесят девять тысяч триста пять.",
+    "answer_template": "{300890305}",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "52.в Запишите цифрами",
+    "question_template": "Запишите цифрами число: десять миллиардов два миллиона шестьдесят четыре тысячи.",
+    "answer_template": "{10002064000}",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "52.г Запишите цифрами",
+    "question_template": "Запишите цифрами число: пятнадцать миллиардов два миллиона двести восемьдесят тысяч семь.",
+    "answer_template": "{15002280007}",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "52.д Запишите цифрами",
+    "question_template": "Запишите цифрами число: пятьсот четыре миллиарда восемьдесят девять.",
+    "answer_template": "{504000000089}",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "52.е Запишите цифрами",
+    "question_template": "Запишите цифрами число: один миллиард один миллион восемьсот.",
+    "answer_template": "{1001000800}",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "52.ж Запишите цифрами",
+    "question_template": "Запишите цифрами число: один миллион одна тысяча двадцать.",
+    "answer_template": "{1001020}",
+    "parameters": {}
+  },
+  {
+  "textbook_id": 1,
+  "name": "53.а Сложение устно",
+  "question_template": "Вычислите: {A} + {B}",
+  "answer_template": "{A + B}",
+  "parameters": {
+    "A": { "type": "choice", "values": [8, 16, 28, 19] },
+    "B": { "type": "choice", "values": [7, 9, 15, 21] }
+  }
+},
+{
+  "textbook_id": 1,
+  "name": "53.б Вычитание устно",
+  "question_template": "Вычислите: {A} – {B}",
+  "answer_template": "{A - B}",
+  "parameters": {
+    "A": { "type": "choice", "values": [11, 16, 12, 15] },
+    "B": { "type": "choice", "values": [3, 7, 5, 0] }
+  }
+},
+{
+  "textbook_id": 1,
+  "name": "53.в Умножение устно",
+  "question_template": "Вычислите: {A} * {B}",
+  "answer_template": "{A * B}",
+  "parameters": {
+    "A": { "type": "choice", "values": [9, 8, 9, 0] },
+    "B": { "type": "choice", "values": [9, 8, 9, 7] }
+  }
+},
+{
+  "textbook_id": 1,
+  "name": "53.г Деление устно (большие числа)",
+  "question_template": "Вычислите: {A} : {B}",
+  "answer_template": "{A // B}",
+  "parameters": {
+    "A": { "type": "choice", "values": [45, 64, 49, 48] },
+    "B": { "type": "choice", "values": [9, 8, 7, 8] }
+  }
+},
+{
+  "textbook_id": 1,
+  "name": "54 Табличное сложение",
+  "question_template": "Сколько будет: {A} + {B}?",
+  "answer_template": "{A + B}",
+  "parameters": {
+    "A": { "type": "choice", "values": [15, 10, 17, 29, 19] },
+    "B": { "type": "choice", "values": [10, 15, 8, 41, 8] }
+  }
+},
+{
+    "textbook_id": 1,
+    "name": "55.а Округление (сложение)",
+    "question_template": "Вычислите устно, используя приём округления: {A} + {B}",
+    "answer_template": "{A + B}",
+    "parameters": {
+      "A": { "type": "int", "min": 90, "max": 110 },
+      "B": { "type": "int", "min": 40, "max": 60 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "55.б Округление (сложение)",
+    "question_template": "Вычислите устно, используя приём округления: {A} + {B}",
+    "answer_template": "{A + B}",
+    "parameters": {
+      "A": { "type": "int", "min": 390, "max": 410 },
+      "B": { "type": "int", "min": 430, "max": 450 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "55.в Округление (сложение)",
+    "question_template": "Вычислите устно, используя приём округления: {A} + {B}",
+    "answer_template": "{A + B}",
+    "parameters": {
+      "A": { "type": "int", "min": 230, "max": 250 },
+      "B": { "type": "int", "min": 45, "max": 55 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "56.а Арифметическая цепочка",
+    "question_template": "Какое число надо вписать в последнюю клетку цепочки: {N} : 5 × 3 : 6 + 46 = ?",
+    "answer_template": "{((N // 5) * 3) // 6 + 46}",
+    "parameters": { "N": { "type": "int", "min": 30, "max": 50, "constraints": [{"type": "multiple_of", "value": 5}] } }
+  },
+  {
+    "textbook_id": 1,
+    "name": "56.б Арифметическая цепочка",
+    "question_template": "Какое число надо вписать в последнюю клетку цепочки: {N} : 8 + 11 : 5 × 9 = ?",
+    "answer_template": "{(((N // 8) + 11) // 5) * 9}",
+    "parameters": { "N": { "type": "int", "min": 64, "max": 80, "constraints": [{"type": "multiple_of", "value": 8}] } }
+  },
+  {
+    "textbook_id": 1,
+    "name": "56.в Арифметическая цепочка",
+    "question_template": "Какое число надо вписать в последнюю клетку цепочки: {N} : 7 × 8 + 8 : 10 = ?",
+    "answer_template": "{(((N // 7) * 8 + 8) // 10)}",
+    "parameters": { "N": { "type": "int", "min": 21, "max": 70, "constraints": [{"type": "multiple_of", "value": 7}] } }
+  },
+  {
+    "textbook_id": 1,
+    "name": "56.г Арифметическая цепочка",
+    "question_template": "Какое число надо вписать в последнюю клетку цепочки: {N} : 8 + 13 : 4 × 8 = ?",
+    "answer_template": "{(((N // 8) + 13) // 4) * 8}",
+    "parameters": { "N": { "type": "int", "min": 48, "max": 72, "constraints": [{"type": "multiple_of", "value": 8}] } }
+  },
+  {
+    "textbook_id": 1,
+    "name": "58.а Двузначные числа из 0 и 6",
+    "question_template": "Какие двузначные числа можно записать с помощью цифр 0 и 6?",
+    "answer_template": "60",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "58.б Двузначные числа из 5, 1 и 0",
+    "question_template": "Какие двузначные числа можно записать с помощью цифр 5, 1 и 0?",
+    "answer_template": "10, 11, 15, 50, 51, 55",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "58.в Двузначные числа из 3 и 5",
+    "question_template": "Какие двузначные числа можно записать с помощью цифр 3 и 5?",
+    "answer_template": "33, 35, 53, 55",
+    "parameters": {}
+  },
+  {
+  "textbook_id": 1,
+  "name": "59 Трёхзначные числа из 3, 5, 7 (без повторов)",
+  "question_template": "Сколько трёхзначных чисел можно составить из цифр 3, 5, 7, без повторения цифр? Какое из этих чисел наибольшее и какое наименьшее?",
+  "answer_template": "Всего: 6, наибольшее: 753, наименьшее: 357",
+  "parameters": {}
+},
+{
+  "textbook_id": 1,
+  "name": "60 Длина рек",
+  "question_template": "Длина Волги {A} км. Днепр на {B} км короче Волги, а Урал длиннее Днепра на {C} км. На сколько километров Волга длиннее Урала?",
+  "answer_template": "{A - (A - B + C)}",
+  "parameters": {
+    "A": { "type": "int", "min": 3000, "max": 4000 },
+    "B": { "type": "int", "min": 1000, "max": 1500 },
+    "C": { "type": "int", "min": 200, "max": 300 }
+  }
+},
+{
+  "textbook_id": 1,
+  "name": "61 Лыжник за 5 ч прошёл 75 км",
+  "question_template": "Лыжник за {T} ч прошёл {S} км. Сколько времени ему потребуется, чтобы с той же скоростью пройти {D} км?",
+  "answer_template": "{D // (S // T)}",
+  "parameters": {
+    "T": { "type": "int", "min": 2, "max": 5 },
+    "S": { "type": "int", "min": 40, "max": 100, "constraints": [{"type": "multiple_of", "value": 10}] },
+    "D": { "type": "int", "min": 20, "max": 80, "constraints": [{"type": "multiple_of", "value": 10}] },
+    "conditions": "S % T == 0 and D % (S // T) == 0 and D // (S // T) > 0"
+  }
+},
+{
+  "textbook_id": 1,
+  "name": "62 Автобус переменной скорости",
+  "question_template": "Автобус шёл {T1} ч со скоростью {V1} км/ч и {T2} ч со скоростью {V2} км/ч. Сколько километров прошёл автобус за эти {T} ч?",
+  "answer_template": "{T1 * V1 + T2 * V2}",
+  "parameters": {
+    "T1": { "type": "int", "min": 1, "max": 3 },
+    "V1": { "type": "int", "min": 30, "max": 60 },
+    "T2": { "type": "int", "min": 1, "max": 3 },
+    "V2": { "type": "int", "min": 40, "max": 80 },
+    "T": { "type": "int", "min": 2, "max": 6 }
+  }
+},
+  {
+    "textbook_id": 1,
+    "name": "63.1 Разница скорости мотоциклиста и велосипедиста",
+    "question_template": "Мотоциклист едет со скоростью {M} км/ч, а скорость велосипедиста на {D} км/ч меньше. Во сколько раз скорость мотоциклиста больше скорости велосипедиста?",
+  "answer_template": "{M // (M - D)}",
+  "parameters": {
+    "M": { "type": "int", "min": 40, "max": 90, "constraints": [{"type": "multiple_of", "value": 10}] },
+    "D": { "type": "int", "min": 10, "max": 30, "constraints": [{"type": "multiple_of", "value": 5}] },
+    "conditions": "M > D and (M - D) > 0 and M % (M - D) == 0 and M // (M - D) > 1"
+  }
+},
+  {
+    "textbook_id": 1,
+    "name": "63.2 Разница скоростей теплохода и электровоза",
+    "question_template": "Скорость теплохода {T} км/ч, а скорость электровоза на {D} км/ч больше. Во сколько раз скорость теплохода меньше скорости электровоза?",
+  "answer_template": "{(T + D) // T}",
+  "parameters": {
+    "T": { "type": "int", "min": 20, "max": 60, "constraints": [{"type": "multiple_of", "value": 5}] },
+    "D": { "type": "int", "min": 20, "max": 60, "constraints": [{"type": "multiple_of", "value": 5}] },
+    "conditions": "T > 0 and D > 0 and (T + D) % T == 0 and (T + D) // T > 1"
+  }
+},
+  {
+    "textbook_id": 1,
+    "name": "64.1 Выполните действия (сложение и деление)",
+    "question_template": "Выполните: ({A} + {B}) : {C}",
+    "answer_template": "{(A + B) // C}",
+    "parameters": {
+      "A": { "type": "int", "min": 1000, "max": 4000 },
+      "B": { "type": "int", "min": 500, "max": 1200 },
+      "C": { "type": "int", "min": 5, "max": 20 },
+      "conditions": "(A + B) % C == 0 and (A + B) // C > 0"
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "64.2 Выполните действия (сложение и деление)",
+    "question_template": "Выполните: ({A} + {B}) : {C}",
+    "answer_template": "{(A + B) // C}",
+    "parameters": {
+      "A": { "type": "int", "min": 2000, "max": 5000 },
+      "B": { "type": "int", "min": 500, "max": 2000 },
+      "C": { "type": "int", "min": 5, "max": 20 },
+      "conditions": "(A + B) % C == 0 and (A + B) // C > 0"
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "64.3 Выполните действия (вычитание и деление)",
+    "question_template": "Выполните: ({A} - {B}) : {C}",
+    "answer_template": "{(A - B) // C}",
+    "parameters": {
+      "A": { "type": "int", "min": 1500, "max": 3000 },
+      "B": { "type": "int", "min": 500, "max": 1499 },
+      "C": { "type": "int", "min": 5, "max": 20 },
+      "conditions": "A > B and (A - B) % C == 0 and (A - B) // C > 0"
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "64.4 Выполните действия (вычитание и деление)",
+    "question_template": "Выполните: ({A} - {B}) : {C}",
+    "answer_template": "{(A - B) // C}",
+    "parameters": {
+      "A": { "type": "int", "min": 1000, "max": 3000 },
+      "B": { "type": "int", "min": 500, "max": 1999 },
+      "C": { "type": "int", "min": 5, "max": 20 },
+      "conditions": "A > B and (A - B) % C == 0 and (A - B) // C > 0"
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "64.5 Выполните действия (умножение и вычитание)",
+    "question_template": "Выполните: {A} · {B} – {C}",
+    "answer_template": "{A * B - C}",
+    "parameters": {
+      "A": { "type": "int", "min": 20, "max": 50 },
+      "B": { "type": "int", "min": 20, "max": 60 },
+      "C": { "type": "int", "min": 50, "max": 150 },
+      "conditions": "A * B > C and A * B - C > 0"
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "64.6 Выполните действия (умножение и вычитание)",
+    "question_template": "Выполните: {A} · {B} – {C}",
+    "answer_template": "{A * B - C}",
+    "parameters": {
+      "A": { "type": "int", "min": 30, "max": 60 },
+      "B": { "type": "int", "min": 20, "max": 40 },
+      "C": { "type": "int", "min": 50, "max": 200 },
+      "conditions": "A * B > C and A * B - C > 0"
+    }
+  },
+  // 67
+  {
+    "textbook_id": 1,
+    "name": "67.а Сколько дециметров в километре",
+    "question_template": "Сколько дециметров в одном километре?",
+    "answer_template": "{10000}",
+    "parameters": {}
+  },
+  {
+    "textbook_id": 1,
+    "name": "67.б Сколько сантиметров в километре",
+    "question_template": "Сколько сантиметров в одном километре?",
+    "answer_template": "{100000}",
+    "parameters": {}
+  },
+
+  // 68
+  {
+    "textbook_id": 1,
+    "name": "68.а.1 Перевод километров в метры",
+    "question_template": "Выразите в метрах: {A} км.",
+    "answer_template": "{A * 1000}",
+    "parameters": { "A": { "type": "int", "min": 1, "max": 20 } }
+  },
+  {
+    "textbook_id": 1,
+    "name": "68.а.2 Перевод км и м в метры",
+    "question_template": "Выразите в метрах: {K} км {M} м.",
+    "answer_template": "{K * 1000 + M}",
+    "parameters": {
+      "K": { "type": "int", "min": 1, "max": 20 },
+      "M": { "type": "int", "min": 1, "max": 999, "constraints": [{"type": "multiple_of", "value": 1}] }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "68.б.1 В километрах и метрах",
+    "question_template": "Выразите в километрах и метрах: {A} м.",
+    "answer_template": "{A // 1000} км {A % 1000} м",
+    "parameters": { "A": { "type": "int", "min": 1000, "max": 9999, "constraints": [{"type": "multiple_of", "value": 1}] } }
+  },
+  {
+    "textbook_id": 1,
+    "name": "68.в.1 В сантиметрах из дм и см",
+    "question_template": "Выразите в сантиметрах: {D} дм {C} см.",
+    "answer_template": "{D * 10 + C}",
+    "parameters": {
+      "D": { "type": "int", "min": 1, "max": 9 },
+      "C": { "type": "int", "min": 0, "max": 9 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "68.в.2 В сантиметрах из м и см",
+    "question_template": "Выразите в сантиметрах: {M} м {C} см.",
+    "answer_template": "{M * 100 + C}",
+    "parameters": {
+      "M": { "type": "int", "min": 1, "max": 9 },
+      "C": { "type": "int", "min": 0, "max": 99 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "68.в.3 В сантиметрах из мм",
+    "question_template": "Выразите в сантиметрах: {MM} мм.",
+    "answer_template": "{MM // 10}",
+    "parameters": {
+      "MM": { "type": "int", "min": 10, "max": 999, "constraints": [{"type": "multiple_of", "value": 10}] }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "68.г В сантиметрах и миллиметрах из мм",
+    "question_template": "Выразите в сантиметрах и миллиметрах: {A} мм.",
+    "answer_template": "{A // 10} см {A % 10} мм",
+    "parameters": {
+      "A": { "type": "int", "min": 10, "max": 999, "constraints": [{"type": "multiple_of", "value": 1}] }
+    }
+  },
+
+  // 70
+  {
+    "textbook_id": 1,
+    "name": "70 Каша — сколько осталось",
+    "question_template": "Для приготовления каши бабушка из килограммового пакета крупы трижды брала по {X} г. Сколько крупы осталось в пакете?",
+    "answer_template": "{1000 - 3 * X}",
+    "parameters": {
+      "X": { "type": "int", "min": 100, "max": 250, "constraints": [{"type": "multiple_of", "value": 10}] },
+      "conditions": "3 * X < 1000"
+    }
+  },
+
+
+  {
+    "textbook_id": 1,
+    "name": "71 Горы — сравнение высот",
+    "question_template": "Ключевская сопка — {A} м, Белуха на {B} м ниже, Народная на {C} м ниже Белухи, Победа на {D} м выше Народной. Какова высота горы Победа? На сколько метров Ключевская сопка выше горы Победа?",
+    "answer_template": "{A - B - C + D}; {A - (A - B - C + D)}",
+    "parameters": {
+      "A": { "type": "int", "min": 3000, "max": 5000, "constraints": [{"type": "multiple_of", "value": 10}] },
+      "B": { "type": "int", "min": 200, "max": 400, "constraints": [{"type": "multiple_of", "value": 2}] },
+      "C": { "type": "int", "min": 2000, "max": 3000, "constraints": [{"type": "multiple_of", "value": 10}] },
+      "D": { "type": "int", "min": 1000, "max": 1300, "constraints": [{"type": "multiple_of", "value": 1}] },
+      "conditions": "A - B - C + D > 0 and A > (A - B - C + D)"
+    }
+  },
+
+ 
+  {
+    "textbook_id": 1,
+    "name": "72 Теплоход — за сколько часов",
+    "question_template": "За {T1} ч теплоход прошёл {S1} км. За сколько часов он пройдёт с той же скоростью {S2} км?",
+    "answer_template": "{S2 // (S1 // T1)}",
+    "parameters": {
+      "T1": { "type": "int", "min": 2, "max": 5 },
+      "S1": { "type": "int", "min": 80, "max": 200, "constraints": [{"type": "multiple_of", "value": 8}] },
+      "S2": { "type": "int", "min": 80, "max": 300, "constraints": [{"type": "multiple_of", "value": 8}] },
+      "conditions": "S1 % T1 == 0 and S2 % (S1 // T1) == 0 and S2 // (S1 // T1) > 0"
+    }
+  },
+
+
+  {
+    "textbook_id": 1,
+    "name": "73 Геологи — общий путь",
+    "question_template": "Геологи {T1} ч летели на вертолёте со скоростью {V1} км/ч, а затем ехали верхом {T2} ч со скоростью {V2} км/ч. Какой путь проделали геологи за это время?",
+    "answer_template": "{T1 * V1 + T2 * V2}",
+    "parameters": {
+      "T1": { "type": "int", "min": 2, "max": 5 },
+      "V1": { "type": "int", "min": 60, "max": 120, "constraints": [{"type": "multiple_of", "value": 10}] },
+      "T2": { "type": "int", "min": 1, "max": 3 },
+      "V2": { "type": "int", "min": 10, "max": 25, "constraints": [{"type": "multiple_of", "value": 1}] }
+    }
+  },
+
+  
+  {
+    "textbook_id": 1,
+    "name": "74.а Арифметика",
+    "question_template": "Выполните: {A} - {B} + {C}",
+    "answer_template": "{A - B + C}",
+    "parameters": {
+      "A": { "type": "int", "min": 100, "max": 200 },
+      "B": { "type": "int", "min": 20, "max": 90 },
+      "C": { "type": "int", "min": 30, "max": 100 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "74.б Арифметика (умножение)",
+    "question_template": "Выполните: {A} × {B}",
+    "answer_template": "{A * B}",
+    "parameters": {
+      "A": { "type": "int", "min": 6, "max": 9 },
+      "B": { "type": "int", "min": 20000, "max": 30000 }
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "74.в Арифметика (сложение и деление)",
+    "question_template": "Выполните: {A} + {B} : {C}",
+    "answer_template": "{A + (B // C)}",
+    "parameters": {
+      "A": { "type": "int", "min": 100, "max": 200 },
+      "B": { "type": "int", "min": 1000, "max": 4000 },
+      "C": { "type": "int", "min": 5, "max": 20 },
+      "conditions": "B % C == 0 and (B // C) > 0 and A + (B // C) > 0"
+    }
+  },
+  {
+    "textbook_id": 1,
+    "name": "74.г Арифметика (сложение и деление в скобках)",
+    "question_template": "Выполните: ({A} + {B}) : {C}",
+    "answer_template": "{(A + B) // C}",
+    "parameters": {
+      "A": { "type": "int", "min": 1000, "max": 2000 },
+      "B": { "type": "int", "min": 200, "max": 500 },
+      "C": { "type": "int", "min": 5, "max": 50 },
+      "conditions": "(A + B) % C == 0 and (A + B) // C > 0"
+    }
+  }
+
+]
