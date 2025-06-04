@@ -1,0 +1,179 @@
+[
+{
+  "textbook_id": 4,
+  "name": "1.1 Среднее арифметическое двух чисел на координатной прямой",
+  "question_template": "На координатной прямой отмечены числа {A} и {B}. Найдите их среднее арифметическое и укажите это число на прямой.",
+  "answer_template": "{round((A + B) / 2, 2)}",
+  "parameters": {
+    "A": { "type": "float", "min": 2, "max": 10, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "B": { "type": "float", "min": 11, "max": 20, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.2 Среднее арифметическое координат на отрезке",
+  "question_template": "На прямой NM = NK. Координаты точек N и K равны {N} и {K}. Найдите координату точки M (симметрично относительно N), а также среднее арифметическое координат M и K.",
+  "answer_template": "{round(N - abs(K - N), 2)}; {round(((N - abs(K - N)) + K) / 2, 2)}",
+  "parameters": {
+    "N": { "type": "float", "min": 5, "max": 15, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "K": { "type": "float", "min": 8, "max": 20, "constraints": [{"type": "multiple_of", "value": 0.1}], "conditions": "K > N" }
+  }
+},
+  {
+    "textbook_id": 4,
+    "name": "1.3а Среднее арифметическое двух чисел",
+    "question_template": "Найдите среднее арифметическое чисел: {A} и {B}",
+    "answer_template": "{round((A + B) / 2, 2)}",
+    "parameters": {
+      "A": { "type": "float", "min": 10, "max": 99, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+      "B": { "type": "float", "min": 10, "max": 99, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+    }
+  },
+  {
+    "textbook_id": 4,
+    "name": "1.3б Среднее арифметическое трёх чисел",
+    "question_template": "Найдите среднее арифметическое чисел: {A}, {B} и {C}",
+    "answer_template": "{round((A + B + C) / 3, 3)}",
+    "parameters": {
+      "A": { "type": "float", "min": 0.1, "max": 1, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+      "B": { "type": "float", "min": 0.1, "max": 1, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+      "C": { "type": "float", "min": 0.1, "max": 1, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+    }
+  },
+  {
+    "textbook_id": 4,
+    "name": "1.3в Среднее арифметическое четырёх чисел",
+    "question_template": "Найдите среднее арифметическое чисел: {A}, {B}, {C}, {D}",
+    "answer_template": "{round((A + B + C + D) / 4, 3)}",
+    "parameters": {
+      "A": { "type": "float", "min": 2, "max": 3, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+      "B": { "type": "float", "min": 2, "max": 3, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+      "C": { "type": "float", "min": 2, "max": 3, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+      "D": { "type": "float", "min": 2, "max": 3, "constraints": [{"type": "multiple_of", "value": 0.01}] }
+    }
+  },
+  {
+    "textbook_id": 4,
+    "name": "1.3г Среднее арифметическое пяти чисел",
+    "question_template": "Найдите среднее арифметическое чисел: {A}, {B}, {C}, {D}, {E}",
+    "answer_template": "{round((A + B + C + D + E) / 5, 3)}",
+    "parameters": {
+      "A": { "type": "float", "min": 5, "max": 9, "constraints": [{"type": "multiple_of", "value": 0.001}] },
+      "B": { "type": "float", "min": 5, "max": 9, "constraints": [{"type": "multiple_of", "value": 0.001}] },
+      "C": { "type": "float", "min": 5, "max": 9, "constraints": [{"type": "multiple_of", "value": 0.001}] },
+      "D": { "type": "float", "min": 5, "max": 9, "constraints": [{"type": "multiple_of", "value": 0.001}] },
+      "E": { "type": "float", "min": 5, "max": 9, "constraints": [{"type": "multiple_of", "value": 0.001}] }
+    }
+  },
+  {
+  "textbook_id": 4,
+  "name": "1.4 Средняя температура за неделю",
+  "question_template": "За неделю были зафиксированы температуры в 12:00: {T1}; {T2}; {T3}; {T4}; {T5}; {T6}; {T7} (°C). Найдите среднюю температуру недели, округлите до десятых.",
+  "answer_template": "{round((T1 + T2 + T3 + T4 + T5 + T6 + T7) / 7, 1)}",
+  "parameters": {
+    "T1": { "type": "float", "min": 2.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "T2": { "type": "float", "min": 2.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "T3": { "type": "float", "min": 2.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "T4": { "type": "float", "min": 2.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "T5": { "type": "float", "min": 2.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "T6": { "type": "float", "min": 2.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "T7": { "type": "float", "min": 2.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.5 Средняя оценка за четверть",
+  "question_template": "У ученика за четверть по литературе оценки: {A}, {B}, {C}, {D}, {E}, {F}, {G}, {H}. Найдите среднюю оценку за четверть.",
+  "answer_template": "{round((A + B + C + D + E + F + G + H) / 8, 2)}",
+  "parameters": {
+    "A": { "type": "int", "min": 3, "max": 5 },
+    "B": { "type": "int", "min": 3, "max": 5 },
+    "C": { "type": "int", "min": 3, "max": 5 },
+    "D": { "type": "int", "min": 3, "max": 5 },
+    "E": { "type": "int", "min": 3, "max": 5 },
+    "F": { "type": "int", "min": 3, "max": 5 },
+    "G": { "type": "int", "min": 3, "max": 5 },
+    "H": { "type": "int", "min": 3, "max": 5 }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.6 Среднее арифметическое с округлением до сотых",
+  "question_template": "Чему равно среднее арифметическое чисел: {A}; {B}; {C}; {D}; {E}? Округлите до сотых.",
+  "answer_template": "{round((A + B + C + D + E) / 5, 2)}",
+  "parameters": {
+    "A": { "type": "float", "min": 42.00, "max": 43.00, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "B": { "type": "float", "min": 42.00, "max": 43.00, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "C": { "type": "float", "min": 42.00, "max": 43.00, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "D": { "type": "float", "min": 42.00, "max": 43.00, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "E": { "type": "float", "min": 42.00, "max": 43.00, "constraints": [{"type": "multiple_of", "value": 0.01}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.7 Средняя скорость пешехода на пути с разными скоростями",
+  "question_template": "Пешеход шёл {T1} ч со скоростью {V1} км/ч, {T2} ч со скоростью {V2} км/ч и {T3} ч со скоростью {V3} км/ч. Чему равна средняя скорость пешехода на всём пути? Округлите до десятых.",
+  "answer_template": "{round((T1 * V1 + T2 * V2 + T3 * V3) / (T1 + T2 + T3), 1)}",
+  "parameters": {
+    "T1": { "type": "int", "min": 1, "max": 3 },
+    "T2": { "type": "int", "min": 1, "max": 3 },
+    "T3": { "type": "int", "min": 1, "max": 2 },
+    "V1": { "type": "float", "min": 4.5, "max": 6.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "V2": { "type": "float", "min": 4.0, "max": 5.5, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "V3": { "type": "float", "min": 3.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.8 Средняя скорость теплохода по участкам",
+  "question_template": "Теплоход двигался {T1} ч по озеру со скоростью {V1} м/мин, затем {T2} ч по реке со скоростью {V2} км/ч, и наконец {T3} ч по заливу со скоростью {V3} км/ч. Найдите среднюю скорость движения теплохода на всём пути. Ответ округлите до десятых.",
+  "answer_template": "{round(((T1 * V1 * 60) + (T2 * V2 * 1000) + (T3 * V3 * 1000)) / ((T1 + T2 + T3) * 60), 1)}",
+  "parameters": {
+    "T1": { "type": "float", "min": 1.0, "max": 3.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "T2": { "type": "float", "min": 1.0, "max": 3.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "T3": { "type": "float", "min": 0.5, "max": 2.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "V1": { "type": "float", "min": 80.0, "max": 120.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "V2": { "type": "float", "min": 20.0, "max": 30.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "V3": { "type": "float", "min": 8.0, "max": 15.0, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.9 Средняя скорость черепахи",
+  "question_template": "Черепаха бежала {T1} мин со скоростью {V1} м/мин и {T2} мин со скоростью {V2} м/мин. Найдите среднюю скорость на всём пути. Округлите до десятых.",
+  "answer_template": "{round((T1 * V1 + T2 * V2) / (T1 + T2), 1)}",
+  "parameters": {
+    "T1": { "type": "int", "min": 3, "max": 6 },
+    "T2": { "type": "int", "min": 1, "max": 5 },
+    "V1": { "type": "float", "min": 60, "max": 90, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "V2": { "type": "float", "min": 90, "max": 120, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.10 Средняя урожайность двух полей",
+  "question_template": "На первом поле собрали {H1} ц помидоров с {S1} га, а на втором — {H2} ц с {S2} га. Найдите урожайность каждого поля (ц/га) и среднюю урожайность двух полей. Ответ округлите до сотых.",
+  "answer_template": "{round(H1 / S1, 2)}; {round(H2 / S2, 2)}; {round(((H1 / S1) + (H2 / S2)) / 2, 2)}",
+  "parameters": {
+    "H1": { "type": "int", "min": 4000, "max": 6000 },
+    "H2": { "type": "int", "min": 4000, "max": 6000 },
+    "S1": { "type": "int", "min": 20, "max": 40 },
+    "S2": { "type": "int", "min": 20, "max": 40 }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.11 Найти второе число по среднему",
+  "question_template": "Первое число равно {A}. Среднее арифметическое двух чисел равно {S}. Чему равно второе число?",
+  "answer_template": "{round2 * S - A}",
+  "parameters": {
+    "A": { "type": "float", "min": 1, "max": 10, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "S": { "type": "float", "min": 2, "max": 15, "constraints": [{"type": "multiple_of", "value": 0.1}], "conditions": "S > A / 2" }
+  }
+}
+
+
+
+
+
+]

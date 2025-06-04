@@ -1,0 +1,522 @@
+[
+{
+  "textbook_id": 4,
+  "name": "1.1 Среднее арифметическое двух чисел на координатной прямой",
+  "question_template": "На координатной прямой отмечены числа {A} и {B}. Найдите их среднее арифметическое и укажите это число на прямой.",
+  "answer_template": "{round((A + B) / 2, 2)}",
+  "parameters": {
+    "A": { "type": "float", "min": 2, "max": 10, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "B": { "type": "float", "min": 11, "max": 20, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.2 Среднее арифметическое координат на отрезке",
+  "question_template": "На прямой NM = NK. Координаты точек N и K равны {N} и {K}. Найдите координату точки M (симметрично относительно N), а также среднее арифметическое координат M и K.",
+  "answer_template": "{round(N - abs(K - N), 2)}; {round(((N - abs(K - N)) + K) / 2, 2)}",
+  "parameters": {
+    "N": { "type": "float", "min": 5, "max": 15, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "K": { "type": "float", "min": 8, "max": 20, "constraints": [{"type": "multiple_of", "value": 0.1}], "conditions": "K > N" }
+  }
+},
+  {
+    "textbook_id": 4,
+    "name": "1.3а Среднее арифметическое двух чисел",
+    "question_template": "Найдите среднее арифметическое чисел: {A} и {B}",
+    "answer_template": "{round((A + B) / 2, 2)}",
+    "parameters": {
+      "A": { "type": "float", "min": 10, "max": 99, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+      "B": { "type": "float", "min": 10, "max": 99, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+    }
+  },
+  {
+    "textbook_id": 4,
+    "name": "1.3б Среднее арифметическое трёх чисел",
+    "question_template": "Найдите среднее арифметическое чисел: {A}, {B} и {C}",
+    "answer_template": "{round((A + B + C) / 3, 3)}",
+    "parameters": {
+      "A": { "type": "float", "min": 0.1, "max": 1, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+      "B": { "type": "float", "min": 0.1, "max": 1, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+      "C": { "type": "float", "min": 0.1, "max": 1, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+    }
+  },
+  {
+    "textbook_id": 4,
+    "name": "1.3в Среднее арифметическое четырёх чисел",
+    "question_template": "Найдите среднее арифметическое чисел: {A}, {B}, {C}, {D}",
+    "answer_template": "{round((A + B + C + D) / 4, 3)}",
+    "parameters": {
+      "A": { "type": "float", "min": 2, "max": 3, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+      "B": { "type": "float", "min": 2, "max": 3, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+      "C": { "type": "float", "min": 2, "max": 3, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+      "D": { "type": "float", "min": 2, "max": 3, "constraints": [{"type": "multiple_of", "value": 0.01}] }
+    }
+  },
+  {
+    "textbook_id": 4,
+    "name": "1.3г Среднее арифметическое пяти чисел",
+    "question_template": "Найдите среднее арифметическое чисел: {A}, {B}, {C}, {D}, {E}",
+    "answer_template": "{round((A + B + C + D + E) / 5, 3)}",
+    "parameters": {
+      "A": { "type": "float", "min": 5, "max": 9, "constraints": [{"type": "multiple_of", "value": 0.001}] },
+      "B": { "type": "float", "min": 5, "max": 9, "constraints": [{"type": "multiple_of", "value": 0.001}] },
+      "C": { "type": "float", "min": 5, "max": 9, "constraints": [{"type": "multiple_of", "value": 0.001}] },
+      "D": { "type": "float", "min": 5, "max": 9, "constraints": [{"type": "multiple_of", "value": 0.001}] },
+      "E": { "type": "float", "min": 5, "max": 9, "constraints": [{"type": "multiple_of", "value": 0.001}] }
+    }
+  },
+  {
+  "textbook_id": 4,
+  "name": "1.4 Средняя температура за неделю",
+  "question_template": "За неделю были зафиксированы температуры в 12:00: {T1}; {T2}; {T3}; {T4}; {T5}; {T6}; {T7} (°C). Найдите среднюю температуру недели, округлите до десятых.",
+  "answer_template": "{round((T1 + T2 + T3 + T4 + T5 + T6 + T7) / 7, 1)}",
+  "parameters": {
+    "T1": { "type": "float", "min": 2.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "T2": { "type": "float", "min": 2.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "T3": { "type": "float", "min": 2.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "T4": { "type": "float", "min": 2.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "T5": { "type": "float", "min": 2.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "T6": { "type": "float", "min": 2.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "T7": { "type": "float", "min": 2.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.5 Средняя оценка за четверть",
+  "question_template": "У ученика за четверть по литературе оценки: {A}, {B}, {C}, {D}, {E}, {F}, {G}, {H}. Найдите среднюю оценку за четверть.",
+  "answer_template": "{round((A + B + C + D + E + F + G + H) / 8, 2)}",
+  "parameters": {
+    "A": { "type": "int", "min": 3, "max": 5 },
+    "B": { "type": "int", "min": 3, "max": 5 },
+    "C": { "type": "int", "min": 3, "max": 5 },
+    "D": { "type": "int", "min": 3, "max": 5 },
+    "E": { "type": "int", "min": 3, "max": 5 },
+    "F": { "type": "int", "min": 3, "max": 5 },
+    "G": { "type": "int", "min": 3, "max": 5 },
+    "H": { "type": "int", "min": 3, "max": 5 }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.6 Среднее арифметическое с округлением до сотых",
+  "question_template": "Чему равно среднее арифметическое чисел: {A}; {B}; {C}; {D}; {E}? Округлите до сотых.",
+  "answer_template": "{round((A + B + C + D + E) / 5, 2)}",
+  "parameters": {
+    "A": { "type": "float", "min": 42.00, "max": 43.00, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "B": { "type": "float", "min": 42.00, "max": 43.00, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "C": { "type": "float", "min": 42.00, "max": 43.00, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "D": { "type": "float", "min": 42.00, "max": 43.00, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "E": { "type": "float", "min": 42.00, "max": 43.00, "constraints": [{"type": "multiple_of", "value": 0.01}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.7 Средняя скорость пешехода на пути с разными скоростями",
+  "question_template": "Пешеход шёл {T1} ч со скоростью {V1} км/ч, {T2} ч со скоростью {V2} км/ч и {T3} ч со скоростью {V3} км/ч. Чему равна средняя скорость пешехода на всём пути? Округлите до десятых.",
+  "answer_template": "{round((T1 * V1 + T2 * V2 + T3 * V3) / (T1 + T2 + T3), 1)}",
+  "parameters": {
+    "T1": { "type": "int", "min": 1, "max": 3 },
+    "T2": { "type": "int", "min": 1, "max": 3 },
+    "T3": { "type": "int", "min": 1, "max": 2 },
+    "V1": { "type": "float", "min": 4.5, "max": 6.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "V2": { "type": "float", "min": 4.0, "max": 5.5, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "V3": { "type": "float", "min": 3.5, "max": 5.0, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.8 Средняя скорость теплохода по участкам",
+  "question_template": "Теплоход двигался {T1} ч по озеру со скоростью {V1} м/мин, затем {T2} ч по реке со скоростью {V2} км/ч, и наконец {T3} ч по заливу со скоростью {V3} км/ч. Найдите среднюю скорость движения теплохода на всём пути. Ответ округлите до десятых.",
+  "answer_template": "{round(((T1 * V1 * 60) + (T2 * V2 * 1000) + (T3 * V3 * 1000)) / ((T1 + T2 + T3) * 60), 1)}",
+  "parameters": {
+    "T1": { "type": "float", "min": 1.0, "max": 3.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "T2": { "type": "float", "min": 1.0, "max": 3.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "T3": { "type": "float", "min": 0.5, "max": 2.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "V1": { "type": "float", "min": 80.0, "max": 120.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "V2": { "type": "float", "min": 20.0, "max": 30.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "V3": { "type": "float", "min": 8.0, "max": 15.0, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.9 Средняя скорость черепахи",
+  "question_template": "Черепаха бежала {T1} мин со скоростью {V1} м/мин и {T2} мин со скоростью {V2} м/мин. Найдите среднюю скорость на всём пути. Округлите до десятых.",
+  "answer_template": "{round((T1 * V1 + T2 * V2) / (T1 + T2), 1)}",
+  "parameters": {
+    "T1": { "type": "int", "min": 3, "max": 6 },
+    "T2": { "type": "int", "min": 1, "max": 5 },
+    "V1": { "type": "float", "min": 60, "max": 90, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "V2": { "type": "float", "min": 90, "max": 120, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.10 Средняя урожайность двух полей",
+  "question_template": "На первом поле собрали {H1} ц помидоров с {S1} га, а на втором — {H2} ц с {S2} га. Найдите урожайность каждого поля (ц/га) и среднюю урожайность двух полей. Ответ округлите до сотых.",
+  "answer_template": "{round(H1 / S1, 2)}; {round(H2 / S2, 2)}; {round(((H1 / S1) + (H2 / S2)) / 2, 2)}",
+  "parameters": {
+    "H1": { "type": "int", "min": 4000, "max": 6000 },
+    "H2": { "type": "int", "min": 4000, "max": 6000 },
+    "S1": { "type": "int", "min": 20, "max": 40 },
+    "S2": { "type": "int", "min": 20, "max": 40 }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.11 Найти второе число по среднему",
+  "question_template": "Первое число равно {A}. Среднее арифметическое двух чисел равно {S}. Чему равно второе число?",
+  "answer_template": "{round(2 * S - A, 2)}",
+  "parameters": {
+    "A": { "type": "float", "min": 1, "max": 10, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "S": { "type": "float", "min": 2, "max": 15, "constraints": [{"type": "multiple_of", "value": 0.1}], "conditions": "S > A / 2" }
+  }
+},
+  {
+    "textbook_id": 4,
+    "name": "1.13 Найти скорость на первом участке",
+    "question_template": "На первом участке лыжник шёл {T1} ч с некоторой скоростью, а на втором — {T2} ч со скоростью {V2} км/ч. Средняя скорость на всём пути была {Vavg} км/ч. Найдите скорость на первом участке.",
+    "answer_template": "{round((Vavg * (T1 + T2) - T2 * V2) / T1, 2)}",
+    "parameters": {
+      "T1": { "type": "int", "min": 2, "max": 4 },
+      "T2": { "type": "int", "min": 1, "max": 3 },
+      "V2": { "type": "int", "min": 20, "max": 30 },
+      "Vavg": { "type": "int", "min": 25, "max": 35 }
+    }
+  },
+  {
+    "textbook_id": 4,
+    "name": "1.14 Найти скорость теплохода и течения",
+    "question_template": "Скорость по течению — {Vp} км/ч, против течения — {Vm} км/ч. Найдите собственную скорость теплохода и скорость течения.",
+    "answer_template": "{round((Vp + Vm) / 2, 2)}; {round((Vp - Vm) / 2, 2)}",
+    "parameters": {
+      "Vp": { "type": "float", "min": 20.0, "max": 25.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+      "Vm": { "type": "float", "min": 10.0, "max": 20.0, "constraints": [{"type": "multiple_of", "value": 0.1}], "conditions": "Vp > Vm" }
+    }
+  },
+  {
+    "textbook_id": 4,
+    "name": "1.15 Найти два числа по среднему и соотношению",
+    "question_template": "Среднее арифметическое двух чисел равно {S}. Одно из чисел в {K} раза меньше другого. Найдите оба числа.",
+    "answer_template": "{round(2 * S / (1 + K), 2)}; {round((2 * S * K) / (1 + K), 2)}",
+    "parameters": {
+      "S": { "type": "int", "min": 30, "max": 60 },
+      "K": { "type": "float", "min": 1.5, "max": 3.0, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+    }
+  },
+  {
+  "textbook_id": 4,
+  "name": "1.16а Деление десятичных чисел",
+  "question_template": "Вычислите: {A1} : {B1}; {A2} : {B2}; {A3} : {B3}; {A4} : {B4}; {A5} : {B5}.",
+  "answer_template": "{round(A1 / B1, 2)}; {round(A2 / B2, 2)}; {round(A3 / B3, 2)}; {round(A4 / B4, 2)}; {round(A5 / B5, 2)}",
+  "parameters": {
+    "A1": { "type": "float", "min": 28.0, "max": 40.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "B1": { "type": "float", "min": 4.0, "max": 6.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "A2": { "type": "float", "min": 3.0, "max": 6.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "B2": { "type": "float", "min": 1.5, "max": 3.5, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "A3": { "type": "float", "min": 5.0, "max": 8.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "B3": { "type": "int", "min": 8, "max": 12 },
+    "A4": { "type": "float", "min": 0.2, "max": 1.2, "constraints": [{"type": "multiple_of", "value": 0.02}] },
+    "B4": { "type": "int", "min": 5, "max": 12 },
+    "A5": { "type": "float", "min": 0.5, "max": 1.2, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "B5": { "type": "int", "min": 60, "max": 120, "constraints": [{"type": "multiple_of", "value": 10}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.16б Умножение с десятичными",
+  "question_template": "Вычислите: {A1} · {B1}; {A2} · {B2}; {A3} · {B3}; {A4} · {B4}; {A5} · {B5}.",
+  "answer_template": "{round(A1 * B1, 2)}; {round(A2 * B2, 2)}; {round(A3 * B3, 2)}; {round(A4 * B4, 2)}; {round(A5 * B5, 2)}",
+  "parameters": {
+    "A1": { "type": "int", "min": 8, "max": 15 },
+    "B1": { "type": "float", "min": 0.1, "max": 0.3, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "A2": { "type": "int", "min": 1, "max": 3 },
+    "B2": { "type": "float", "min": 0.1, "max": 0.15, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "A3": { "type": "int", "min": 30, "max": 45 },
+    "B3": { "type": "float", "min": 0.01, "max": 0.05, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "A4": { "type": "int", "min": 25, "max": 40 },
+    "B4": { "type": "float", "min": 0.3, "max": 0.6, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "A5": { "type": "float", "min": 0.4, "max": 0.8, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "B5": { "type": "int", "min": 30, "max": 60 }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.16в Деление десятичных чисел",
+  "question_template": "Вычислите: {A1} : {B1}; {A2} : {B2}; {A3} : {B3}; {A4} : {B4}; {A5} : {B5}.",
+  "answer_template": "{round(A1 / B1, 2)}; {round(A2 / B2, 2)}; {round(A3 / B3, 2)}; {round(A4 / B4, 2)}; {round(A5 / B5, 2)}",
+  "parameters": {
+    "A1": { "type": "float", "min": 0.5, "max": 2.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "B1": { "type": "int", "min": 4, "max": 7 },
+    "A2": { "type": "int", "min": 6, "max": 12 },
+    "B2": { "type": "int", "min": 2, "max": 5 },
+    "A3": { "type": "float", "min": 20.0, "max": 27.0, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "B3": { "type": "float", "min": 20.0, "max": 27.0, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "A4": { "type": "float", "min": 18.0, "max": 28.0, "constraints": [{"type": "multiple_of", "value": 0.25}] },
+    "B4": { "type": "int", "min": 18, "max": 30 },
+    "A5": { "type": "float", "min": 0.8, "max": 1.2, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "B5": { "type": "int", "min": 10, "max": 20 }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.16г Сложение и вычитание с десятичными",
+  "question_template": "Вычислите: {A1} - {B1}; {A2} - {B2}; {A3} + {B3}; {A4} + {B4}; {A5} - {B5}.",
+  "answer_template": "{round(A1 - B1, 2)}; {round(A2 - B2, 2)}; {round(A3 + B3, 2)}; {round(A4 + B4, 2)}; {round(A5 - B5, 2)}",
+  "parameters": {
+    "A1": { "type": "float", "min": 6.0, "max": 8.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "B1": { "type": "float", "min": 2.0, "max": 3.5, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "A2": { "type": "int", "min": 5, "max": 10 },
+    "B2": { "type": "float", "min": 0.01, "max": 0.2, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "A3": { "type": "float", "min": 2.5, "max": 4.0, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "B3": { "type": "float", "min": 0.1, "max": 0.3, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "A4": { "type": "float", "min": 2.0, "max": 3.5, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "B4": { "type": "float", "min": 0.05, "max": 0.09, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "A5": { "type": "float", "min": 6.0, "max": 10.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "B5": { "type": "float", "min": 2.0, "max": 4.0, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.17а Найдите частное (рандом)",
+  "question_template": "Найдите частное: {A} : {B}.",
+  "answer_template": "{round(A / B, 2)}",
+  "parameters": {
+    "A": { "type": "int", "min": 40, "max": 80, "constraints": [{"type": "multiple_of", "value": 10}] },
+    "B": { "type": "float", "min": 0.5, "max": 0.9, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.17б Найдите частное (рандом)",
+  "question_template": "Найдите частное: {A} : {B}.",
+  "answer_template": "{round(A / B, 2)}",
+  "parameters": {
+    "A": { "type": "float", "min": 0.7, "max": 1.2, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "B": { "type": "float", "min": 0.2, "max": 0.5, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.17в Найдите частное (рандом)",
+  "question_template": "Найдите частное: {A} : {B}.",
+  "answer_template": "{round(A / B, 2)}",
+  "parameters": {
+    "A": { "type": "int", "min": 20, "max": 60, "constraints": [{"type": "multiple_of", "value": 10}] },
+    "B": { "type": "float", "min": 0.2, "max": 0.4, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.17г Найдите частное (рандом)",
+  "question_template": "Найдите частное: {A} : {B}.",
+  "answer_template": "{round(A / B, 2)}",
+  "parameters": {
+    "A": { "type": "int", "min": 90, "max": 200, "constraints": [{"type": "multiple_of", "value": 10}] },
+    "B": { "type": "float", "min": 0.1, "max": 0.2, "constraints": [{"type": "multiple_of", "value": 0.01}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.17д Найдите частное (рандом)",
+  "question_template": "Найдите частное: {A} : {B}.",
+  "answer_template": "{round(A / B, 2)}",
+  "parameters": {
+    "A": { "type": "int", "min": 800, "max": 1500, "constraints": [{"type": "multiple_of", "value": 100}] },
+    "B": { "type": "float", "min": 0.01, "max": 0.09, "constraints": [{"type": "multiple_of", "value": 0.01}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.17е Найдите частное (рандом)",
+  "question_template": "Найдите частное: {A} : {B}.",
+  "answer_template": "{round(A / B, 2)}",
+  "parameters": {
+    "A": { "type": "int", "min": 8, "max": 24, "constraints": [{"type": "multiple_of", "value": 2}] },
+    "B": { "type": "float", "min": 0.2, "max": 0.5, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.17ж Найдите частное (рандом)",
+  "question_template": "Найдите частное: {A} : {B}.",
+  "answer_template": "{round(A / B, 2)}",
+  "parameters": {
+    "A": { "type": "float", "min": 0.35, "max": 0.8, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "B": { "type": "float", "min": 0.6, "max": 1.2, "constraints": [{"type": "multiple_of", "value": 0.01}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.17з Найдите частное (рандом)",
+  "question_template": "Найдите частное: {A} : {B}.",
+  "answer_template": "{round(A / B, 2)}",
+  "parameters": {
+    "A": { "type": "float", "min": 0.05, "max": 0.2, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "B": { "type": "float", "min": 0.01, "max": 0.05, "constraints": [{"type": "multiple_of", "value": 0.01}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.17и Найдите частное (рандом)",
+  "question_template": "Найдите частное: {A} : {B}.",
+  "answer_template": "{round(A / B, 2)}",
+  "parameters": {
+    "A": { "type": "float", "min": 0.5, "max": 1.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "B": { "type": "float", "min": 0.2, "max": 0.5, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.21 Длина забора по шагам",
+  "question_template": "Для расчёта количества материалов для забора Петя сосчитал, что расстояние между двумя соседними столбиками забора равно {steps_per_gap} его шагам, а столбиков всего {posts_count}. Чему равна длина забора, если один шаг составляет {step_length} м? Сколько решений имеет задача?",
+  "answer_template": "{round((posts_count - 1) * steps_per_gap * step_length, 2)}; 1",
+  "parameters": {
+    "steps_per_gap": { "type": "int", "min": 2, "max": 7, "constraints": [{"type": "multiple_of", "value": 1}] },
+    "posts_count": { "type": "int", "min": 10, "max": 50, "constraints": [{"type": "multiple_of", "value": 1}] },
+    "step_length": { "type": "float", "min": 0.3, "max": 1.0, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "conditions": "posts_count > 2 and steps_per_gap * step_length < 5"
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.22а Деление десятичных чисел (результат до 2 знаков после запятой)",
+  "question_template": "Вычислите: {A} : {B}.",
+  "answer_template": "{round(A / B, 2)}",
+  "parameters": {
+    "A": { "type": "float", "min": 0.26, "max": 0.9, "constraints": [{"type": "multiple_of", "value": 0.002}] },
+    "B": { "type": "float", "min": 0.13, "max": 0.45, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "conditions": "round(A / B, 2) == round(A / B, 1) or round(A / B, 2) == int(A / B) or (A / B * 10) % 1 == 0"
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.22б Деление десятичных чисел",
+  "question_template": "Вычислите: {A} : {B}.",
+  "answer_template": "{round(A / B, 1)}",
+  "parameters": {
+    "A": { "type": "float", "min": 0.425, "max": 1.5, "constraints": [{"type": "multiple_of", "value": 0.0025}] },
+    "B": { "type": "float", "min": 0.2, "max": 0.7, "constraints": [{"type": "multiple_of", "value": 0.005}] },
+    "conditions": "A > B and (round(A / B, 1) == A / B or round(A / B, 1) * 10 % 1 == 0)"
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.22в Деление десятичных чисел",
+  "question_template": "Вычислите: {A} : {B}.",
+  "answer_template": "{round(A / B, 1)}",
+  "parameters": {
+    "A": { "type": "float", "min": 2.0, "max": 9.0, "constraints": [{"type": "multiple_of", "value": 0.001}] },
+    "B": { "type": "float", "min": 2.0, "max": 9.0, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "conditions": "round(A / B, 1) == A / B or (A / B * 10) % 1 == 0"
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.22г Деление десятичных чисел",
+  "question_template": "Вычислите: {A} : {B}.",
+  "answer_template": "{int(A / B)}",
+  "parameters": {
+    "A": { "type": "float", "min": 0.1, "max": 1.0, "constraints": [{"type": "multiple_of", "value": 0.001}] },
+    "B": { "type": "float", "min": 0.01, "max": 0.1, "constraints": [{"type": "multiple_of", "value": 0.001}] },
+    "conditions": "A / B == int(A / B)"
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.22д Деление десятичных чисел",
+  "question_template": "Вычислите: {A} : {B}.",
+  "answer_template": "{round(A / B, 2)}",
+  "parameters": {
+    "A": { "type": "float", "min": 40.0, "max": 100.0, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+    "B": { "type": "int", "min": 10, "max": 50, "constraints": [{"type": "multiple_of", "value": 1}] },
+    "conditions": "round(A / B, 2) == A / B or (A / B * 100) % 1 == 0"
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.22е Деление десятичных чисел",
+  "question_template": "Вычислите: {A} : {B}.",
+  "answer_template": "{round(A / B, 1)}",
+  "parameters": {
+    "A": { "type": "float", "min": 100.0, "max": 200.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "B": { "type": "int", "min": 100, "max": 200, "constraints": [{"type": "multiple_of", "value": 1}] },
+    "conditions": "A < B and (round(A / B, 1) == A / B or (A / B * 10) % 1 == 0)"
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.23а Линейное уравнение с x",
+  "question_template": "Найдите корень уравнения: {A}·x + {B} = {C}.",
+  "answer_template": "{round((C - B) / A, 1)}",
+  "parameters": {
+    "A": { "type": "float", "min": 1.0, "max": 8.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "B": { "type": "float", "min": 0.0, "max": 10.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "C": { "type": "float", "min": 2.0, "max": 20.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "conditions": "C > B and A > 0 and round((C - B) / A, 1) > 0 and round((C - B) / A, 1) <= 10"
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.23б Линейное уравнение с y",
+  "question_template": "Найдите корень уравнения: {A}·y – ({B}·y + {C}) = {D}.",
+  "answer_template": "{round((D + C) / (A - B), 1)}",
+  "parameters": {
+    "A": { "type": "float", "min": 6.0, "max": 12.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "B": { "type": "float", "min": 2.0, "max": 5.9, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "C": { "type": "float", "min": 2.0, "max": 15.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "D": { "type": "float", "min": 1.0, "max": 7.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "conditions": "A > B and (A - B) > 0 and round((D + C) / (A - B), 1) > 0 and round((D + C) / (A - B), 1) <= 10"
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.23в Линейное уравнение с z",
+  "question_template": "Найдите корень уравнения: ({A} – z) · {B} = {C}.",
+  "answer_template": "{round(A - (C / B), 1)}",
+  "parameters": {
+    "A": { "type": "float", "min": 6.0, "max": 12.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "B": { "type": "float", "min": 2.0, "max": 7.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "C": { "type": "float", "min": 2.0, "max": 30.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "conditions": "B > 0 and (C / B) < A and round(A - (C / B), 1) > 0 and round(A - (C / B), 1) <= 10"
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.23г Линейное уравнение с p",
+   "question_template": "Найдите корень уравнения: ({A} – p) · {B} = {C}.",
+  "answer_template": "{round(A - (C / B), 1)}",
+  "parameters": {
+    "A": { "type": "float", "min": 9.0, "max": 15.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "B": { "type": "float", "min": 2.0, "max": 7.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "C": { "type": "float", "min": 5.0, "max": 40.0, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "conditions": "B > 0 and (C / B) < A and round(A - (C / B), 1) > 0 and round(A - (C / B), 1) <= 12"
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.24 Площадь парка (по доле площади)",
+  "question_template": "Центр аттракционов занимает {A} м², что составляет {F} всей площади парка. Найдите площадь парка и выразите её в квадратных километрах.",
+  "answer_template": "{round(A / F / 1_000_000, 2)}",
+  "parameters": {
+    "A": { "type": "int", "min": 5_000, "max": 50_000, "constraints": [{"type": "multiple_of", "value": 100}] },
+    "F": { "type": "float", "min": 0.005, "max": 0.02, "constraints": [{"type": "multiple_of", "value": 0.001}] },
+    "conditions": "A > 0 and F > 0 and round(A / F / 1_000_000, 2) > 0"
+  }
+},
+{
+  "textbook_id": 4,
+  "name": "1.25 Расстояние между автомобилями до сближения",
+  "question_template": "В {t1} ч легковой автомобиль догнал грузовой, а в {t2} ч был впереди него на {S} км. Какое расстояние было между автомобилями в {t3} ч того же дня, если скорость легкового автомобиля {V} км/ч? Есть ли в условии лишние данные?",
+  "answer_template": "{round(V * (t1 - t3), 2)}; да",
+  "parameters": {
+    "t1": { "type": "int", "min": 8, "max": 14, "constraints": [{"type": "multiple_of", "value": 1}] },
+    "t2": { "type": "int", "min": 16, "max": 22, "constraints": [{"type": "multiple_of", "value": 1}] },
+    "t3": { "type": "int", "min": 1, "max": 7, "constraints": [{"type": "multiple_of", "value": 1}] },
+    "V": { "type": "int", "min": 40, "max": 90, "constraints": [{"type": "multiple_of", "value": 1}] },
+    "S": { "type": "int", "min": 100, "max": 300, "constraints": [{"type": "multiple_of", "value": 10}] },
+    "conditions": "t1 > t3 and t2 > t1"
+  }
+}
+
+
+]
