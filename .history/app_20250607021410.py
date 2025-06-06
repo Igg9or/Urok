@@ -799,6 +799,8 @@ def save_answer():
         conn.commit()
         return jsonify({'success': True})
     except Exception as e:
+        import traceback
+        traceback.print_exc()  # ВЫВОДИТ ОШИБКУ В КОНСОЛЬ
         conn.rollback()
         return jsonify({'error': str(e)}), 500
     finally:
@@ -1286,44 +1288,23 @@ def generate_task():
 
 @app.route('/api/check_answer', methods=['POST'])
 def api_check_answer():
-    import re
     try:
         data = request.get_json()
-        user_answer = data['answer']
+        user_answer = data['answer'].replace(" ", "")
         correct_answer = data['correct_answer']
         answer_type = data.get('answer_type', 'numeric')
 
-        def normalize(s):
-            """Убирает пробелы и приводит к нижнему регистру."""
-            return ''.join(str(s).lower().split())
-
-        def is_percent_equivalent(user, correct):
-            """Проверяет эквивалентность процентов (70% == 70.0%)."""
-            def to_number(s):
-                s = str(s).replace('%', '').replace(' ', '').replace(',', '.')
-                try:
-                    return float(s)
-                except Exception:
-                    return None
-            user_num = to_number(user)
-            correct_num = to_number(correct)
-            if user_num is not None and correct_num is not None:
-                return abs(user_num - correct_num) < 0.05  # до 1 знака
-            return normalize(user) == normalize(correct)
-
         if answer_type == 'string':
-            is_correct = normalize(user_answer) == normalize(correct_answer)
+            # Сравниваем без учёта регистра и пробелов
+            is_correct = (
+                user_answer.strip().replace(" ", "").lower() ==
+                correct_answer.strip().replace(" ", "").lower()
+            )
             return jsonify({"is_correct": is_correct, "correct_answer": correct_answer})
 
         if answer_type == 'algebraic':
-            # Здесь можно добавить проверку через sympy, если потребуется
-            # from sympy import simplify, sympify
-            # try:
-            #     is_correct = simplify(sympify(user_answer)) == simplify(sympify(correct_answer))
-            # except Exception:
-            #     is_correct = False
-            # return jsonify({"is_correct": is_correct, "correct_answer": correct_answer})
-            pass  # Оставлено для будущей реализации
+            # (тот же как был)
+            ...
 
         try:
             def parse_list(ans):
@@ -1344,21 +1325,13 @@ def api_check_answer():
                 is_correct = all(abs(u - c) < 1e-2 for u, c in zip(user_vals, correct_vals))
 
         except Exception:
-            # 1. Если оба ответа выглядят как проценты — проверяем как проценты
-            if (isinstance(user_answer, str) and '%' in user_answer) or (isinstance(correct_answer, str) and '%' in correct_answer):
-                is_correct = is_percent_equivalent(user_answer, correct_answer)
-            else:
-                # 2. Если не проценты — сравниваем как строки, убирая пробелы и регистр
-                is_correct = normalize(user_answer) == normalize(correct_answer)
+            # Если не получилось разобрать как числа — сравниваем как строки без пробелов и регистра
+            is_correct = user_answer.strip().lower() == correct_answer.strip().lower()
 
         return jsonify({"is_correct": is_correct})
 
     except Exception as e:
-        import traceback; traceback.print_exc()
         return jsonify({"error": str(e)}), 500
-
-
-
 
     
 # В app.py добавить новый маршрут

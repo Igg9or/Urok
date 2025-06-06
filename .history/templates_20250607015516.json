@@ -900,50 +900,5 @@
     "parameters": {
       "F": { "type": "float", "min": 3.000, "max": 3.999, "constraints": [{"type": "multiple_of", "value": 0.001}] }
     }
-  },
-  {
-  "textbook_id": 4,
-  "name": "1.42д Переведите в проценты обыкновенную дробь",
-  "question_template": "Переведите в проценты дробь: \\( \\frac{{num}}{{den}} \\).",
-  "answer_template": "{round(num / den * 100, 1)}%",
-  "parameters": {
-    "num": { "type": "int", "min": 1, "max": 9, "constraints": [{"type": "less_than", "value": "{den}"}] },
-    "den": { "type": "int", "min": 2, "max": 10, "constraints": [{"type": "greater_than", "value": "{num}"}] }
   }
-},
-{
-  "textbook_id": 4,
-  "name": "1.42е Переведите в проценты смешанную дробь",
-  "question_template": "Переведите в проценты дробь: \\( {whole}\\frac{{num}}{{den}} \\).",
-  "answer_template": "{round((whole + num / den) * 100, 1)}%",
-  "parameters": {
-    "whole": { "type": "int", "min": 1, "max": 2 },
-    "num": { "type": "int", "min": 1, "max": 7, "constraints": [{"type": "less_than", "value": "{den}"}] },
-    "den": { "type": "int", "min": 2, "max": 8, "constraints": [{"type": "greater_than", "value": "{num}"}] }
-  }
-},
-{
-  "textbook_id": 4,
-  "name": "1.43 Переведите дроби в десятичные и проценты",
-  "question_template": "Переведите обыкновенные дроби: \\( \\frac{{n1}}{{d1}} \\), \\( \\frac{{n2}}{{d2}} \\), \\( \\frac{{n3}}{{d3}} \\), \\( \\frac{{n4}}{{d4}} \\), \\( \\frac{{n5}}{{d5}} \\) в десятичные дроби и затем в проценты. Ответ в формате: десятичная; проценты; ...",
-  "answer_template": "{round(n1/d1, 3)}; {round(n1/d1*100, 1)}%; {round(n2/d2, 3)}; {round(n2/d2*100, 1)}%; {round(n3/d3, 3)}; {round(n3/d3*100, 1)}%; {round(n4/d4, 3)}; {round(n4/d4*100, 1)}%; {round(n5/d5, 3)}; {round(n5/d5*100, 1)}%",
-  "parameters": {
-    "n1": { "type": "int", "min": 1, "max": 1 },
-    "d1": { "type": "choice", "values": [2, 4, 5, 8, 10, 20] },
-
-    "n2": { "type": "int", "min": 1, "max": 1 },
-    "d2": { "type": "choice", "values": [4, 5, 8, 10, 20] },
-
-    "n3": { "type": "choice", "values": [3, 5, 7, 17] },
-    "d3": { "type": "choice", "values": [5, 8, 10, 20] },
-
-    "n4": { "type": "choice", "values": [3, 5, 7, 9] },
-    "d4": { "type": "choice", "values": [4, 5, 8, 10, 20] },
-
-    "n5": { "type": "choice", "values": [11, 13, 17, 19] },
-    "d5": { "type": "choice", "values": [20, 25, 40] }
-  }
-}
-
-
 ]
