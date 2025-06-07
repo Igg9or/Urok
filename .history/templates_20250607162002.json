@@ -1331,65 +1331,11 @@
     "D3": { "type": "float", "min": 1.0, "max": 8.0, "constraints": [ { "type": "multiple_of", "value": 0.01 } ] }
   },
   "conditions": "((D1 ** 2) / D2 - D3) > 0"
-},
-{
-  "textbook_id": 4,
-  "name": "1.73 Скорость туриста при подъёме в гору",
-  "question_template": "Турист шёл 2 ч по равнине, {T2} ч поднимался в гору и 2.5 ч спускался с горы. Скорость туриста на равнине в 1,5 раза больше скорости при подъёме в гору, а скорость спуска с горы в 2 раза больше скорости при подъёме в гору. Найдите скорость туриста при подъёме в гору, если его средняя скорость на всём пути {V_avg} км/ч.",
-  "answer_template": "{round(V_avg * (2 * 1.5 + T2 + 2.5 * 2) / (2 + T2 + 2.5), 2)}",
-  "parameters": {
-    "T2": { "type": "float", "min": 1.0, "max": 2.0, "constraints": [ { "type": "multiple_of", "value": 0.5 } ] },
-    "V_avg": { "type": "float", "min": 4.5, "max": 5.0, "constraints": [ { "type": "multiple_of", "value": 0.05 } ] }
-  }
-},
-{
-  "textbook_id": 4,
-  "name": "1.74 Сколько денег осталось у Наташи",
-  "question_template": "На покупку тетрадей Наташа потратила 4/15 имевшихся у неё денег. Сколько денег осталось у Наташи, если она потратила {S} р.?",
-  "answer_template": "{round(S * (1 - 4 / 15) / (4 / 15), 2)}",
-  "parameters": {
-    "S": { "type": "int", "min": 30, "max": 120, "constraints": [ { "type": "multiple_of", "value": 5 } ] }
-  }
-},
-{
-  "textbook_id": 4,
-  "name": "1.75 Сколько бензина осталось в баке (с MathJax)",
-  "question_template": "В баке автомобиля было {V} л бензина. Во время первой поездки за город было израсходовано \\( \\frac{{F1_num}}{{F1_den}} \\) всего количества бензина. Во время второй поездки — \\( \\frac{{F2_num}}{{F2_den}} \\) оставшейся части бензина в баке. Сколько бензина осталось в баке после этих двух поездок?<br><i>Ответ округлите до сотых.</i>",
-  "answer_template": "{round((V * (1 - F1_num / F1_den)) * (1 - F2_num / F2_den), 2)}",
-  "parameters": {
-    "V": { "type": "int", "min": 20, "max": 60, "constraints": [ { "type": "multiple_of", "value": 2 } ] },
-    "F1_num": { "type": "choice", "values": [1, 2, 3] },
-    "F1_den": { "type": "choice", "values": [4, 5, 7, 8] },
-    "F2_num": { "type": "choice", "values": [1, 2, 3] },
-    "F2_den": { "type": "choice", "values": [4, 5, 6] }
-  }
-},
-{
-  "textbook_id": 4,
-  "name": "1.76.1 Найдите значение выражения (рандомизация)",
-  "question_template": "Найдите значение выражения: ({A1} × {A2} − {A3}) : {A4} + {A5}",
-  "answer_template": "{round(((A1 * A2 - A3) / A4 + A5), 3)}",
-  "parameters": {
-    "A1": { "type": "float", "min": 6.5, "max": 8.0, "constraints": [{ "type": "multiple_of", "value": 0.1 }] },
-    "A2": { "type": "float", "min": 1.2, "max": 1.7, "constraints": [{ "type": "multiple_of", "value": 0.1 }] },
-    "A3": { "type": "float", "min": 6.9, "max": 8.0, "constraints": [{ "type": "multiple_of", "value": 0.01 }] },
-    "A4": { "type": "float", "min": 2.0, "max": 3.5, "constraints": [{ "type": "multiple_of", "value": 0.1 }] },
-    "A5": { "type": "float", "min": 0.6, "max": 0.9, "constraints": [{ "type": "multiple_of", "value": 0.01 }] }
-  },
-  "conditions": "(A1 * A2 - A3) > 0"
-},{
-  "textbook_id": 4,
-  "name": "1.76.2 Найдите значение выражения (рандомизация)",
-  "question_template": "Найдите значение выражения: ({B1} − {B2} × {B3}) : {B4} − {B5}",
-  "answer_template": "{round(((B1 - B2 * B3) / B4 - B5), 3)}",
-  "parameters": {
-    "B1": { "type": "float", "min": 25.0, "max": 32.0, "constraints": [{ "type": "multiple_of", "value": 0.1 }] },
-    "B2": { "type": "float", "min": 3.0, "max": 4.0, "constraints": [{ "type": "multiple_of", "value": 0.1 }] },
-    "B3": { "type": "float", "min": 4.2, "max": 5.0, "constraints": [{ "type": "multiple_of", "value": 0.1 }] },
-    "B4": { "type": "float", "min": 2.0, "max": 2.5, "constraints": [{ "type": "multiple_of", "value": 0.1 }] },
-    "B5": { "type": "float", "min": 0.05, "max": 0.2, "constraints": [{ "type": "multiple_of", "value": 0.01 }] }
-  },
-  "conditions": "(B1 - B2 * B3) > 0"
 }
+
+
+
+
+
 
 ]

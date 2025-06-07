@@ -1384,12 +1384,17 @@
   "answer_template": "{round(((B1 - B2 * B3) / B4 - B5), 3)}",
   "parameters": {
     "B1": { "type": "float", "min": 25.0, "max": 32.0, "constraints": [{ "type": "multiple_of", "value": 0.1 }] },
-    "B2": { "type": "float", "min": 3.0, "max": 4.0, "constraints": [{ "type": "multiple_of", "value": 0.1 }] },
-    "B3": { "type": "float", "min": 4.2, "max": 5.0, "constraints": [{ "type": "multiple_of", "value": 0.1 }] },
+    "B2": { "type": "float", "min": 3.0, "max": 6.0, "constraints": [{ "type": "multiple_of", "value": 0.1 }] },
+    "B3": { "type": "float", "min": 4.2, "max": 6.0, "constraints": [{ "type": "multiple_of", "value": 0.1 }] },
     "B4": { "type": "float", "min": 2.0, "max": 2.5, "constraints": [{ "type": "multiple_of", "value": 0.1 }] },
     "B5": { "type": "float", "min": 0.05, "max": 0.2, "constraints": [{ "type": "multiple_of", "value": 0.01 }] }
   },
   "conditions": "(B1 - B2 * B3) > 0"
 }
+
+
+
+
+
 
 ]
