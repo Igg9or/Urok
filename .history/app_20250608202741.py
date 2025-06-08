@@ -1,6 +1,6 @@
 from flask import Flask, flash, render_template, request, redirect, url_for, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-import sqlite3, math
+import sqlite3
 import os, re, json, random
 import datetime
 from datetime import datetime as dt
@@ -1289,97 +1289,75 @@ def generate_task():
 def api_check_answer():
     try:
         data = request.get_json()
-        user_answer = data['answer'].strip()
+        user_answer = data['answer'].replace(" ", "")  # Удаляем пробелы
         correct_answer = data['correct_answer']
         answer_type = data.get('answer_type', 'numeric')
-
-        def float_to_fraction(val, max_denominator=1000):
-            frac = Fraction(val).limit_denominator(max_denominator)
-            return f"{frac.numerator}/{frac.denominator}"
-
-        # Универсальный парсер ответа
-        def parse_math_answer(ans):
-            s = ans.replace(",", ".").replace("%", "").strip()
-            # Смешанная дробь: 2_3/5
-            if "_" in s:
-                parts = s.split("_")
-                if len(parts) == 2 and "/" in parts[1]:
-                    whole = float(parts[0])
-                    num, denom = parts[1].split("/")
-                    return whole + float(num) / float(denom)
-            # Смешанная дробь: 2 3/5
-            if " " in s and "/" in s:
-                parts = s.split(" ")
-                if len(parts) == 2 and "/" in parts[1]:
-                    whole = float(parts[0])
-                    num, denom = parts[1].split("/")
-                    return whole + float(num) / float(denom)
-            # Обыкновенная дробь: 13/5
-            if "/" in s:
-                try:
-                    num, denom = s.split("/")
-                    return float(num) / float(denom)
-                except Exception:
-                    pass
-            # Квадратный корень: sqrt(9)
-            if s.startswith("sqrt(") and s.endswith(")"):
-                try:
-                    return math.sqrt(float(s[5:-1]))
-                except:
-                    pass
-            # Степень: 2^3
-            if "^" in s:
-                try:
-                    base, exp = s.split("^")
-                    return float(base) ** float(exp)
-                except:
-                    pass
-            # Просто десятичное число
+        
+        # Проверяем, является ли ответ дробью
+        def is_fraction(s):
+            return '/' in s and len(s.split('/')) == 2
+        
+        # Преобразуем дробь в float для сравнения
+        def fraction_to_float(s):
             try:
-                return float(s)
-            except Exception:
+                numerator, denominator = s.split('/')
+                return float(numerator) / float(denominator)
+            except:
                 return None
+        
+        # Если пользователь ввел дробь
+        if is_fraction(user_answer):
+            user_float = fraction_to_float(user_answer)
+            if user_float is None:
+                return jsonify({"is_correct": False, "error": "Некорректный формат дроби"})
+            try:
+                correct_float = float(correct_answer)
+                # ---- Сравниваем округлённые значения ----
+                is_correct = round(user_float, 3) == round(correct_float, 3)
+                return jsonify({
+                    "is_correct": is_correct,
+                    "evaluated_answer": user_answer,
+                    "correct_answer": correct_answer
+                })
+            except ValueError:
+                pass  # Продолжаем проверку других форматов
 
-        # --- Строковые задачи ---
+        # Остальная логика проверки (как было раньше)
         if answer_type == 'string':
             is_correct = user_answer.strip().lower() == correct_answer.strip().lower()
             return jsonify({"is_correct": is_correct, "correct_answer": correct_answer})
-
-        # --- Алгебраические задачи ---
+        
         if answer_type == 'algebraic':
             def normalize_expr(expr):
                 expr = expr.replace(" ", "").replace("+-", "-")
                 expr = re.sub(r'(?<!\d)([xyz])', r'1\1', expr)
                 return expr
+            
             norm_user = normalize_expr(user_answer)
             norm_correct = normalize_expr(correct_answer)
+            
             is_correct = norm_user == norm_correct
             return jsonify({
                 "is_correct": is_correct,
                 "correct_answer": correct_answer
             })
-
-        # --- Основная универсальная проверка (дроби, смешанные, числа и т.д.) ---
-        user_val = parse_math_answer(user_answer)
-        correct_val = parse_math_answer(correct_answer)
-        if user_val is not None and correct_val is not None:
-            is_correct = round(user_val, 3) == round(correct_val, 3)
-            correct_fraction = ""
-            if not round(correct_val, 3).is_integer():
-                correct_fraction = float_to_fraction(correct_val)
-            return jsonify({
-                "is_correct": is_correct,
-                "evaluated_answer": user_answer,
-                "correct_answer": correct_answer,
-                "correct_fraction": correct_fraction
-            })
         else:
-            return jsonify({"is_correct": False, "error": "Некорректный формат ответа"})
-
+            # Для десятичных чисел тоже сравниваем округление до 3 знаков!
+            try:
+                user_val = float(user_answer)
+                correct_val = float(correct_answer)
+                is_correct = round(user_val, 3) == round(correct_val, 3)
+                return jsonify({"is_correct": is_correct})
+            except ValueError:
+                return jsonify({"is_correct": False, "error": "Некорректный формат ответа"})
+            
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
+
+
+    
 # В app.py добавить новый маршрут
 @app.route('/api/generate_from_template/<int:template_id>')
 def generate_from_template(template_id):

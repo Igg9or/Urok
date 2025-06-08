@@ -77,7 +77,45 @@ class MathEngine:
         # Если не удалось сгенерировать - возвращаем последний вариант
         return generated
 
-
+    @staticmethod
+    def normalize_answer(answer):
+        """Приводит ответ к числовому виду, обрабатывая дроби и другие формы"""
+        try:
+            # Если ответ уже число - возвращаем как есть
+            if isinstance(answer, (int, float)):
+                return float(answer)
+                
+            # Обработка дробей вида a/b
+            if '/' in answer:
+                numerator, denominator = answer.split('/')
+                return float(numerator) / float(denominator)
+                
+            # Обработка десятичных дробей с запятой
+            if ',' in answer:
+                return float(answer.replace(',', '.'))
+                
+            # Стандартное преобразование
+            return float(answer)
+        except (ValueError, TypeError):
+            # Если не удалось преобразовать в число, возвращаем исходный ответ
+            return answer
+        
+    @staticmethod
+    def check_answer(user_answer, correct_answer, tolerance=0.001):
+        """
+        Сравнивает ответы с учетом разных форматов
+        tolerance - допустимая погрешность для числовых сравнений
+        """
+        # Нормализуем оба ответа
+        norm_user = MathEngine.normalize_answer(user_answer)
+        norm_correct = MathEngine.normalize_answer(correct_answer)
+        
+        # Если оба ответа стали числами - сравниваем с допуском
+        if isinstance(norm_user, (int, float)) and isinstance(norm_correct, (int, float)):
+            return abs(norm_user - norm_correct) < tolerance
+        
+        # Иначе сравниваем как строки (для нечисловых ответов)
+        return str(user_answer).strip() == str(correct_answer).strip()
     
     @staticmethod
     def evaluate_expression(expr, params):
@@ -86,24 +124,15 @@ class MathEngine:
             for param, value in params.items():
                 expr = expr.replace(f'{{{param}}}', str(value))
             
-            # Проверяем, является ли выражение дробью
-            if '/' in expr and len(expr.split('/')) == 2:
-                numerator, denominator = expr.split('/')
-                try:
-                    numerator_val = float(numerator)
-                    denominator_val = float(denominator)
-                    if denominator_val != 0:
-                        return str(numerator_val / denominator_val)
-                except:
-                    pass  # Продолжаем обычную обработку
-            
-            # Остальная логика вычислений (как было раньше)
+            # Парсим выражение с помощью sympy
             parsed = parse_expr(expr, evaluate=True)
             
+            # Если выражение содержит переменные - упрощаем
             if any(symbol in str(parsed) for symbol in ['x', 'y', 'z']):
                 simplified = sympy.simplify(parsed)
-                return str(simplified).replace('*', '')
+                return str(simplified).replace('*', '')  # Убираем * для красоты
             
+            # Для числовых выражений вычисляем значение
             return str(float(parsed.evalf()))
             
         except Exception as e:

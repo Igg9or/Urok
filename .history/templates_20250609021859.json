@@ -1506,51 +1506,8 @@
     "D": { "type": "float", "min": 100, "max": 300, "step": 1 }
   },
   "conditions": "(A > 0) and (B > 0) and (C > 0) and (D > 0)"
-},
-{
-  "textbook_id": 4,
-  "name": "1.82 Сколько корова съела сена (проценты)",
-  "question_template": "Зимой козе и корове в сутки давали {H} кг сена. Коза съела {P} % всего сена. Сколько килограммов сена съела корова?",
-  "answer_template": "{round(H * (1 - P/100), 2)}",
-  "parameters": {
-    "H": { "type": "float", "min": 8, "max": 18, "step": 0.5 },
-    "P": { "type": "float", "min": 10, "max": 40, "step": 1 }
-  },
-  "conditions": "(P > 0) and (P < 100)"
-},
-{
-  "textbook_id": 4,
-  "name": "1.83 Осталось яблок в магазине",
-  "question_template": "В магазин завезли {S} кг яблок. В первый день продали {Q} кг. Сколько процентов яблок осталось продать?",
-  "answer_template": "{round((S-Q)/S * 100, 2)}%",
-  "parameters": {
-    "S": { "type": "int", "min": 50, "max": 200, "step": 5 },
-    "Q": { "type": "int", "min": 10, "max": 150, "step": 5 }
-  },
-  "conditions": "(Q < S) and (Q > 0)"
-},
-{
-  "textbook_id": 4,
-  "name": "1.84 Сколько денег потрачено на сантехнику (проценты)",
-  "question_template": "На ремонт дома израсходовано {S} тыс. р. На оплату рабочим — {P1} % этой суммы, на строительные материалы — {P2} %, остальное — на сантехнику. Сколько денег потрачено на сантехнику?",
-  "answer_template": "{round(S * (1 - P1/100 - P2/100), 2)}",
-  "parameters": {
-    "S": { "type": "int", "min": 100, "max": 400, "step": 10 },
-    "P1": { "type": "float", "min": 10, "max": 40, "step": 1 },
-    "P2": { "type": "float", "min": 30, "max": 70, "step": 1 }
-  },
-  "conditions": "(P1 > 0) and (P2 > 0) and (P1 + P2 < 100)"
-},
-{
-  "textbook_id": 4,
-  "name": "1.85 Сколько килограммов сахара в клубнике (проценты)",
-  "question_template": "В клубнике содержится в среднем {P} % сахара. Сколько килограммов сахара в {M} кг клубники?",
-  "answer_template": "{round(P/100 * M, 2)}",
-  "parameters": {
-    "P": { "type": "float", "min": 4, "max": 10, "step": 0.1 },
-    "M": { "type": "float", "min": 10, "max": 20, "step": 0.5 }
-  },
-  "conditions": "(P > 0) and (M > 0)"
 }
+
+
 
 ]

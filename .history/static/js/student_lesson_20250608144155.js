@@ -1,0 +1,121 @@
+document.addEventListener('DOMContentLoaded', function() {
+    const lessonId = window.location.pathname.split('/').pop();
+    let completedTasks = 0;
+    
+    // Функция для отображения результата
+    function showResult(taskCard, isCorrect, evaluatedAnswer = null) {
+    const feedback = taskCard.querySelector('.task-feedback');
+    const correctFeedback = taskCard.querySelector('.feedback-correct');
+    const incorrectFeedback = taskCard.querySelector('.feedback-incorrect');
+    const status = taskCard.querySelector('.task-status');
+    
+    if (!feedback || !correctFeedback || !incorrectFeedback || !status) {
+        console.error('Не найдены необходимые элементы DOM');
+        return;
+    }
+    
+    if (isCorrect) {
+        correctFeedback.classList.remove('hidden');
+        incorrectFeedback.classList.add('hidden');
+        status.style.backgroundColor = 'var(--success-color)';
+        completedTasks++;
+    } else {
+        correctFeedback.classList.add('hidden');
+        incorrectFeedback.classList.remove('hidden');
+        if (evaluatedAnswer) {
+            const userAnswerElement = incorrectFeedback.querySelector('.user-answer');
+            if (userAnswerElement) {
+                userAnswerElement.textContent = `Ваш ответ: ${evaluatedAnswer}`;
+            }
+        }
+        status.style.backgroundColor = 'var(--error-color)';
+    }
+    
+    feedback.classList.remove('hidden');
+    taskCard.querySelector('.answer-input').disabled = true;
+    taskCard.querySelector('.btn-check').disabled = true;
+    updateProgress();
+}
+    
+    // Новая функция проверки ответа через API
+    async function checkAnswer(taskCard) {
+    const taskId = taskCard.dataset.taskId;
+    const format = taskCard.querySelector('.format-select').value;
+    let userAnswer;
+    
+    // Получаем ответ в зависимости от формата
+    if (format === 'fraction') {
+      const numerator = taskCard.querySelector('.numerator').value;
+      const denominator = taskCard.querySelector('.denominator').value;
+      if (!numerator || !denominator) {
+        alert('Заполните числитель и знаменатель');
+        return;
+      }
+      userAnswer = `${numerator}/${denominator}`;
+    } else if (format === 'sqrt') {
+      const radicand = taskCard.querySelector('.radicand').value;
+      if (!radicand) {
+        alert('Введите подкоренное выражение');
+        return;
+      }
+      userAnswer = `√${radicand}`;
+    } else {
+      userAnswer = taskCard.querySelector('.answer-input').value.trim();
+    }
+    
+    // Сохранение ответа на сервере
+    async function saveAnswerToServer(taskId, answer, isCorrect) {
+        try {
+            await fetch('/save_answer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    task_id: taskId,
+                    answer: answer,
+                    is_correct: isCorrect
+                })
+            });
+        } catch (error) {
+            console.error('Ошибка сохранения:', error);
+        }
+    }
+    
+    // Остальной код остаётся без изменений
+    document.querySelectorAll('.btn-check').forEach(button => {
+        button.addEventListener('click', function() {
+            checkAnswer(this.closest('.task-card'));
+        });
+    });
+    document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('format-select')) {
+      const container = e.target.closest('.task-answer');
+      const format = e.target.value;
+      
+      // Скрываем все поля ввода
+      container.querySelectorAll('.answer-inputs > div').forEach(div => {
+        div.classList.add('hidden');
+        div.classList.remove('visible');
+      });
+      
+      // Показываем нужное поле
+      if (format === 'fraction') {
+        container.querySelector('.fraction-input').classList.add('visible');
+      } else if (format === 'sqrt') {
+        container.querySelector('.sqrt-input').classList.add('visible');
+      } else {
+        container.querySelector('.number-input').classList.add('visible');
+      }
+    }
+  });
+
+    // Обновление прогресса
+    function updateProgress() {
+        const progressFill = document.querySelector('.progress-fill');
+        const progressText = document.querySelector('.progress-text');
+        const totalTasks = document.querySelectorAll('.task-card').length;
+        const percentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+        
+        progressFill.style.width = `${percentage}%`;
+        progressText.textContent = `${completedTasks} из ${totalTasks} заданий`;
+    }
+});

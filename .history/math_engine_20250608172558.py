@@ -80,32 +80,32 @@ class MathEngine:
 
     
     @staticmethod
-    def evaluate_expression(expr, params):
-        try:
-            # Заменяем параметры в выражении
-            for param, value in params.items():
-                expr = expr.replace(f'{{{param}}}', str(value))
-            
-            # Проверяем, является ли выражение дробью
-            if '/' in expr and len(expr.split('/')) == 2:
-                numerator, denominator = expr.split('/')
-                try:
-                    numerator_val = float(numerator)
-                    denominator_val = float(denominator)
-                    if denominator_val != 0:
-                        return str(numerator_val / denominator_val)
-                except:
-                    pass  # Продолжаем обычную обработку
-            
-            # Остальная логика вычислений (как было раньше)
-            parsed = parse_expr(expr, evaluate=True)
-            
-            if any(symbol in str(parsed) for symbol in ['x', 'y', 'z']):
-                simplified = sympy.simplify(parsed)
-                return str(simplified).replace('*', '')
-            
-            return str(float(parsed.evalf()))
-            
-        except Exception as e:
-            print(f"Error evaluating expression: {expr} with params {params}. Error: {e}")
-            return None
+def evaluate_expression(expr, params):
+    try:
+        # Заменяем параметры в выражении
+        for param, value in params.items():
+            expr = expr.replace(f'{{{param}}}', str(value))
+        
+        # Проверяем, является ли выражение дробью
+        if '/' in expr and len(expr.split('/')) == 2:
+            numerator, denominator = expr.split('/')
+            try:
+                numerator_val = float(numerator)
+                denominator_val = float(denominator)
+                if denominator_val != 0:
+                    return str(numerator_val / denominator_val)
+            except:
+                pass  # Продолжаем обычную обработку
+        
+        # Остальная логика вычислений (как было раньше)
+        parsed = parse_expr(expr, evaluate=True)
+        
+        if any(symbol in str(parsed) for symbol in ['x', 'y', 'z']):
+            simplified = sympy.simplify(parsed)
+            return str(simplified).replace('*', '')
+        
+        return str(float(parsed.evalf()))
+        
+    except Exception as e:
+        print(f"Error evaluating expression: {expr} with params {params}. Error: {e}")
+        return None

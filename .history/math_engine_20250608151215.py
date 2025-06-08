@@ -1,6 +1,6 @@
 # math_engine.py
 import random
-import sympy
+import sympy, re
 from sympy.parsing.sympy_parser import parse_expr
 from sympy import symbols, simplify
 
@@ -77,7 +77,34 @@ class MathEngine:
         # Если не удалось сгенерировать - возвращаем последний вариант
         return generated
 
+    @staticmethod
+    def compare_answers(user_answer, correct_answer):
+        """Сравнивает ответы в разных форматах"""
+        try:
+            # Пробуем преобразовать оба ответа к float
+            user_float = MathEngine.evaluate_to_float(user_answer)
+            correct_float = MathEngine.evaluate_to_float(correct_answer)
+            
+            # Сравниваем с допустимой погрешностью
+            return abs(user_float - correct_float) < 1e-6
+        except:
+            # Если преобразование не удалось, сравниваем как строки
+            return user_answer.strip().lower() == correct_answer.strip().lower()
 
+    @staticmethod
+    def evaluate_to_float(expr):
+        """Преобразует выражение к float, поддерживая дроби, корни и т.д."""
+        # Заменяем символы дробей на /
+        expr = expr.replace('⁄', '/').replace('÷', '/')
+        
+        # Обработка корней √x → sqrt(x)
+        expr = re.sub(r'√(\d+)', r'sqrt(\1)', expr)
+        
+        # Вычисляем выражение
+        try:
+            return float(sympy.sympify(expr).evalf())
+        except:
+            return float(expr)  # Пробуем просто преобразовать к числу
     
     @staticmethod
     def evaluate_expression(expr, params):
@@ -86,24 +113,15 @@ class MathEngine:
             for param, value in params.items():
                 expr = expr.replace(f'{{{param}}}', str(value))
             
-            # Проверяем, является ли выражение дробью
-            if '/' in expr and len(expr.split('/')) == 2:
-                numerator, denominator = expr.split('/')
-                try:
-                    numerator_val = float(numerator)
-                    denominator_val = float(denominator)
-                    if denominator_val != 0:
-                        return str(numerator_val / denominator_val)
-                except:
-                    pass  # Продолжаем обычную обработку
-            
-            # Остальная логика вычислений (как было раньше)
+            # Парсим выражение с помощью sympy
             parsed = parse_expr(expr, evaluate=True)
             
+            # Если выражение содержит переменные - упрощаем
             if any(symbol in str(parsed) for symbol in ['x', 'y', 'z']):
                 simplified = sympy.simplify(parsed)
-                return str(simplified).replace('*', '')
+                return str(simplified).replace('*', '')  # Убираем * для красоты
             
+            # Для числовых выражений вычисляем значение
             return str(float(parsed.evalf()))
             
         except Exception as e:

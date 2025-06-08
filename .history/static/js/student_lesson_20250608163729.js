@@ -4,48 +4,40 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Функция для отображения результата
     function showResult(taskCard, isCorrect, evaluatedAnswer = null) {
-        const feedback = taskCard.querySelector('.task-feedback');
-        const correctFeedback = taskCard.querySelector('.feedback-correct');
-        const incorrectFeedback = taskCard.querySelector('.feedback-incorrect');
-        const status = taskCard.querySelector('.task-status');
-        
-        if (!feedback || !correctFeedback || !incorrectFeedback || !status) {
-            console.error('Не найдены необходимые элементы DOM');
-            return;
-        }
-        
-        if (isCorrect) {
-            correctFeedback.classList.remove('hidden');
-            incorrectFeedback.classList.add('hidden');
-            status.style.backgroundColor = 'var(--success-color)';
-            completedTasks++;
-        } else {
-                correctFeedback.classList.add('hidden');
-                incorrectFeedback.classList.remove('hidden');
-                let correctMsg = `Ошибка! Правильный ответ: ${taskCard.querySelector('.correct-answer').textContent}`;
-                // Добавим дробь, если сервер прислал и она не пуста
-                if (window.lastCheckAnswerResult && window.lastCheckAnswerResult.correct_fraction) {
-                    const frac = window.lastCheckAnswerResult.correct_fraction;
-                    if (frac !== "" && !/^\d+$/.test(frac)) { // если не целое число
-                        correctMsg += ` (или как дробь: ${frac})`;
-                    }
-                }
-                incorrectFeedback.querySelector('.correct-answer').textContent = correctMsg;
+    const feedback = taskCard.querySelector('.task-feedback');
+    const correctFeedback = taskCard.querySelector('.feedback-correct');
+    const incorrectFeedback = taskCard.querySelector('.feedback-incorrect');
+    const status = taskCard.querySelector('.task-status');
 
-                if (evaluatedAnswer) {
-                    const userAnswerElement = incorrectFeedback.querySelector('.user-answer');
-                    if (userAnswerElement) {
-                        userAnswerElement.textContent = `Ваш ответ: ${evaluatedAnswer}`;
-                    }
-                }
-                status.style.backgroundColor = 'var(--error-color)';
-            }
-        
-        feedback.classList.remove('hidden');
-        taskCard.querySelector('.answer-input').disabled = true;
-        taskCard.querySelector('.btn-check').disabled = true;
-        updateProgress();
+    
+    
+    if (!feedback || !correctFeedback || !incorrectFeedback || !status) {
+        console.error('Не найдены необходимые элементы DOM');
+        return;
     }
+    
+    if (isCorrect) {
+        correctFeedback.classList.remove('hidden');
+        incorrectFeedback.classList.add('hidden');
+        status.style.backgroundColor = 'var(--success-color)';
+        completedTasks++;
+    } else {
+        correctFeedback.classList.add('hidden');
+        incorrectFeedback.classList.remove('hidden');
+        if (evaluatedAnswer) {
+            const userAnswerElement = incorrectFeedback.querySelector('.user-answer');
+            if (userAnswerElement) {
+                userAnswerElement.textContent = `Ваш ответ: ${evaluatedAnswer}`;
+            }
+        }
+        status.style.backgroundColor = 'var(--error-color)';
+    }
+    
+    feedback.classList.remove('hidden');
+    taskCard.querySelector('.answer-input').disabled = true;
+    taskCard.querySelector('.btn-check').disabled = true;
+    updateProgress();
+}
     
     // Новая функция проверки ответа через API
     async function checkAnswer(taskCard) {
@@ -71,7 +63,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         const result = await response.json();
-        window.lastCheckAnswerResult = result;
         
         if (result.error) {
             throw new Error(result.error);

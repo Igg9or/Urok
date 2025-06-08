@@ -20,26 +20,17 @@ document.addEventListener('DOMContentLoaded', function() {
             status.style.backgroundColor = 'var(--success-color)';
             completedTasks++;
         } else {
-                correctFeedback.classList.add('hidden');
-                incorrectFeedback.classList.remove('hidden');
-                let correctMsg = `Ошибка! Правильный ответ: ${taskCard.querySelector('.correct-answer').textContent}`;
-                // Добавим дробь, если сервер прислал и она не пуста
-                if (window.lastCheckAnswerResult && window.lastCheckAnswerResult.correct_fraction) {
-                    const frac = window.lastCheckAnswerResult.correct_fraction;
-                    if (frac !== "" && !/^\d+$/.test(frac)) { // если не целое число
-                        correctMsg += ` (или как дробь: ${frac})`;
-                    }
+            correctFeedback.classList.add('hidden');
+            incorrectFeedback.classList.remove('hidden');
+            if (evaluatedAnswer) {
+                const userAnswerElement = incorrectFeedback.querySelector('.user-answer');
+                if (userAnswerElement) {
+                    // Сохраняем оригинальный ввод пользователя (дробь или другое)
+                    userAnswerElement.textContent = `Ваш ответ: ${evaluatedAnswer}`;
                 }
-                incorrectFeedback.querySelector('.correct-answer').textContent = correctMsg;
-
-                if (evaluatedAnswer) {
-                    const userAnswerElement = incorrectFeedback.querySelector('.user-answer');
-                    if (userAnswerElement) {
-                        userAnswerElement.textContent = `Ваш ответ: ${evaluatedAnswer}`;
-                    }
-                }
-                status.style.backgroundColor = 'var(--error-color)';
             }
+            status.style.backgroundColor = 'var(--error-color)';
+        }
         
         feedback.classList.remove('hidden');
         taskCard.querySelector('.answer-input').disabled = true;
@@ -71,7 +62,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         const result = await response.json();
-        window.lastCheckAnswerResult = result;
         
         if (result.error) {
             throw new Error(result.error);

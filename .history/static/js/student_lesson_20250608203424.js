@@ -71,7 +71,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         const result = await response.json();
-        window.lastCheckAnswerResult = result;
         
         if (result.error) {
             throw new Error(result.error);

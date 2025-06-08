@@ -1299,7 +1299,8 @@ def api_check_answer():
 
         # Универсальный парсер ответа
         def parse_math_answer(ans):
-            s = ans.replace(",", ".").replace("%", "").strip()
+            s = s.replace("%", "")
+            s = ans.replace(",", ".").strip()
             # Смешанная дробь: 2_3/5
             if "_" in s:
                 parts = s.split("_")
