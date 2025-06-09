@@ -1618,7 +1618,7 @@
     "S": { "type": "float", "min": 1, "max": 5, "constraints": [{"type": "multiple_of", "value": 0.1}] }
   },
   "conditions": "(P > 0) and (P < 100) and (S > 0)"
-},
+}
 {
   "textbook_id": 4,
   "name": "1.92 Процент крымчан среди спортсменов",

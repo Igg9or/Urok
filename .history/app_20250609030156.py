@@ -1369,9 +1369,7 @@ def api_check_answer():
                 "evaluated_answer": user_answer,
                 "correct_answer": correct_answer
             })
-        if any(v is None for v in correct_vals):
-            return jsonify({"is_correct": False, "error": "Ошибка генерации правильного ответа"})
-        
+
         is_correct = all(round(u, 2) == round(c, 2) for u, c in zip(user_vals, correct_vals))
         return jsonify({
             "is_correct": is_correct,

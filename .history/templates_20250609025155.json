@@ -1480,7 +1480,7 @@
 {
   "textbook_id": 4,
   "name": "1.80 Запишите в виде процентов дробь",
-  "question_template": "Запишите в виде процентов дробь:<br>а) {A}; б) {B}; в) {C}; г) \\( \\frac{{D1}}{{D2}} \\); д) \\( {E} \\frac{{F1}}{{F2}} \\)    Введите 4 числа, разделяя их точкой с запятой и используя точку для десятичной дроби",
+  "question_template": "Запишите в виде процентов дробь:<br>а) {A}; б) {B}; в) {C}; г) \\( \\frac{{D1}}{{D2}} \\); д) \\( {E} \\frac{{F1}}{{F2}} \\)",
   "answer_template": "{round(A*100, 2)}; {round(B*100, 2)}; {round(C*100, 2)}; {round((D1/D2)*100, 2)}; {round((E + F1/F2)*100, 2)}",
   "parameters": {
     "A": { "type": "float", "min": 0.01, "max": 0.15, "constraints": [{"type": "multiple_of", "value": 0.01}] },
@@ -1497,7 +1497,7 @@
 {
   "textbook_id": 4,
   "name": "1.81 Запишите в виде числа проценты",
-  "question_template": "Запишите в виде числа:<br>а) {A} %; б) {B} %; в) {C} %; г) {D} %.  Введите 4 числа, разделяя их точкой с запятой и используя точку для десятичной дроби",
+  "question_template": "Запишите в виде числа:<br>а) {A} %; б) {B} %; в) {C} %; г) {D} %.",
   "answer_template": "{round(A/100, 4)}; {round(B/100, 4)}; {round(C/100, 4)}; {round(D/100, 4)}",
   "parameters": {
     "A": { "type": "float", "min": 10, "max": 90, "constraints": [{"type": "multiple_of", "value": 1}] },
@@ -1552,107 +1552,6 @@
     "M": { "type": "float", "min": 10, "max": 20, "constraints": [{"type": "multiple_of", "value": 0.5}] }
   },
   "conditions": "(P > 0) and (M > 0)"
-},
-{
-  "textbook_id": 4,
-  "name": "1.86 Сколько граммов жира содержится в молоке",
-  "question_template": "Сколько граммов жира содержится в {M} г молока {F} % жирности?",
-  "answer_template": "{round(M * F / 100, 2)}",
-  "parameters": {
-    "M": { "type": "int", "min": 200, "max": 1000, "constraints": [{"type": "multiple_of", "value": 50}] },
-    "F": { "type": "float", "min": 2, "max": 6, "constraints": [{"type": "multiple_of", "value": 0.1}] }
-  },
-  "conditions": "(M > 0) and (F > 0)"
-},
-{
-  "textbook_id": 4,
-  "name": "1.87 Сколько страниц в книге (по проценту)",
-  "question_template": "Ученик прочитал {S} страниц, что составляет {P} % числа всех страниц в книге. Сколько страниц в книге? <i>Ответ введите только числом, без знака %</i>",
-  "answer_template": "{round(S / (P / 100), 2)}",
-  "parameters": {
-    "S": { "type": "int", "min": 30, "max": 250, "constraints": [{"type": "multiple_of", "value": 5}] },
-    "P": { "type": "int", "min": 10, "max": 50, "constraints": [{"type": "multiple_of", "value": 1}] }
-  },
-  "conditions": "(P > 0) and (S > 0)"
-},
-{
-  "textbook_id": 4,
-  "name": "1.88 Масса кошки по массе котёнка (проценты)",
-  "question_template": "Масса котёнка составляет {P} % массы кошки. Найдите массу кошки, если масса котёнка {M} г.",
-  "answer_template": "{round(M * 100 / P, 2)}",
-  "parameters": {
-    "P": { "type": "int", "min": 4, "max": 15, "constraints": [{"type": "multiple_of", "value": 1}] },
-    "M": { "type": "int", "min": 200, "max": 700, "constraints": [{"type": "multiple_of", "value": 10}] }
-  },
-  "conditions": "(P > 0) and (M > 0)"
-},
-{
-  "textbook_id": 4,
-  "name": "1.89 Сколько слив было завезено (проценты, массы)",
-  "question_template": "В магазин завезли сливы, из них {P} % оказались испорченными и в продажу не поступили. Сколько слив было завезено, если в продажу поступило {S} кг слив?",
-  "answer_template": "{round(S / (1 - P / 100), 2)}",
-  "parameters": {
-    "P": { "type": "int", "min": 5, "max": 30, "constraints": [{"type": "multiple_of", "value": 5}] },
-    "S": { "type": "float", "min": 100, "max": 400, "constraints": [{"type": "multiple_of", "value": 0.5}] }
-  },
-  "conditions": "(P > 0) and (P < 100) and (S > 0)"
-},
-{
-  "textbook_id": 4,
-  "name": "1.91а Сколько купить сырого мяса (проценты)",
-  "question_template": "Масса варёного мяса составляет {P} % массы сырого. Сколько надо купить сырого мяса, чтобы получить {M} кг варёного?",
-  "answer_template": "{round(M * 100 / P, 2)}",
-  "parameters": {
-    "P": { "type": "int", "min": 60, "max": 90, "constraints": [{"type": "multiple_of", "value": 1}] },
-    "M": { "type": "float", "min": 0.5, "max": 3, "constraints": [{"type": "multiple_of", "value": 0.5}] }
-  },
-  "conditions": "(P > 0) and (P < 100) and (M > 0)"
-},
-{
-  "textbook_id": 4,
-  "name": "1.91б Сколько получится варёного мяса (проценты)",
-  "question_template": "Масса варёного мяса составляет {P} % массы сырого. Сколько получится варёного мяса из {S} кг сырого?",
-  "answer_template": "{round(S * P / 100, 2)}",
-  "parameters": {
-    "P": { "type": "float", "min": 60, "max": 90, "constraints": [{"type": "multiple_of", "value": 1}] },
-    "S": { "type": "float", "min": 1, "max": 5, "constraints": [{"type": "multiple_of", "value": 0.1}] }
-  },
-  "conditions": "(P > 0) and (P < 100) and (S > 0)"
-},
-{
-  "textbook_id": 4,
-  "name": "1.92 Процент крымчан среди спортсменов",
-  "question_template": "На соревнование по плаванию приехали {S} спортсменов, из них {K} из Крыма. Какой процент всех спортсменов составляли крымчане?",
-  "answer_template": "{round(K / S * 100, 2)}",
-  "parameters": {
-    "S": { "type": "int", "min": 20, "max": 100, "constraints": [{"type": "multiple_of", "value": 2}] },
-    "K": { "type": "int", "min": 2, "max": 30, "constraints": [{"type": "multiple_of", "value": 1}] }
-  },
-  "conditions": "(K > 0) and (S > 0) and (K < S)"
-},
-{
-  "textbook_id": 4,
-  "name": "1.93 Процент не пишущих ручек",
-  "question_template": "В партии ручек из {S} штук пишут {W}. Какой процент составляют ручки, которые не пишут?",
-  "answer_template": "{round((S-W)/S * 100, 2)}",
-  "parameters": {
-    "S": { "type": "int", "min": 50, "max": 400, "constraints": [{"type": "multiple_of", "value": 10}] },
-    "W": { "type": "int", "min": 10, "max": 400, "constraints": [{"type": "multiple_of", "value": 2}] }
-  },
-  "conditions": "(W > 0) and (W < S)"
-},
-{
-  "textbook_id": 4,
-  "name": "1.90 Железная руда: масса руды и масса железа (двойной вопрос)",
-  "question_template": "Красный железняк и магнитный железняк содержат около {F} % железа.<br>а) Сколько нужно добыть руды, чтобы получить {M1} т железа?<br>б) Сколько железа получится из {M2} т руды?<br><i>Ответ введите двумя числами через точку с запятой, в тоннах, с точностью до десятых (например: 117.5; 72.3)</i>",
-  "answer_template": "{round(M1 * 100 / F, 1)}; {round(M2 * F / 100, 1)}",
-  "parameters": {
-    "F": { "type": "float", "min": 50, "max": 70, "constraints": [{"type": "multiple_of", "value": 1}] },
-    "M1": { "type": "float", "min": 20, "max": 120, "constraints": [{"type": "multiple_of", "value": 0.5}] },
-    "M2": { "type": "float", "min": 20, "max": 150, "constraints": [{"type": "multiple_of", "value": 0.5}] }
-  },
-  "conditions": "(F > 0) and (F < 100) and (M1 > 0) and (M2 > 0)"
 }
-
 
 ]
