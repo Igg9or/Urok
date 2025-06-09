@@ -201,87 +201,10 @@
   },
   "conditions": "(A < B)"
 },
-{
-  "textbook_id": 5,
-  "name": "6.в Сравните два отрицательных (однозначный ответ)",
-  "question_template": "Сравните рациональные числа: {A} и {B}.<br><i>Ответ введите знаком: >, < или =</i>",
-  "answer_template": ">",
-  "parameters": {
-    "A": { "type": "choice", "values": [-3.24, -3.15, -1.8] },
-    "B": { "type": "choice", "values": [-3.42, -4, -2.3] }
-  },
-  "conditions": "(A > B)"
-},
-{
-  "textbook_id": 5,
-  "name": "6.г Сравните дробь и десятичную (равны)",
-  "question_template": "Сравните рациональные числа: \\( \\frac{{A1}}{{A2}} \\) и {B}.<br><i>Ответ введите знаком: >, < или =</i>",
-  "answer_template": "=",
-  "parameters": {
-    "A1": { "type": "choice", "values": [3, 4, 1] },
-    "A2": { "type": "choice", "values": [8, 2, 4] },
-    "B": { "type": "choice", "values": [0.375, 2, 0.25] }
-  },
-  "conditions": "(A1/A2 == B)"
-},
-{
-  "textbook_id": 5,
-  "name": "6.д Сравните два одинаковых отрицательных (однозначный ответ)",
-  "question_template": "Сравните рациональные числа: {A} и {B}.<br><i>Ответ введите знаком: >, < или =</i>",
-  "answer_template": "=",
-  "parameters": {
-    "A": { "type": "choice", "values": [-1.174] },
-    "B": { "type": "choice", "values": [-1.174] }
-  },
-  "conditions": ""
-},
-{
-  "textbook_id": 5,
-  "name": "6.е Сравните две положительные дроби (однозначный ответ)",
-  "question_template": "Сравните рациональные числа: \\( \\frac{{A1}}{{A2}} \\) и \\( \\frac{{B1}}{{B2}} \\).<br><i>Ответ введите знаком: >, < или =</i>",
-  "answer_template": "<",
-  "parameters": {
-    "A1": { "type": "choice", "values": [10, 11, 12] },
-    "A2": { "type": "choice", "values": [11, 12, 13] },
-    "B1": { "type": "choice", "values": [11, 13, 14] },
-    "B2": { "type": "choice", "values": [12, 14, 15] }
-  },
-  "conditions": "A1/A2 < B1/B2"
-},
-{
-  "textbook_id": 5,
-  "name": "6.ж Сравните два отрицательных числа (рандом, первый больше)",
-  "question_template": "Сравните рациональные числа: {A} и {B}.<br><i>Ответ введите знаком: >, < или =</i>",
-  "answer_template": ">",
-  "parameters": {
-    "A": { "type": "float", "min": -5, "max": -1.5, "constraints": [{"type": "multiple_of", "value": 0.001}] },
-    "B": { "type": "float", "min": -10, "max": -2, "constraints": [{"type": "multiple_of", "value": 0.001}] }
-  },
-  "conditions": "A > B"
-},
-{
-  "textbook_id": 5,
-  "name": "6.и Сравните десятичную и обыкновенную дроби (рандом, десятичная меньше)",
-  "question_template": "Сравните рациональные числа: {A} и \\( \\frac{{B1}}{{B2}} \\).<br><i>Ответ введите знаком: >, < или =</i>",
-  "answer_template": "<",
-  "parameters": {
-    "B1": { "type": "choice", "values": [7, 9, 11] },
-    "B2": { "type": "choice", "values": [16, 13, 12] },
-    "A": { "type": "float", "min": 0, "max": 0.55, "constraints": [{"type": "multiple_of", "value": 0.001}] }
-  },
-  "conditions": "A < (B1/B2)"
-},
-{
-  "textbook_id": 5,
-  "name": "6.л Сравните десятичную и периодическую дроби (рандом, десятичная меньше)",
-  "question_template": "Сравните рациональные числа: {A} и {B}(...) (т.е. периодическая десятичная дробь).<br><i>Ответ введите знаком: >, < или =</i>",
-  "answer_template": "<",
-  "parameters": {
-    "A": { "type": "choice", "values": [1.37, 2.25, 0.25] },
-    "B": { "type": "choice", "values": [1.3737, 2.2727, 0.2727] }
-  },
-  "conditions": "A < B"
-}
+
+
+
+
 
 
 ]
