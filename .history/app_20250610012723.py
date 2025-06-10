@@ -7,6 +7,7 @@ from datetime import datetime as dt
 from math_engine import MathEngine
 from task_generator import TaskGenerator
 from fractions import Fraction
+from fractions import Fraction
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
@@ -1293,39 +1294,9 @@ def api_check_answer():
         correct_answer = data['correct_answer']
         answer_type = data.get('answer_type', 'numeric')
 
-
-        def is_fraction(s):
-            return '/' in s and len(s.split('/')) == 2
-
-        def to_float(val):
-            try:
-                # десятичное
-                return float(val.replace(",", "."))
-            except Exception:
-                try:
-                    # дробь
-                    if is_fraction(val):
-                        num, denom = val.split('/')
-                        return float(num) / float(denom)
-                except Exception:
-                    return None
-            return None
-        
         def float_to_fraction(val, max_denominator=1000):
             frac = Fraction(val).limit_denominator(max_denominator)
             return f"{frac.numerator}/{frac.denominator}"
-        
-        if answer_type == 'string':
-            print(f"Debug: Comparing user answer '{ua}' with correct '{ca}'")
-            # Для сравнения знаков: > < =, убираем пробелы и сравниваем только значимые символы
-            ua = user_answer.strip().replace(" ", "")
-            ca = correct_answer.strip().replace(" ", "")
-            # Если оба ответа из одного символа, сравни только их (на всякий случай)
-            if len(ua) == 1 and len(ca) == 1:
-                is_correct = ua == ca
-            else:
-                is_correct = ua.lower() == ca.lower()
-            return jsonify({"is_correct": is_correct, "correct_answer": correct_answer})
 
         def parse_math_answer(ans):
             s = ans.replace(",", ".").replace("%", "").strip()
@@ -1371,31 +1342,10 @@ def api_check_answer():
                 parts = [ans.strip()]
             return [parse_math_answer(p) for p in parts if p]
 
-        if answer_type == "interval" or (
-            ";" in correct_answer and all("/" in part or "." in part or part.isdigit() or part.lstrip("-").replace(".", "").isdigit()
-                                         for part in correct_answer.split(";"))
-        ):
-            # Пробуем разобрать оба конца интервала
-            interval_bounds = parse_answer_list(correct_answer)
-            if len(interval_bounds) == 2 and None not in interval_bounds:
-                left, right = sorted(interval_bounds)
-                user_val = parse_math_answer(user_answer)
-                # Разрешать ли границы? < или <= — решай по методике
-                if user_val is not None and left < user_val < right:
-                    return jsonify({
-                        "is_correct": True,
-                        "evaluated_answer": user_answer,
-                        "correct_answer": correct_answer
-                    })
-                else:
-                    return jsonify({
-                        "is_correct": False,
-                        "evaluated_answer": user_answer,
-                        "correct_answer": correct_answer
-                    })
-                
         # --- Строковые задачи ---
-        
+        if answer_type == 'string':
+            is_correct = user_answer.strip().lower() == correct_answer.strip().lower()
+            return jsonify({"is_correct": is_correct, "correct_answer": correct_answer})
 
         # --- Алгебраические задачи ---
         if answer_type == 'algebraic':

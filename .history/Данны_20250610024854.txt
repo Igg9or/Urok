@@ -29,7 +29,7 @@ $excludedFiles = @(
 [System.IO.File]::WriteAllText($outputFile, "", [System.Text.Encoding]::UTF8)
 
 Get-ChildItem -Path . -Recurse -File | Where-Object {
-    ($_.Extension -in '.py', '.js', '.html', '.htm') -and
+    ($_.Extension -in '.py',  '.js', '.html', '.htm') -and
     ($excludedFiles -notcontains $_.Name)
 } | ForEach-Object {
     $skip = $false

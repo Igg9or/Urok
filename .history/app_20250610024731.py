@@ -1316,7 +1316,6 @@ def api_check_answer():
             return f"{frac.numerator}/{frac.denominator}"
         
         if answer_type == 'string':
-            print(f"Debug: Comparing user answer '{ua}' with correct '{ca}'")
             # Для сравнения знаков: > < =, убираем пробелы и сравниваем только значимые символы
             ua = user_answer.strip().replace(" ", "")
             ca = correct_answer.strip().replace(" ", "")

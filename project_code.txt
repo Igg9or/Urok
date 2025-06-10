@@ -4,12 +4,13 @@
 ================================================================================
 from flask import Flask, flash, render_template, request, redirect, url_for, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-import sqlite3
+import sqlite3, math
 import os, re, json, random
 import datetime
 from datetime import datetime as dt
 from math_engine import MathEngine
 from task_generator import TaskGenerator
+from fractions import Fraction
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
@@ -697,65 +698,59 @@ def start_lesson(lesson_id):
                 WHERE lesson_id = ? AND user_id = ? AND task_id = ?
             ''', (lesson_id, user_id, task['id']))
             variant = cursor.fetchone()
-            
+
             if variant:
+                # Используем уже сохраненный вариант (как раньше)
                 variant_data = json.loads(variant['variant_data'])
-                question = task['question']
-                answer_template = task['answer']  # Переименовали переменную
-                
-                # Подставляем параметры
-                for param, value in variant_data['params'].items():
-                    question = question.replace(f'{{{param}}}', str(value))
-                
-                computed_answer = str(eval(answer_template.format(**variant_data['params'])))
-                
+                question = variant_data.get('generated_question', task['question'])
+                computed_answer = variant_data.get('computed_answer', '')
+                params = variant_data.get('params', {})
+                # Ничего не пересчитываем — всегда как при генерации!
                 tasks.append({
                     'id': task['id'],
                     'question': question,
                     'correct_answer': computed_answer,
-                    'params': variant_data['params']
+                    'params': params
                 })
             else:
-                # Генерация нового варианта
-                params = {}
-                question_template = task['question']
-                answer_template = task['answer']  # Переименовали переменную
-                
-                # Получаем параметры из шаблона, если есть
+                # Генерация нового варианта через TaskGenerator
                 if task['template_id']:
-                    cursor.execute('SELECT parameters FROM task_templates WHERE id = ?', 
-                                 (task['template_id'],))
-                    template = cursor.fetchone()
-                    if template:
-                        params = MathEngine.generate_parameters(json.loads(template['parameters']))
-                
-                # Если параметров нет - генерируем случайные
-                if not params:
-                    param_matches = set(re.findall(r'\{([A-Za-z]+)\}', question_template))
+                    cursor.execute('SELECT * FROM task_templates WHERE id = ?', (task['template_id'],))
+                    template_row = cursor.fetchone()
+                    if template_row:
+                        template_dict = dict(template_row)
+                        template_dict['parameters'] = json.loads(template_row['parameters'])
+                        variant = TaskGenerator.generate_task_variant(template_dict)
+                        generated_question = variant['question']
+                        computed_answer = variant['correct_answer']
+                        params = variant['params']
+                    else:
+                        # Если шаблон не найден — fallback
+                        generated_question = task['question']
+                        computed_answer = task['answer']
+                        params = {}
+                else:
+                    # Старые задания без шаблона
+                    params = {}
+                    param_matches = set(re.findall(r'\{([A-Za-z]+)\}', task['question']))
                     for param in param_matches:
                         params[param] = random.randint(1, 10)
-                
-                # Формируем вопрос
-                generated_question = question_template
-                for param, value in params.items():
-                    generated_question = generated_question.replace(f'{{{param}}}', str(value))
-                
-                # Вычисляем ответ
-                computed_answer = str(eval(answer_template.format(**params)))
-                
-                # Сохраняем вариант
+                    generated_question = task['question']
+                    for param, value in params.items():
+                        generated_question = generated_question.replace(f'{{{param}}}', str(value))
+                    computed_answer = "?"
+
+                # Сохраняем вариант для этого ученика
                 variant_data = {
                     'params': params,
                     'generated_question': generated_question,
                     'computed_answer': computed_answer
                 }
-                
                 cursor.execute('''
                     INSERT INTO student_task_variants
                     (lesson_id, user_id, task_id, variant_data)
                     VALUES (?, ?, ?, ?)
                 ''', (lesson_id, user_id, task['id'], json.dumps(variant_data)))
-                
                 tasks.append({
                     'id': task['id'],
                     'question': generated_question,
@@ -780,22 +775,31 @@ def start_lesson(lesson_id):
 def save_answer():
     if 'user_id' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
-    
+
     data = request.get_json()
-    
+    user_id = session['user_id']  # <-- Вот тут!
     conn = get_db()
     cursor = conn.cursor()
-    
     try:
+        is_correct_val = data['is_correct']
+        if isinstance(is_correct_val, str):
+            is_correct_val = 1 if is_correct_val.lower() in ['true', '1', 'yes'] else 0
+        elif isinstance(is_correct_val, bool):
+            is_correct_val = int(is_correct_val)
+        elif isinstance(is_correct_val, (int, float)):
+            is_correct_val = int(bool(is_correct_val))
+        else:
+            is_correct_val = 0
+
         cursor.execute('''
             INSERT OR REPLACE INTO student_answers
             (task_id, user_id, answer, is_correct, answered_at)
             VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
         ''', (
             data['task_id'],
-            data['user_id'],
+            user_id,         # <-- Используй user_id из сессии, а не из data!
             data['answer'],
-            data['is_correct']
+            is_correct_val
         ))
         conn.commit()
         return jsonify({'success': True})
@@ -806,43 +810,9 @@ def save_answer():
         conn.close()
 
 
-@app.route('/check_answer', methods=['POST'])
-def check_answer():
-    if 'user_id' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    data = request.get_json()
-    user_id = session['user_id']
-    task_id = data['task_id']
-    lesson_id = data['lesson_id']
-    user_answer = data['user_answer']
-    correct_answer = data['correct_answer']
-    
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    try:
-        # Проверяем ответ (можно добавить более сложную логику)
-        is_correct = str(user_answer) == str(correct_answer)
-        
-        # Сохраняем результат
-        cursor.execute('''
-            INSERT OR REPLACE INTO student_answers
-            (task_id, user_id, answer, is_correct, answered_at)
-            VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
-        ''', (task_id, user_id, user_answer, is_correct))
-        
-        conn.commit()
-        
-        return jsonify({
-            'correct': is_correct,
-            'correct_answer': correct_answer
-        })
-    except Exception as e:
-        conn.rollback()
-        return jsonify({'error': str(e)}), 500
-    finally:
-        conn.close()
+
+
+
 
 @app.route('/teacher/get_lesson_results/<int:lesson_id>')
 def get_lesson_results(lesson_id):
@@ -1323,37 +1293,150 @@ def generate_task():
 def api_check_answer():
     try:
         data = request.get_json()
-        user_answer = data['answer'].replace(" ", "")  # Удаляем пробелы
+        user_answer = data['answer'].strip()
         correct_answer = data['correct_answer']
         answer_type = data.get('answer_type', 'numeric')
+
+
+        def is_fraction(s):
+            return '/' in s and len(s.split('/')) == 2
+
+        def to_float(val):
+            try:
+                # десятичное
+                return float(val.replace(",", "."))
+            except Exception:
+                try:
+                    # дробь
+                    if is_fraction(val):
+                        num, denom = val.split('/')
+                        return float(num) / float(denom)
+                except Exception:
+                    return None
+            return None
         
+        def float_to_fraction(val, max_denominator=1000):
+            frac = Fraction(val).limit_denominator(max_denominator)
+            return f"{frac.numerator}/{frac.denominator}"
+        
+        if answer_type == 'string':
+            # Для сравнения знаков: > < =, убираем пробелы и сравниваем только значимые символы
+            ua = user_answer.strip().replace(" ", "")
+            ca = correct_answer.strip().replace(" ", "")
+            # Если оба ответа из одного символа, сравни только их (на всякий случай)
+            if len(ua) == 1 and len(ca) == 1:
+                is_correct = ua == ca
+            else:
+                is_correct = ua.lower() == ca.lower()
+            return jsonify({"is_correct": is_correct, "correct_answer": correct_answer})
+
+        def parse_math_answer(ans):
+            s = ans.replace(",", ".").replace("%", "").strip()
+            if "_" in s:
+                parts = s.split("_")
+                if len(parts) == 2 and "/" in parts[1]:
+                    whole = float(parts[0])
+                    num, denom = parts[1].split("/")
+                    return whole + float(num) / float(denom)
+            if " " in s and "/" in s:
+                parts = s.split(" ")
+                if len(parts) == 2 and "/" in parts[1]:
+                    whole = float(parts[0])
+                    num, denom = parts[1].split("/")
+                    return whole + float(num) / float(denom)
+            if "/" in s:
+                try:
+                    num, denom = s.split("/")
+                    return float(num) / float(denom)
+                except Exception:
+                    pass
+            if s.startswith("sqrt(") and s.endswith(")"):
+                try:
+                    return math.sqrt(float(s[5:-1]))
+                except:
+                    pass
+            if "^" in s:
+                try:
+                    base, exp = s.split("^")
+                    return float(base) ** float(exp)
+                except:
+                    pass
+            try:
+                return float(s)
+            except Exception:
+                return None
+
+        def parse_answer_list(ans):
+            sep = ";" if ";" in ans else ("," if "," in ans else None)
+            if sep:
+                parts = [p.strip() for p in ans.split(sep)]
+            else:
+                parts = [ans.strip()]
+            return [parse_math_answer(p) for p in parts if p]
+
+        if answer_type == "interval" or (
+            ";" in correct_answer and all("/" in part or "." in part or part.isdigit() or part.lstrip("-").replace(".", "").isdigit()
+                                         for part in correct_answer.split(";"))
+        ):
+            # Пробуем разобрать оба конца интервала
+            interval_bounds = parse_answer_list(correct_answer)
+            if len(interval_bounds) == 2 and None not in interval_bounds:
+                left, right = sorted(interval_bounds)
+                user_val = parse_math_answer(user_answer)
+                # Разрешать ли границы? < или <= — решай по методике
+                if user_val is not None and left < user_val < right:
+                    return jsonify({
+                        "is_correct": True,
+                        "evaluated_answer": user_answer,
+                        "correct_answer": correct_answer
+                    })
+                else:
+                    return jsonify({
+                        "is_correct": False,
+                        "evaluated_answer": user_answer,
+                        "correct_answer": correct_answer
+                    })
+                
+        # --- Строковые задачи ---
+        
+
+        # --- Алгебраические задачи ---
         if answer_type == 'algebraic':
-            # Нормализуем ответы (приводим к одинаковому виду)
             def normalize_expr(expr):
                 expr = expr.replace(" ", "").replace("+-", "-")
-                # Добавляем 1 если перед переменной нет коэффициента (x -> 1x)
                 expr = re.sub(r'(?<!\d)([xyz])', r'1\1', expr)
                 return expr
-            
             norm_user = normalize_expr(user_answer)
             norm_correct = normalize_expr(correct_answer)
-            
-            # Сравниваем нормализованные выражения
             is_correct = norm_user == norm_correct
             return jsonify({
                 "is_correct": is_correct,
                 "correct_answer": correct_answer
             })
-        else:
-            # Старая логика для числовых ответов
-            user_val = float(user_answer)
-            correct_val = float(correct_answer)
-            is_correct = abs(user_val - correct_val) < 1e-6
-            return jsonify({"is_correct": is_correct})
-            
+
+        # --- Основная универсальная проверка: поддержка списков ---
+        user_vals = parse_answer_list(user_answer)
+        correct_vals = parse_answer_list(correct_answer)
+        if len(user_vals) != len(correct_vals) or any(v is None for v in user_vals):
+            return jsonify({
+                "is_correct": False,
+                "evaluated_answer": user_answer,
+                "correct_answer": correct_answer
+            })
+        if any(v is None for v in correct_vals):
+            return jsonify({"is_correct": False, "error": "Ошибка генерации правильного ответа"})
+        
+        is_correct = all(round(u, 2) == round(c, 2) for u, c in zip(user_vals, correct_vals))
+        return jsonify({
+            "is_correct": is_correct,
+            "evaluated_answer": user_answer,
+            "correct_answer": correct_answer
+        })
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
+
+
 # В app.py добавить новый маршрут
 @app.route('/api/generate_from_template/<int:template_id>')
 def generate_from_template(template_id):
@@ -1490,6 +1573,11 @@ def bulk_delete_templates():
         }), 500
     finally:
         conn.close()
+
+def float_to_fraction(val, max_denominator=1000):
+    """Преобразует float в несократимую обыкновенную дробь."""
+    frac = Fraction(val).limit_denominator(max_denominator)
+    return f"{frac.numerator}/{frac.denominator}"
                 
                
 with app.app_context():
@@ -1544,32 +1632,60 @@ class MathEngine:
     def generate_parameters(template_params):
         params = {}
         conditions = template_params.get('conditions', '')
-        
+        # 1. Собираем все ключи типа choice для согласованного выбора
+        choice_keys = [param for param, config in template_params.items() if isinstance(config, dict) and config.get('type') == 'choice']
+        choice_len = None
+        if len(choice_keys) >= 2:
+            # Проверяем, что длины списков совпадают
+            lengths = [len(template_params[k]['values']) for k in choice_keys]
+            if len(set(lengths)) == 1:
+                choice_len = lengths[0]
+
         for _ in range(100):  # Максимум 100 попыток
             generated = {}
             valid = True
-            
-            # Генерация параметров с учетом ограничений
+
+            # Генерация согласованных choice-параметров по индексу
+            if choice_len:
+                idx = random.randrange(choice_len)
+                for k in choice_keys:
+                    generated[k] = template_params[k]['values'][idx]
+
+            # Генерация остальных параметров
             for param, config in template_params.items():
-                if param == 'conditions':
+                if param == 'conditions' or (choice_len and param in choice_keys):
                     continue
-                    
+
                 if config['type'] == 'int':
                     value = random.randint(config['min'], config['max'])
-                    
                     # Применяем ограничения
                     if 'constraints' in config:
                         for constraint in config['constraints']:
                             if constraint['type'] == 'multiple_of':
-                                # Корректируем значение чтобы было кратно
                                 remainder = value % constraint['value']
                                 if remainder != 0:
                                     value += (constraint['value'] - remainder)
-                                    # Проверяем не вышли ли за границы
                                     if value > config['max']:
                                         value -= constraint['value']
                     generated[param] = value
-            
+                    
+                elif config['type'] == 'float':
+                    min_v = config.get('min', 0)
+                    max_v = config.get('max', 1)
+                    step = config.get('constraints', [{}])[0].get('value', 0.01)
+                    # step ищем первый multiple_of или default=0.01
+                    for c in config.get('constraints', []):
+                        if c.get('type') == 'multiple_of':
+                            step = c.get('value', 0.01)
+                    steps = int(round((max_v - min_v) / step))
+                    value = min_v + step * random.randint(0, steps)
+                    value = round(value, str(step)[::-1].find('.'))
+                    generated[param] = value
+
+                elif config['type'] == 'choice':
+                    # Одиночные choice (не согласованные)
+                    generated[param] = random.choice(config['values'])
+
             # Проверка условий
             if valid and conditions:
                 try:
@@ -1577,12 +1693,13 @@ class MathEngine:
                         valid = False
                 except:
                     valid = False
-            
+
             if valid:
                 return generated
-        
+
         # Если не удалось сгенерировать - возвращаем последний вариант
         return generated
+
 
     
     @staticmethod
@@ -1592,15 +1709,24 @@ class MathEngine:
             for param, value in params.items():
                 expr = expr.replace(f'{{{param}}}', str(value))
             
-            # Парсим выражение с помощью sympy
+            # Проверяем, является ли выражение дробью
+            if '/' in expr and len(expr.split('/')) == 2:
+                numerator, denominator = expr.split('/')
+                try:
+                    numerator_val = float(numerator)
+                    denominator_val = float(denominator)
+                    if denominator_val != 0:
+                        return str(numerator_val / denominator_val)
+                except:
+                    pass  # Продолжаем обычную обработку
+            
+            # Остальная логика вычислений (как было раньше)
             parsed = parse_expr(expr, evaluate=True)
             
-            # Если выражение содержит переменные - упрощаем
             if any(symbol in str(parsed) for symbol in ['x', 'y', 'z']):
                 simplified = sympy.simplify(parsed)
-                return str(simplified).replace('*', '')  # Убираем * для красоты
+                return str(simplified).replace('*', '')
             
-            # Для числовых выражений вычисляем значение
             return str(float(parsed.evalf()))
             
         except Exception as e:
@@ -1651,362 +1777,59 @@ import random
 class TaskGenerator:
     @staticmethod
     def generate_task_variant(template):
-        # Проверяем наличие всех необходимых полей
         if not all(key in template for key in ['question_template', 'answer_template', 'parameters']):
             return None
 
-        # Генерация параметров
-        params = MathEngine.generate_parameters(template['parameters'])
-        if not params:
-            return None
+        # Генерация параметров (всегда словарь, даже если пустой)
+        params = {}
+        if template.get('parameters'):
+            params = MathEngine.generate_parameters(template['parameters'])
 
-        # Замена в вопросе
+        # Формируем вопрос (подставляем параметры, если есть)
         question = template['question_template']
+        if params:
+            for param, value in params.items():
+                question = re.sub(rf"\{{{param}\}}", str(value), question)
+
+        # Главный блок: универсальная подстановка для ответа
+        def eval_expr(match):
+            expr = match.group(1)
+            try:
+                # Разрешённые функции для использования в шаблоне
+                safe_funcs = {
+                    'round': round,
+                    'abs': abs,
+                    'min': min,
+                    'max': max
+                }
+                # Добавляем параметры в locals
+                local_vars = dict(params)
+                # Если expr — имя параметра (строка или число), просто возвращаем как есть
+                if expr in local_vars:
+                    return str(local_vars[expr])
+                # Если хотя бы один арифм. оператор или round — вычисляем
+                if any(op in expr for op in '+-*/') or 'round' in expr or 'abs' in expr or 'min' in expr or 'max' in expr:
+                    return str(eval(expr, safe_funcs, local_vars))
+                return str(eval(expr, safe_funcs, local_vars))
+            except Exception as e:
+                print(f"Ошибка вычисления '{expr}': {e}")
+                return "Ошибка генерации"
+
         answer_template = template['answer_template']
-
-        # Извлекаем все параметры из вопроса и ответа
-        question_params = set(re.findall(r'\{([A-Za-z]+)\}', question))
-        answer_params = set(re.findall(r'\{([A-Za-z]+)\}', answer_template))
-        all_params = question_params.union(answer_params)
-
-        # Генерируем значения для всех параметров
-        for param in all_params:
-            if param not in params:
-                # Если параметр не указан в конфигурации, генерируем случайное значение
-                params[param] = random.randint(1, 10)
-
-        # Заменяем параметры в вопросе
-        for param, value in params.items():
-            question = question.replace(f'{{{param}}}', str(value))
-
-        # Вычисление ответа
-        try:
-            answer = str(eval(answer_template.format(**params)))
-        except Exception as e:
-            print(f"Ошибка вычисления ответа: {e}")
-            answer = "Неверная формула ответа"
+        answer = re.sub(r"\{([^{}]+)\}", eval_expr, answer_template)
 
         return {
             'question': question,
             'correct_answer': answer,
             'params': params,
-            'template_id': template.get('id'),
-            'answer_type': template.get('answer_type', 'numeric')
+            'template_id': template.get('id')
         }
+
 
     @staticmethod
     def extract_parameters(template_str):
         return list(set(re.findall(r'\{([A-Za-z]+)\}', template_str)))
-================================================================================
-ФАЙЛ: static\css\edit_lesson.css
-================================================================================
-/* Боковая панель с шаблонами */
-.templates-sidebar {
-    width: 300px;
-    background: #f8f9fa;
-    border-right: 1px solid #ddd;
-    padding: 20px;
-    height: calc(100vh - 80px);
-    position: fixed;
-    overflow-y: auto;
 
-}
-.student-preview {
-    margin: 20px 0;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-}
-
-.student-preview h4 {
-    margin-top: 0;
-    color: var(--primary-color);
-    font-size: 16px;
-}
-
-.student-preview .preview-content {
-    margin-top: 10px;
-}
-
-.student-preview .preview-content p {
-    margin: 8px 0;
-    line-height: 1.5;
-}
-================================================================================
-ФАЙЛ: static\css\math_editor.css
-================================================================================
-.math-editor {
-    margin-top: 20px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    padding: 15px;
-}
-
-.math-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    margin-bottom: 10px;
-}
-
-.btn-math {
-    padding: 5px 10px;
-    background: var(--secondary-color);
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-}
-
-.math-editor-area {
-    width: 100%;
-    min-height: 100px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-family: monospace;
-}
-
-.math-preview {
-    margin-top: 10px;
-    padding: 10px;
-    background: #f9f9f9;
-    border-radius: 5px;
-    min-height: 50px;
-}
-
-.param-group {
-    margin-bottom: 10px;
-}
-
-.param-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-}
-
-.param-input, .param-select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-================================================================================
-ФАЙЛ: static\css\style.css
-================================================================================
-:root {
-    --primary-color: #4a6bff;
-    --secondary-color: #f5f7ff;
-    --error-color: #ff4757;
-    --success-color: #2ed573;
-    --text-color: #2f3542;
-    --light-text: #747d8c;
-  
-}
-
-.btn-save:hover {
-    background: #25a05e;
-}
-
-/* Стили для превью */
-.teacher-preview {
-    background: #f9f9f9;
-    border-radius: 8px;
-    padding: 15px;
-    margin-top: 15px;
-    border: 1px dashed #d0d0d0;
-}
-
-.preview-content p {
-    margin: 8px 0;
-    line-height: 1.5;
-}
-
-.preview-params {
-    font-family: monospace;
-    color: #666;
-}
-/* Иконки */
-.icon {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    margin-right: 8px;
-    vertical-align: middle;
-}
-
-.icon-book { background-image: url('/static/images/icons/book.svg'); }
-.icon-search { background-image: url('/static/images/icons/search.svg'); }
-.icon-save { background-image: url('/static/images/icons/save.svg'); }
-/* Добавьте остальные иконки по аналогии */
-================================================================================
-ФАЙЛ: static\css\teacher_dashboard.css
-================================================================================
-/* Стили для проведения урока */
-.conduct-lesson-container {
-    padding: 20px;
-}
-
-.real-time-results {
-    background: white;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: var(--shadow);
-    margin-bottom: 20px;
-}
-
-.results-table-container {
-    overflow-x: auto;
-}
-
-.results-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-}
-
-.results-table th, .results-table td {
-    padding: 12px 15px;
-    text-align: center;
-    border-bottom: 1px solid #eee;
-}
-
-.results-table th {
-    background: var(--secondary-color);
-    color: var(--primary-color);
-    font-weight: 500;
-}
-
-.correct {
-    color: var(--success-color);
-    font-weight: bold;
-}
-
-.incorrect {
-    color: var(--error-color);
-    font-weight: bold;
-}
-
-.pending {
-    color: var(--light-text);
-}
-
-.progress-container {
-    position: relative;
-    height: 20px;
-    background: #f0f0f0;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.progress-container .progress-bar {
-    height: 100%;
-    background: var(--primary-color);
-    transition: width 0.3s ease;
-}
-
-.progress-container span {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 12px;
-    color: white;
-    z-index: 1;
-}
-
-.lesson-controls {
-    display: flex;
-    justify-content: flex-end;
-    gap: 15px;
-    margin-top: 20px;
-}
-.conduct-lesson-container {
-    padding: 20px;
-}
-
-.class-info {
-    margin-right: 20px;
-    font-weight: 500;
-    color: var(--primary-color);
-}
-
-.real-time-results {
-    background: white;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: var(--shadow);
-    margin-bottom: 20px;
-}
-
-.results-table-container {
-    overflow-x: auto;
-}
-
-.results-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-}
-
-.results-table th, .results-table td {
-    padding: 12px 15px;
-    text-align: center;
-    border-bottom: 1px solid #eee;
-}
-
-.results-table th {
-    background: var(--secondary-color);
-    color: var(--primary-color);
-    font-weight: 500;
-}
-
-.task-result .correct {
-    color: var(--success-color);
-    font-weight: bold;
-}
-
-.task-result .incorrect {
-    color: var(--error-color);
-    font-weight: bold;
-}
-
-.task-result .pending {
-    color: var(--light-text);
-}
-
-.progress-container {
-    position: relative;
-    height: 20px;
-    background: #f0f0f0;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.progress-container .progress-bar {
-    height: 100%;
-    background: var(--primary-color);
-    transition: width 0.3s ease;
-}
-
-.progress-container span {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 12px;
-    color: white;
-    z-index: 1;
-}
-
-.lesson-controls {
-    display: flex;
-    justify-content: flex-end;
-    gap: 15px;
-    margin-top: 20px;
-}
 ================================================================================
 ФАЙЛ: static\js\bulk_actions.js
 ================================================================================
@@ -2220,7 +2043,7 @@ document.addEventListener('DOMContentLoaded', function() {
             templatesList.innerHTML = '<div class="empty-state"><p>В этом учебнике нет шаблонов заданий</p></div>';
             return;
         }
-
+        
         templatesList.innerHTML = templates.map(template => `
             <div class="template-item">
                 <h4>${template.name}</h4>
@@ -2263,89 +2086,33 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
     function generateStudentPreview(taskCard) {
-    console.log('Generating student preview...'); // Отладочное сообщение
-    
     const templateId = taskCard.dataset.templateId;
-    if (!templateId || !templatesCache[templateId]) {
-        console.error('No template found in cache for ID:', templateId);
-        return;
-    }
+    if (!templateId) return;
 
-    const template = templatesCache[templateId];
-    console.log('Using template:', template); // Отладочный вывод
+    // Делаем AJAX-запрос к backend
+    fetch(`/api/generate_from_template/${templateId}`)
+        .then(response => response.json())
+        .then(variant => {
+            // Пример для ученика:
+            const previewQuestion = taskCard.querySelector('.student-preview-question');
+            const previewAnswer = taskCard.querySelector('.student-preview-answer');
 
-    try {
-        // Преобразуем параметры из строки JSON в объект
-        const params = typeof template.parameters === 'string' 
-            ? JSON.parse(template.parameters) 
-            : template.parameters;
-        
-        console.log('Template parameters:', params); // Отладочный вывод
-
-        // Генерируем вариант задания
-        const variant = {
-            question: template.question_template,
-            correct_answer: template.answer_template,
-            params: {}
-        };
-
-        // Генерируем значения параметров
-        const paramNames = [...new Set([
-            ...(template.question_template.match(/\{([A-Za-z]+)\}/g) || []),
-            ...(template.answer_template.match(/\{([A-Za-z]+)\}/g) || [])
-        ])].map(match => match.replace(/\{|\}/g, ''));
-
-        paramNames.forEach(param => {
-            if (params[param]) {
-                // Используем параметры из шаблона
-                variant.params[param] = randomInt(
-                    params[param].min || 1,
-                    params[param].max || 10
-                );
+            if (variant && previewQuestion && previewAnswer) {
+                previewQuestion.textContent = variant.question;
+                previewAnswer.textContent = variant.correct_answer;
             } else {
-                // Генерируем случайное значение, если параметр не определён
-                variant.params[param] = randomInt(1, 10);
+                if (previewQuestion) previewQuestion.textContent = "Ошибка генерации";
+                if (previewAnswer) previewAnswer.textContent = "Ошибка генерации";
             }
+        })
+        .catch(e => {
+            const previewQuestion = taskCard.querySelector('.student-preview-question');
+            const previewAnswer = taskCard.querySelector('.student-preview-answer');
+            if (previewQuestion) previewQuestion.textContent = "Ошибка связи с сервером";
+            if (previewAnswer) previewAnswer.textContent = "Ошибка связи с сервером";
         });
-
-        // Подставляем параметры в вопрос
-        variant.question = template.question_template;
-        for (const [param, value] of Object.entries(variant.params)) {
-            variant.question = variant.question.replace(
-                new RegExp(`\\{${param}\\}`, 'g'), 
-                value
-            );
-        }
-
-        // Вычисляем ответ
-        try {
-            variant.correct_answer = eval(
-                template.answer_template.replace(
-                    /\{([A-Za-z]+)\}/g, 
-                    (_, p1) => variant.params[p1]
-                )
-            ).toString();
-        } catch (e) {
-            console.error('Error evaluating answer:', e);
-            variant.correct_answer = "Ошибка в формуле ответа";
-        }
-
-        console.log('Generated variant:', variant); // Отладочный вывод
-
-        // Обновляем DOM
-        const previewQuestion = taskCard.querySelector('.student-preview-question');
-        const previewAnswer = taskCard.querySelector('.student-preview-answer');
-        
-        if (previewQuestion && previewAnswer) {
-            previewQuestion.textContent = variant.question;
-            previewAnswer.textContent = variant.correct_answer;
-        } else {
-            console.error('Preview elements not found in task card');
-        }
-    } catch (e) {
-        console.error('Error generating student preview:', e);
-    }
 }
+
 
 // Вспомогательная функция для генерации случайных чисел
 function randomInt(min, max) {
@@ -2917,38 +2684,48 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Функция для отображения результата
     function showResult(taskCard, isCorrect, evaluatedAnswer = null) {
-    const feedback = taskCard.querySelector('.task-feedback');
-    const correctFeedback = taskCard.querySelector('.feedback-correct');
-    const incorrectFeedback = taskCard.querySelector('.feedback-incorrect');
-    const status = taskCard.querySelector('.task-status');
-    
-    if (!feedback || !correctFeedback || !incorrectFeedback || !status) {
-        console.error('Не найдены необходимые элементы DOM');
-        return;
-    }
-    
-    if (isCorrect) {
-        correctFeedback.classList.remove('hidden');
-        incorrectFeedback.classList.add('hidden');
-        status.style.backgroundColor = 'var(--success-color)';
-        completedTasks++;
-    } else {
-        correctFeedback.classList.add('hidden');
-        incorrectFeedback.classList.remove('hidden');
-        if (evaluatedAnswer) {
-            const userAnswerElement = incorrectFeedback.querySelector('.user-answer');
-            if (userAnswerElement) {
-                userAnswerElement.textContent = `Ваш ответ: ${evaluatedAnswer}`;
-            }
+        const feedback = taskCard.querySelector('.task-feedback');
+        const correctFeedback = taskCard.querySelector('.feedback-correct');
+        const incorrectFeedback = taskCard.querySelector('.feedback-incorrect');
+        const status = taskCard.querySelector('.task-status');
+        
+        if (!feedback || !correctFeedback || !incorrectFeedback || !status) {
+            console.error('Не найдены необходимые элементы DOM');
+            return;
         }
-        status.style.backgroundColor = 'var(--error-color)';
+        
+        if (isCorrect) {
+            correctFeedback.classList.remove('hidden');
+            incorrectFeedback.classList.add('hidden');
+            status.style.backgroundColor = 'var(--success-color)';
+            completedTasks++;
+        } else {
+                correctFeedback.classList.add('hidden');
+                incorrectFeedback.classList.remove('hidden');
+                let correctMsg = `Ошибка! Правильный ответ: ${taskCard.querySelector('.correct-answer').textContent}`;
+                // Добавим дробь, если сервер прислал и она не пуста
+                if (window.lastCheckAnswerResult && window.lastCheckAnswerResult.correct_fraction) {
+                    const frac = window.lastCheckAnswerResult.correct_fraction;
+                    if (frac !== "" && !/^\d+$/.test(frac)) { // если не целое число
+                        correctMsg += ` (или как дробь: ${frac})`;
+                    }
+                }
+                incorrectFeedback.querySelector('.correct-answer').textContent = correctMsg;
+
+                if (evaluatedAnswer) {
+                    const userAnswerElement = incorrectFeedback.querySelector('.user-answer');
+                    if (userAnswerElement) {
+                        userAnswerElement.textContent = `Ваш ответ: ${evaluatedAnswer}`;
+                    }
+                }
+                status.style.backgroundColor = 'var(--error-color)';
+            }
+        
+        feedback.classList.remove('hidden');
+        taskCard.querySelector('.answer-input').disabled = true;
+        taskCard.querySelector('.btn-check').disabled = true;
+        updateProgress();
     }
-    
-    feedback.classList.remove('hidden');
-    taskCard.querySelector('.answer-input').disabled = true;
-    taskCard.querySelector('.btn-check').disabled = true;
-    updateProgress();
-}
     
     // Новая функция проверки ответа через API
     async function checkAnswer(taskCard) {
@@ -2974,6 +2751,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         const result = await response.json();
+        window.lastCheckAnswerResult = result;
         
         if (result.error) {
             throw new Error(result.error);
@@ -4083,6 +3861,8 @@ document.addEventListener('DOMContentLoaded', function() {
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/lesson.css') }}" rel="stylesheet">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
     <div class="lesson-container">
@@ -4451,57 +4231,3 @@ document.addEventListener('DOMContentLoaded', function() {
     <script src="{{ url_for('static', filename='js/bulk_actions.js') }}"></script>
 </body>
 </html>
-================================================================================
-ФАЙЛ: utils\task_generator.py
-================================================================================
-# utils/task_generator.py
-import random
-import re
-import json
-from typing import Dict, Any, List, Tuple
-from math_engine import MathEngine
-
-class TaskGenerator:
-    @staticmethod
-    def generate_task_variant(template: dict) -> dict:
-        """
-        Генерирует вариант задания на основе шаблона
-        """
-        # Генерация параметров
-        params = MathEngine.generate_parameters(template['parameters'])
-        
-        # Формирование вопроса
-        question = template['question_template']
-        for param, value in params.items():
-            question = question.replace(f'{{{param}}}', str(value))
-        
-        # Вычисление ответа
-        answer = MathEngine.evaluate_expression(template['answer_template'], params)
-        
-        return {
-            'question': question,
-            'correct_answer': answer,
-            'params': params,
-            'template_id': template.get('id')
-        }
-
-    @staticmethod
-    def extract_parameters(template: str) -> List[str]:
-        """Извлекает список параметров из шаблона"""
-        return list(set(re.findall(r'\{([A-Za-z]+)\}', template)))
-
-    @staticmethod
-    def validate_template(template: dict) -> bool:
-        """Проверяет корректность шаблона"""
-        required_fields = ['question_template', 'answer_template', 'parameters']
-        if not all(field in template for field in required_fields):
-            return False
-        
-        try:
-            # Проверка генерации хотя бы одного варианта
-            variant = TaskGenerator.generate_task_variant(template)
-            if variant['correct_answer'] is None:
-                return False
-            return True
-        except:
-            return False

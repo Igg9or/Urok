@@ -1292,8 +1292,6 @@ def api_check_answer():
         user_answer = data['answer'].strip()
         correct_answer = data['correct_answer']
         answer_type = data.get('answer_type', 'numeric')
-
-
         def is_fraction(s):
             return '/' in s and len(s.split('/')) == 2
 
@@ -1314,18 +1312,6 @@ def api_check_answer():
         def float_to_fraction(val, max_denominator=1000):
             frac = Fraction(val).limit_denominator(max_denominator)
             return f"{frac.numerator}/{frac.denominator}"
-        
-        if answer_type == 'string':
-            print(f"Debug: Comparing user answer '{ua}' with correct '{ca}'")
-            # Для сравнения знаков: > < =, убираем пробелы и сравниваем только значимые символы
-            ua = user_answer.strip().replace(" ", "")
-            ca = correct_answer.strip().replace(" ", "")
-            # Если оба ответа из одного символа, сравни только их (на всякий случай)
-            if len(ua) == 1 and len(ca) == 1:
-                is_correct = ua == ca
-            else:
-                is_correct = ua.lower() == ca.lower()
-            return jsonify({"is_correct": is_correct, "correct_answer": correct_answer})
 
         def parse_math_answer(ans):
             s = ans.replace(",", ".").replace("%", "").strip()
@@ -1395,7 +1381,16 @@ def api_check_answer():
                     })
                 
         # --- Строковые задачи ---
-        
+        if answer_type == 'string':
+            # Для сравнения знаков: > < =, убираем пробелы и сравниваем только значимые символы
+            ua = user_answer.strip().replace(" ", "")
+            ca = correct_answer.strip().replace(" ", "")
+            # Если оба ответа из одного символа, сравни только их (на всякий случай)
+            if len(ua) == 1 and len(ca) == 1:
+                is_correct = ua == ca
+            else:
+                is_correct = ua.lower() == ca.lower()
+            return jsonify({"is_correct": is_correct, "correct_answer": correct_answer})
 
         # --- Алгебраические задачи ---
         if answer_type == 'algebraic':
