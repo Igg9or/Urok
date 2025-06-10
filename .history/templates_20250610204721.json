@@ -312,7 +312,7 @@
   "name": "7.б Любое число между двумя дробями (интервал, рандом)",
   "question_template": "Укажите любое число, которое больше \\( \\frac{{A1}}{{A2}} \\), но меньше \\( \\frac{{B1}}{{B2}} \\).<br><i>Ответ введите в виде десятичной дроби или обыкновенной дроби.</i>",
   "answer_template": "{A1}/{A2};{B1}/{B2}",
-   "answer_type": "interval",
+   "answer_type": "interval"
   "parameters": {
     "A1": { "type": "choice", "values": [1, 2, 3] },
     "A2": { "type": "choice", "values": [6, 7, 8] },
@@ -321,6 +321,8 @@
   },
   "conditions": "(A1/A2) < (B1/B2)"
 }
+
+
 
 
 ]
