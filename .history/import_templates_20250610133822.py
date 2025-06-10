@@ -11,7 +11,6 @@ conn = sqlite3.connect(DB_PATH)
 cursor = conn.cursor()
 
 for tpl in templates:
-    answer_type = tpl.get('answer_type', 'numeric')
     cursor.execute('''
         INSERT OR REPLACE INTO task_templates 
         (textbook_id, name, question_template, answer_template, parameters, answer_type)
@@ -22,7 +21,7 @@ for tpl in templates:
         tpl['question_template'],
         tpl['answer_template'],
         json.dumps(tpl['parameters'], ensure_ascii=False),
-        answer_type
+        tpl.get('answer_type', 'numeric')  # <--- ВАЖНО!
     ))
 
 conn.commit()

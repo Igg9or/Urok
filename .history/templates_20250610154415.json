@@ -4,7 +4,6 @@
   "name": "3.а Представьте смешанную дробь двумя способами (7 класс, отношения)",
   "question_template": "Представьте \\( {A} \\frac{{B1}}{{B2}} \\) в виде отношения целого числа к натуральному двумя способами .<br><i>Ответ введите двумя дробями через точку с запятой.</i>",
   "answer_template": "{(A * B2 + B1)}/{B2}; {2 * (A * B2 + B1)}/{2 * B2}",
-  "answer_type": "string",
   "parameters": {
     "A": { "type": "choice", "values": [1, 2, 3] },
     "B1": { "type": "choice", "values": [1, 2, 3] },
@@ -81,8 +80,7 @@
     "A1": { "type": "choice", "values": [1, 2, 3] },
     "A2": { "type": "choice", "values": [3, 6, 9] }
   },
-  "conditions": "(A1 < A2)",
-  "answer_type": "string"
+  "conditions": "(A1 < A2)"
 },
 {
   "textbook_id": 5,
@@ -186,7 +184,6 @@
   "name": "6.а Сравните десятичные дроби (однозначный ответ)",
   "question_template": "Сравните рациональные числа: {A} и {B}.<br><i>Ответ введите знаком: >, < или =</i>",
   "answer_template": "<",
-  "answer_type": "string",
   "parameters": {
     "A": { "type": "choice", "values": [0.013, 0.01, 0.05] },
     "B": { "type": "choice", "values": [0.1004, 0.2, 0.12] }

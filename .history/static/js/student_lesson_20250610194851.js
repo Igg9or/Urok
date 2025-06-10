@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const userAnswer = taskCard.querySelector('.answer-input').value.trim();
     const correctAnswer = taskCard.dataset.correctAnswer;
     const params = JSON.parse(taskCard.dataset.params || '{}');
-    const answerType = taskCard.dataset.answerType || 'numeric';
+    
     try {
         const response = await fetch('/api/check_answer', {
             method: 'POST',

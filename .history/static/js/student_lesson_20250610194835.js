@@ -52,19 +52,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const userAnswer = taskCard.querySelector('.answer-input').value.trim();
     const correctAnswer = taskCard.dataset.correctAnswer;
     const params = JSON.parse(taskCard.dataset.params || '{}');
-    const answerType = taskCard.dataset.answerType || 'numeric';
+    
     try {
         const response = await fetch('/api/check_answer', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                task_id: taskId,
-                answer: userAnswer,
-                correct_answer: correctAnswer,
-                params: params,
-                answer_type: answerType
-            })
-        });
+    task_id: taskId,
+    answer: userAnswer,
+    correct_answer: correctAnswer,
+    params: params,
+    answer_type: answerType
+});
         
         if (!response.ok) {
             throw new Error('Ошибка сервера');

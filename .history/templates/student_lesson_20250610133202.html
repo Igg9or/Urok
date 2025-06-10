@@ -26,12 +26,8 @@
         <main class="lesson-content">
             <div class="tasks-container">
                 {% for task in tasks %}
-                <div class="task-card"
-                    data-task-id="{{ task.id }}"
-                    data-user-id="{{ user_id }}"
-                    data-correct-answer="{{ task.correct_answer }}"
-                    data-answer-type="{{ task.answer_type }}"
-                    data-params='{{ task.params|tojson|safe }}'>
+<               <div class="task-card" data-task-id="{{ task.id }}" data-user-id="{{ user_id }}" data-answer-type="{{ task.answer_type }}">
+
                     <div class="task-header">
                         <div class="task-number">Задание {{ loop.index }}</div>
                         <div class="task-status"></div>
@@ -51,7 +47,7 @@
                             </div>
                             <div class="feedback-incorrect hidden">
                                 <span class="icon">✗</span>
-                                <span class="error-message">Ошибка! Правильный ответ: <span class="correct-answer">{{ task.correct_answer }}</span></span>
+                                <span>Ошибка! Правильный ответ: <span class="correct-answer">{{ task.correct_answer }}</span></span>
                                 <button class="btn btn-hint">Показать решение</button>
                             </div>
                             <div class="task-hint hidden">

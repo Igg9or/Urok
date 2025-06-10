@@ -645,7 +645,7 @@ def student_lessons():
 
 
 @app.route('/lesson/<int:lesson_id>')
-def start_lesson(lesson_id):
+ (lesson_id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
@@ -701,19 +701,12 @@ def start_lesson(lesson_id):
                 question = variant_data.get('generated_question', task['question'])
                 computed_answer = variant_data.get('computed_answer', '')
                 params = variant_data.get('params', {})
-                # Получаем answer_type из шаблона!
-                if task['template_id']:
-                    cursor.execute('SELECT answer_type FROM task_templates WHERE id = ?', (task['template_id'],))
-                    answer_type_row = cursor.fetchone()
-                    answer_type = answer_type_row['answer_type'] if answer_type_row and answer_type_row['answer_type'] else 'numeric'
-                else:
-                    answer_type = 'numeric'
+                # Ничего не пересчитываем — всегда как при генерации!
                 tasks.append({
                     'id': task['id'],
                     'question': question,
                     'correct_answer': computed_answer,
-                    'params': params,
-                    'answer_type': answer_type
+                    'params': params
                 })
             else:
                 # Генерация нового варианта через TaskGenerator
@@ -749,6 +742,7 @@ def start_lesson(lesson_id):
                     computed_answer = "?"
                     answer_type = 'numeric'
 
+
                 # Сохраняем вариант для этого ученика
                 variant_data = {
                     'params': params,
@@ -780,7 +774,6 @@ def start_lesson(lesson_id):
         return "Произошла ошибка при загрузке урока", 500
     finally:
         conn.close()
-
 
 @app.route('/save_answer', methods=['POST'])
 def save_answer():
@@ -1332,7 +1325,7 @@ def api_check_answer():
             return f"{frac.numerator}/{frac.denominator}"
         
         if answer_type == 'string':
-            
+            print("== STRING COMPARISON ==")
             # Для сравнения знаков: > < =, убираем пробелы и сравниваем только значимые символы
             ua = user_answer.strip().replace(" ", "")
             ca = correct_answer.strip().replace(" ", "")

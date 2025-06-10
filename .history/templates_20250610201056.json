@@ -4,7 +4,6 @@
   "name": "3.а Представьте смешанную дробь двумя способами (7 класс, отношения)",
   "question_template": "Представьте \\( {A} \\frac{{B1}}{{B2}} \\) в виде отношения целого числа к натуральному двумя способами .<br><i>Ответ введите двумя дробями через точку с запятой.</i>",
   "answer_template": "{(A * B2 + B1)}/{B2}; {2 * (A * B2 + B1)}/{2 * B2}",
-  "answer_type": "string",
   "parameters": {
     "A": { "type": "choice", "values": [1, 2, 3] },
     "B1": { "type": "choice", "values": [1, 2, 3] },
@@ -93,7 +92,7 @@
     "B1": { "type": "choice", "values": [5, 7, 8] },
     "B2": { "type": "choice", "values": [6, 9, 12] }
   },
-  "conditions": "(B1 < B2)"
+  "conditions": "(B1 < B2)",
 },
 {
   "textbook_id": 5,

@@ -678,7 +678,7 @@ def start_lesson(lesson_id):
         
         # Получаем задания урока
         cursor.execute('''
-            SELECT id, question, answer, template_id
+            SELECT id, question, answer, template_id, answer_type
             FROM lesson_tasks
             WHERE lesson_id = ?
             ORDER BY id
@@ -701,29 +701,16 @@ def start_lesson(lesson_id):
                 question = variant_data.get('generated_question', task['question'])
                 computed_answer = variant_data.get('computed_answer', '')
                 params = variant_data.get('params', {})
-                # Получаем answer_type из шаблона!
-                if task['template_id']:
-                    cursor.execute('SELECT answer_type FROM task_templates WHERE id = ?', (task['template_id'],))
-                    answer_type_row = cursor.fetchone()
-                    answer_type = answer_type_row['answer_type'] if answer_type_row and answer_type_row['answer_type'] else 'numeric'
-                else:
-                    answer_type = 'numeric'
+                # Ничего не пересчитываем — всегда как при генерации!
                 tasks.append({
                     'id': task['id'],
                     'question': question,
                     'correct_answer': computed_answer,
-                    'params': params,
-                    'answer_type': answer_type
+                    'params': params
                 })
             else:
                 # Генерация нового варианта через TaskGenerator
                 if task['template_id']:
-                    # Получаем только answer_type из task_templates
-                    cursor.execute('SELECT answer_type FROM task_templates WHERE id = ?', (task['template_id'],))
-                    answer_type_row = cursor.fetchone()
-                    answer_type = answer_type_row['answer_type'] if answer_type_row and answer_type_row['answer_type'] else 'numeric'
-                    
-                    # Теперь тянем остальные параметры для генерации задания
                     cursor.execute('SELECT * FROM task_templates WHERE id = ?', (task['template_id'],))
                     template_row = cursor.fetchone()
                     if template_row:
@@ -733,12 +720,13 @@ def start_lesson(lesson_id):
                         generated_question = variant['question']
                         computed_answer = variant['correct_answer']
                         params = variant['params']
+                        answer_type = template_row['answer_type'] if 'answer_type' in template_row.keys() else 'numeric'
                     else:
                         generated_question = task['question']
                         computed_answer = task['answer']
                         params = {}
+                        answer_type = 'numeric'
                 else:
-                    # Старые задания без шаблона
                     params = {}
                     param_matches = set(re.findall(r'\{([A-Za-z]+)\}', task['question']))
                     for param in param_matches:
@@ -761,12 +749,12 @@ def start_lesson(lesson_id):
                     VALUES (?, ?, ?, ?)
                 ''', (lesson_id, user_id, task['id'], json.dumps(variant_data)))
                 tasks.append({
-                    'id': task['id'],
-                    'question': generated_question,
-                    'correct_answer': computed_answer,
-                    'params': params,
-                    'answer_type': answer_type
-                })
+    'id': task['id'],
+    'question': generated_question,
+    'correct_answer': computed_answer,
+    'params': params,
+    'answer_type': answer_type
+})
         
         conn.commit()
         return render_template('student_lesson.html',
@@ -780,7 +768,6 @@ def start_lesson(lesson_id):
         return "Произошла ошибка при загрузке урока", 500
     finally:
         conn.close()
-
 
 @app.route('/save_answer', methods=['POST'])
 def save_answer():
@@ -1304,7 +1291,6 @@ def generate_task():
 def api_check_answer():
     try:
         data = request.get_json()
-        print("DEBUG DATA:", data)
         user_answer = data['answer'].strip()
         correct_answer = data['correct_answer']
         answer_type = data.get('answer_type', 'numeric')
@@ -1332,11 +1318,10 @@ def api_check_answer():
             return f"{frac.numerator}/{frac.denominator}"
         
         if answer_type == 'string':
-            
+            print(f"Debug: Comparing user answer '{ua}' with correct '{ca}'")
             # Для сравнения знаков: > < =, убираем пробелы и сравниваем только значимые символы
             ua = user_answer.strip().replace(" ", "")
             ca = correct_answer.strip().replace(" ", "")
-            print(f"Debug: Comparing user answer '{ua}' with correct '{ca}'")
             # Если оба ответа из одного символа, сравни только их (на всякий случай)
             if len(ua) == 1 and len(ca) == 1:
                 is_correct = ua == ca
