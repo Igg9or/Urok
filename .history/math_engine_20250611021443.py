@@ -8,6 +8,7 @@ class MathEngine:
     @staticmethod
     def generate_parameters(template_params, conditions=''):
         params = {}
+        conditions = template_params.get('conditions', '')
         # 1. Собираем все ключи типа choice для согласованного выбора
         choice_keys = [param for param, config in template_params.items() if isinstance(config, dict) and config.get('type') == 'choice']
         choice_len = None
