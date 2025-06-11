@@ -1,0 +1,833 @@
+[
+{
+  "textbook_id": 5,
+  "name": "3.а Представьте смешанную дробь двумя способами (7 класс, отношения)",
+  "question_template": "Представьте \\( {A} \\frac{{B1}}{{B2}} \\) в виде отношения целого числа к натуральному двумя способами .<br><i>Ответ введите двумя дробями через точку с запятой.</i>",
+  "answer_template": "{(A * B2 + B1)}/{B2}; {2 * (A * B2 + B1)}/{2 * B2}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [1, 2, 3] },
+    "B1": { "type": "choice", "values": [1, 2, 3] },
+    "B2": { "type": "choice", "values": [2, 4, 5, 7] }
+  },
+  "conditions": "(B1 < B2) and (B2 > 0)"
+},
+{
+  "textbook_id": 5,
+  "name": "3.б Представьте десятичную дробь двумя способами (7 класс, отношения)",
+  "question_template": "Представьте {C} в виде отношения целого числа к натуральному двумя способами .<br><i>Ответ введите двумя дробями через точку с запятой.</i>",
+  "answer_template": "{int(C*10)}/10; {int(C*20)}/20",
+  "parameters": {
+    "C": { "type": "choice", "values": [0.3, 0.25, 0.4, 0.5] }
+  },
+  "conditions": "(C > 0)"
+},
+{
+  "textbook_id": 5,
+  "name": "3.в Представьте отрицательную смешанную дробь двумя способами (7 класс, отношения)",
+  "question_template": "Представьте \\( {D} \\frac{{E1}}{{E2}} \\) в виде отношения целого числа к натуральному двумя способами .<br><i>Ответ введите двумя дробями через точку с запятой.</i>",
+  "answer_template": "{D * E2 - E1}/{E2}; {2 * (D * E2 - E1)}/{2 * E2}",
+  "parameters": {
+    "D": { "type": "choice", "values": [-3, -2] },
+    "E1": { "type": "choice", "values": [1, 2] },
+    "E2": { "type": "choice", "values": [4, 5, 6] }
+  },
+  "conditions": "(E1 < E2) and (E2 > 0)"
+},
+{
+  "textbook_id": 5,
+  "name": "3.г Представьте отрицательное целое число двумя способами (7 класс, отношения)",
+  "question_template": "Представьте {F} в виде отношения целого числа к натуральному двумя способами ().<br><i>Ответ введите двумя дробями через точку с запятой.</i>",
+  "answer_template": "{F}/1; {F*2}/2",
+  "parameters": {
+    "F": { "type": "choice", "values": [-27, -13, -8] }
+  },
+  "conditions": "(F < 0)"
+},
+{
+  "textbook_id": 5,
+  "name": "3.д Представьте нуль двумя способами (7 класс, отношения)",
+  "question_template": "Представьте {G} в виде отношения целого числа к натуральному двумя способами (например: 0/1; 0/8).<br><i>Ответ введите двумя дробями через точку с запятой.</i>",
+  "answer_template": "0/1; 0/8",
+  "parameters": {
+    "G": { "type": "choice", "values": [0] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 5,
+  "name": "4. Представьте в виде дроби с наименьшим натуральным знаменателем (расширенный, 7 класс)",
+  "question_template": "Представьте в виде дроби с наименьшим натуральным знаменателем числа:<br>а) {A};<br>б) {B};<br>в) {C};<br>г) {D};<br>д) \\( {E} \\frac{{F1}}{{F2}} \\);<br>е) \\( - \\frac{{G1}}{{G2}} \\).<br><i>Ответ введите через точку с запятой в виде a/b, без пробелов, например: 36/1; -45/1; 21/5; -8/10; 91/6; -2/9</i>",
+  "answer_template": "{A}/1; {B}/1; {int(C*10)}/{10}; {int(D*10)}/{10}; {(E * F2 + F1)}/{F2}; {-G1}/{G2}",
+  "parameters": {
+    "A": { "type": "choice", "values": [36, 42, 18, 15, 24, 50, 63, 90, 120] },
+    "B": { "type": "choice", "values": [-45, -32, -20, -8, -14, -16, -27, -36, -72] },
+    "C": { "type": "choice", "values": [4.2, 7.3, 5.8, 2.1, 1.5, 6.4, 0.6, 3.9, 9.2, 0.7, 0.9, 2.7], "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "D": { "type": "choice", "values": [-0.8, -1.2, -0.6, -0.3, -2.5, -3.6, -1.5, -4.8, -7.2, -0.9, -2.1], "constraints": [{"type": "multiple_of", "value": 0.1}] },
+    "E": { "type": "choice", "values": [15, 7, 12, 9, 8, 4, 6, 5, 3] },
+    "F1": { "type": "choice", "values": [1, 2, 3, 4, 5, 6, 7, 8] },
+    "F2": { "type": "choice", "values": [6, 8, 10, 3, 4, 5, 7, 9] },
+    "G1": { "type": "choice", "values": [2, 4, 5, 7, 8, 11, 13, 15] },
+    "G2": { "type": "choice", "values": [9, 5, 8, 10, 12, 13, 15, 16] }
+  },
+  "conditions": "(B1 < B2 if defined('B1') and defined('B2') else True) and (F1 < F2) and (G1 < G2) and (F2 > 0) and (G2 > 0)"
+},
+{
+  "textbook_id": 5,
+  "name": "5.а Представьте 1/3 в виде десятичной дроби (округление до сотых, 7 класс)",
+  "question_template": "Представьте \\( \\frac{{A1}}{{A2}} \\) в виде бесконечной десятичной дроби (округлите до сотых):<br><i>Ответ введите одним числом</i>",
+  "answer_template": "{round(A1/A2, 2)}",
+  "parameters": {
+    "A1": { "type": "choice", "values": [1, 2, 3] },
+    "A2": { "type": "choice", "values": [3, 6, 9] }
+  },
+  "conditions": "(A1 < A2)",
+  "answer_type": "string"
+},
+{
+  "textbook_id": 5,
+  "name": "5.б Представьте 5/6 в виде десятичной дроби (округление до сотых, 7 класс)",
+  "question_template": "Представьте \\( \\frac{{B1}}{{B2}} \\) в виде бесконечной десятичной дроби (округлите до сотых):<br><i>Ответ введите одним числом</i>",
+  "answer_template": "{round(B1/B2, 2)}",
+  "parameters": {
+    "B1": { "type": "choice", "values": [5, 7, 8] },
+    "B2": { "type": "choice", "values": [6, 9, 12] }
+  },
+  "conditions": "(B1 < B2)"
+},
+{
+  "textbook_id": 5,
+  "name": "5.в Представьте 1/7 в виде десятичной дроби (округление до сотых, 7 класс)",
+  "question_template": "Представьте \\( \\frac{{C1}}{{C2}} \\) в виде бесконечной десятичной дроби (округлите до сотых):<br><i>Ответ введите одним числом</i>",
+  "answer_template": "{round(C1/C2, 2)}",
+  "parameters": {
+    "C1": { "type": "choice", "values": [1, 2, 3] },
+    "C2": { "type": "choice", "values": [7, 16] }
+  },
+  "conditions": "(C1 < C2)"
+},
+{
+  "textbook_id": 5,
+  "name": "5.г Представьте -20/9 в виде десятичной дроби (округление до сотых, 7 класс)",
+  "question_template": "Представьте \\( \\frac{{D1}}{{D2}} \\) в виде бесконечной десятичной дроби (округлите до сотых):<br><i>Ответ введите одним числом</i>",
+  "answer_template": "{round(D1/D2, 2)}",
+  "parameters": {
+    "D1": { "type": "choice", "values": [-20, -21, -18] },
+    "D2": { "type": "choice", "values": [9, 11, 13] }
+  },
+  "conditions": "(abs(D1) < D2 * 3)"
+},
+{
+  "textbook_id": 5,
+  "name": "5.д Представьте -8/15 в виде десятичной дроби (округление до сотых, 7 класс)",
+  "question_template": "Представьте \\( -\\frac{{E1}}{{E2}} \\) в виде бесконечной десятичной дроби (округлите до сотых):<br><i>Ответ введите одним числом</i>",
+  "answer_template": "{round(-E1/E2, 2)}",
+  "parameters": {
+    "E1": { "type": "choice", "values": [8, 10, 12] },
+    "E2": { "type": "choice", "values": [15, 13, 18] }
+  },
+  "conditions": "(E1 < E2)"
+},
+{
+  "textbook_id": 5,
+  "name": "5.е Представьте десятичное число в виде десятичной дроби (округление до сотых, 7 класс)",
+  "question_template": "Представьте {F} в виде бесконечной десятичной дроби (округлите до сотых):<br><i>Ответ введите одним числом</i>",
+  "answer_template": "{round(F, 2)}",
+  "parameters": {
+    "F": { "type": "choice", "values": [10.28, 5.43, 8.39, 7.77] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 5,
+  "name": "5.ж Представьте отрицательное целое число в виде десятичной дроби (округление до сотых, 7 класс)",
+  "question_template": "Представьте {G} в виде бесконечной десятичной дроби (округлите до сотых):<br><i>Ответ введите одним числом</i>",
+  "answer_template": "{round(G, 2)}",
+  "parameters": {
+    "G": { "type": "choice", "values": [-17, -15, -8] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 5,
+  "name": "5.з Представьте 3/16 в виде десятичной дроби (округление до сотых, 7 класс)",
+  "question_template": "Представьте \\( \\frac{{H1}}{{H2}} \\) в виде бесконечной десятичной дроби (округлите до сотых):<br><i>Ответ введите одним числом</i>",
+  "answer_template": "{round(H1/H2, 2)}",
+  "parameters": {
+    "H1": { "type": "choice", "values": [3, 5, 7] },
+    "H2": { "type": "choice", "values": [16, 12, 14] }
+  },
+  "conditions": "(H1 < H2)"
+},
+{
+  "textbook_id": 5,
+  "name": "5.и Представьте -1 3/40 в виде десятичной дроби (округление до сотых, 7 класс)",
+  "question_template": "Представьте \\( -1\\frac{{I1}}{{I2}} \\) в виде бесконечной десятичной дроби (округлите до сотых):<br><i>Ответ введите одним числом</i>",
+  "answer_template": "{round(-1 - I1/I2, 2)}",
+  "parameters": {
+    "I1": { "type": "choice", "values": [3, 7, 9] },
+    "I2": { "type": "choice", "values": [40, 25, 20] }
+  },
+  "conditions": "(I1 < I2)"
+},
+{
+  "textbook_id": 5,
+  "name": "5.к Представьте 2 7/11 в виде десятичной дроби (округление до сотых, 7 класс)",
+  "question_template": "Представьте \\( 2\\frac{{K1}}{{K2}} \\) в виде бесконечной десятичной дроби (округлите до сотых):<br><i>Ответ введите одним числом</i>",
+  "answer_template": "{round(2 + K1/K2, 2)}",
+  "parameters": {
+    "K1": { "type": "choice", "values": [7, 5, 9] },
+    "K2": { "type": "choice", "values": [11, 15, 13] }
+  },
+  "conditions": "(K1 < K2)"
+},
+{
+  "textbook_id": 5,
+  "name": "6.а Сравните десятичные дроби (однозначный ответ)",
+  "question_template": "Сравните рациональные числа: {A} и {B}.<br><i>Ответ введите знаком: >, < или =</i>",
+  "answer_template": "<",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [0.013, 0.01, 0.05] },
+    "B": { "type": "choice", "values": [0.1004, 0.2, 0.12] }
+  },
+  "conditions": "(A < B)"
+},
+{
+  "textbook_id": 5,
+  "name": "6.б Сравните отрицательное и положительное (однозначный ответ)",
+  "question_template": "Сравните рациональные числа: {A} и {B}.<br><i>Ответ введите знаком: >, < или =</i>",
+  "answer_template": "<",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [-24, -15, -30] },
+    "B": { "type": "choice", "values": [0.003, 0.1, 0.05] }
+  },
+  "conditions": "(A < B)"
+},
+{
+  "textbook_id": 5,
+  "name": "6.в Сравните два отрицательных (однозначный ответ)",
+  "question_template": "Сравните рациональные числа: {A} и {B}.<br><i>Ответ введите знаком: >, < или =</i>",
+  "answer_template": ">",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [-3.24, -3.15, -1.8] },
+    "B": { "type": "choice", "values": [-3.42, -4, -2.3] }
+  },
+  "conditions": "(A > B)"
+},
+{
+  "textbook_id": 5,
+  "name": "6.г Сравните дробь и десятичную (равны)",
+  "question_template": "Сравните рациональные числа: \\( \\frac{{A1}}{{A2}} \\) и {B}.<br><i>Ответ введите знаком: >, < или =</i>",
+  "answer_template": "=",
+  "answer_type": "string",
+  "parameters": {
+    "A1": { "type": "choice", "values": [3, 4, 1] },
+    "A2": { "type": "choice", "values": [8, 2, 4] },
+    "B": { "type": "choice", "values": [0.375, 2, 0.25] }
+  },
+  "conditions": "(A1/A2 == B)"
+},
+{
+  "textbook_id": 5,
+  "name": "6.д Сравните два одинаковых отрицательных (однозначный ответ)",
+  "question_template": "Сравните рациональные числа: {A} и {B}.<br><i>Ответ введите знаком: >, < или =</i>",
+  "answer_template": "=",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [-1.174] },
+    "B": { "type": "choice", "values": [-1.174] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 5,
+  "name": "6.е Сравните две положительные дроби (однозначный ответ)",
+  "question_template": "Сравните рациональные числа: \\( \\frac{{A1}}{{A2}} \\) и \\( \\frac{{B1}}{{B2}} \\).<br><i>Ответ введите знаком: >, < или =</i>",
+  "answer_template": "<",
+  "answer_type": "string",
+  "parameters": {
+    "A1": { "type": "choice", "values": [10, 11, 12] },
+    "A2": { "type": "choice", "values": [11, 12, 13] },
+    "B1": { "type": "choice", "values": [11, 13, 14] },
+    "B2": { "type": "choice", "values": [12, 14, 15] }
+  },
+  "conditions": "A1/A2 < B1/B2"
+},
+{
+  "textbook_id": 5,
+  "name": "6.ж Сравните два отрицательных числа (рандом, первый больше)",
+  "question_template": "Сравните рациональные числа: {A} и {B}.<br><i>Ответ введите знаком: >, < или =</i>",
+  "answer_template": ">",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "float", "min": -5, "max": -1.5, "constraints": [{"type": "multiple_of", "value": 0.001}] },
+    "B": { "type": "float", "min": -10, "max": -2, "constraints": [{"type": "multiple_of", "value": 0.001}] }
+  },
+  "conditions": "A > B"
+},
+{
+  "textbook_id": 5,
+  "name": "6.и Сравните десятичную и обыкновенную дроби (рандом, десятичная меньше)",
+  "question_template": "Сравните рациональные числа: {A} и \\( \\frac{{B1}}{{B2}} \\).<br><i>Ответ введите знаком: >, < или =</i>",
+  "answer_template": "<",
+  "answer_type": "string",
+  "parameters": {
+    "B1": { "type": "choice", "values": [7, 9, 11] },
+    "B2": { "type": "choice", "values": [16, 13, 12] },
+    "A": { "type": "float", "min": 0, "max": 0.55, "constraints": [{"type": "multiple_of", "value": 0.001}] }
+  },
+  "conditions": "A < (B1/B2)"
+},
+{
+  "textbook_id": 5,
+  "name": "6.л Сравните десятичную и периодическую дроби (рандом, десятичная меньше)",
+  "question_template": "Сравните рациональные числа: {A} и {B}(...) (т.е. периодическая десятичная дробь).<br><i>Ответ введите знаком: >, < или =</i>",
+  "answer_template": "<",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [1.37, 2.25, 0.25] },
+    "B": { "type": "choice", "values": [1.3737, 2.2727, 0.2727] }
+  },
+  "conditions": "A < B"
+},
+{
+  "textbook_id": 5,
+  "name": "7.а Укажите число между двумя дробями (интервал, дробь или десятичное)",
+  "question_template": "Укажите любое число, которое больше \\( \\frac{{A1}}{{A2}} \\), но меньше \\( \\frac{{B1}}{{B2}} \\).<br><i>Ответ введите дробью или десятичной дробью.</i>",
+  "answer_template": "{A1}/{A2};{B1}/{B2}",
+   "answer_type": "interval",
+  "parameters": {
+    "A1": { "type": "choice", "values": [1, 2, 3] },
+    "A2": { "type": "choice", "values": [7, 8, 9] },
+    "B1": { "type": "choice", "values": [4, 5, 6] },
+    "B2": { "type": "choice", "values": [6, 7, 8] }
+  },
+  "conditions": "(A1/A2) < (B1/B2)"
+},
+{
+  "textbook_id": 5,
+  "name": "7.б Любое число между двумя дробями (интервал, рандом)",
+  "question_template": "Укажите любое число, которое больше \\( \\frac{{A1}}{{A2}} \\), но меньше \\( \\frac{{B1}}{{B2}} \\).<br><i>Ответ введите в виде десятичной дроби или обыкновенной дроби.</i>",
+  "answer_template": "{A1}/{A2};{B1}/{B2}",
+   "answer_type": "interval",
+  "parameters": {
+    "A1": { "type": "choice", "values": [1, 2, 3] },
+    "A2": { "type": "choice", "values": [6, 7, 8] },
+    "B1": { "type": "choice", "values": [2, 3, 4] },
+    "B2": { "type": "choice", "values": [5, 6, 7] }
+  },
+  "conditions": "(A1/A2) < (B1/B2)"
+},
+  {
+    "textbook_id": 5,
+    "name": "8.а Несколько число между двумя близкими десятичными",
+    "question_template": "Укажите число, заключённое между <b>{A}</b> и <b>{B}</b>.<br><i>Ответ введите через точку с запятой (например: 10.01; 10.05; 10.09).</i>",
+    "answer_template": "{A};{B}",
+    "answer_type": "interval_list",
+    "parameters": {
+      "A": { "type": "float", "min": 5, "max": 99.8, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+      "B": { "type": "float", "min": 5.1, "max": 100, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+    },
+    "conditions": "A < B and round(B-A, 2) <= 0.2"
+  },
+
+  {
+    "textbook_id": 5,
+    "name": "8.б Несколько чисел между отрицательным малым и нулём",
+    "question_template": "Укажите число, заключённое между <b>{A}</b> и <b>{B}</b>.<br><i>Ответ введите через точку с запятой (например: -0.0005; -0.0001).</i>",
+    "answer_template": "{A};{B}",
+    "answer_type": "interval_list",
+    "parameters": {
+      "A": { "type": "float", "min": -0.01, "max": -0.0001, "constraints": [{"type": "multiple_of", "value": 0.0001}] },
+      "B": { "type": "float", "min": 0, "max": 0, "constraints": [{"type": "multiple_of", "value": 0.0001}] }
+    },
+    "conditions": "A < B"
+  },
+
+  {
+    "textbook_id": 5,
+    "name": "8.в Несколько чисел между двумя отрицательными целыми",
+    "question_template": "Укажите число, заключённое между <b>{A}</b> и <b>{B}</b>.<br><i>Ответ введите через точку с запятой (например: -1000.5; -1000.1).</i>",
+    "answer_template": "{A};{B}",
+    "answer_type": "interval_list",
+    "parameters": {
+      "A": { "type": "int", "min": -1010, "max": -1001 },
+      "B": { "type": "int", "min": -1000, "max": -999 }
+    },
+    "conditions": "A < B and B - A <= 3"
+  },
+
+  {
+    "textbook_id": 5,
+    "name": "8.г Несколько чисел между двумя дробями",
+    "question_template": "Укажите число, заключённое между \\( \\frac{{A1}}{{A2}} \\) и \\( \\frac{{B1}}{{B2}} \\).<br><i>Ответ введите через точку с запятой (например: 0.4; 1/2; 0.5).</i>",
+    "answer_template": "{A1}/{A2};{B1}/{B2}",
+    "answer_type": "interval_list",
+    "parameters": {
+      "A1": { "type": "int", "min": 1, "max": 5 },
+      "A2": { "type": "int", "min": 2, "max": 8 },
+      "B1": { "type": "int", "min": 2, "max": 9 },
+      "B2": { "type": "int", "min": 3, "max": 10 }
+    },
+    "conditions": "A1/A2 < B1/B2 and A2 != 0 and B2 != 0 and B1/A2 > A1/A2"
+  },
+  {
+    "textbook_id": 5,
+    "name": "9.а Пять чисел между двумя близкими десятичными",
+    "question_template": "Запишите число, заключённое между <b>{A}</b> и <b>{B}</b>.<br><i>Ответ введите через точку с запятой.</i>",
+    "answer_template": "{A};{B}",
+    "answer_type": "interval_list",
+    "parameters": {
+      "A": { "type": "float", "min": 1.1, "max": 1.8, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+      "B": { "type": "float", "min": 1.2, "max": 2.0, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+    },
+    "conditions": "A < B"
+  },
+  {
+    "textbook_id": 5,
+    "name": "9.б Пять чисел между целым и смешанным числом",
+    "question_template": "Запишите число, заключённое между <b>{A}</b> и <b>{B1} \\( \\frac{{B2}}{{B3}} \\)</b>.<br><i>Ответ введите через точку с запятой.</i>",
+    "answer_template": "{A};{B1} {B2}/{B3}",
+    "answer_type": "interval_list",
+    "parameters": {
+      "A": { "type": "int", "min": 2, "max": 10 },
+      "B1": { "type": "int", "min": 2, "max": 10 },
+      "B2": { "type": "int", "min": 1, "max": 3 },
+      "B3": { "type": "choice", "values": [4, 5, 6, 8] }
+    },
+    "conditions": "A < (B1 + B2 / B3)"
+  },
+  {
+    "textbook_id": 5,
+    "name": "9.в Пять чисел между двумя большими отрицательными целыми",
+    "question_template": "Запишите число, заключённое между <b>{A}</b> и <b>{B}</b>.<br><i>Ответ введите через точку с запятой.</i>",
+    "answer_template": "{A};{B}",
+    "answer_type": "interval_list",
+    "parameters": {
+      "A": { "type": "int", "min": -20000, "max": -1500 },
+      "B": { "type": "int", "min": -1499, "max": -1000 }
+    },
+    "conditions": "A < B"
+  },
+  {
+    "textbook_id": 5,
+    "name": "9.г Пять чисел между двумя отрицательными дробями",
+    "question_template": "Запишите число, заключённое между \\( -\\frac{{A1}}{{A2}} \\) и \\( -\\frac{{B1}}{{B2}} \\).<br><i>Ответ введите через точку с запятой.</i>",
+    "answer_template": "-{A1}/{A2};-{B1}/{B2}",
+    "answer_type": "interval_list",
+    "parameters": {
+      "A1": { "type": "int", "min": 1, "max": 3 },
+      "A2": { "type": "choice", "values": [3, 4, 5] },
+      "B1": { "type": "int", "min": 1, "max": 3 },
+      "B2": { "type": "choice", "values": [4, 5, 6, 8] }
+    },
+    "conditions": "A1/A2 < B1/B2"
+  },
+  {
+  "textbook_id": 5,
+  "name": "10.а Модуль числа (|x|), 5 чисел",
+  "question_template": "Найдите \\(|x|\\) для каждого из чисел: \\(x = {X1}; {X2}; {X3}; {X4}; {X5}\\).<br><i>Ответ введите через точку с запятой.</i>",
+  "answer_template": "{abs(X1)}; {abs(X2)}; {abs(X3)}; {abs(X4)}; {abs(X5)}",
+  "answer_type": "string",
+  "parameters": {
+    "X1": { "type": "choice", "values": [10, -7, 0.3, -2.7, 0, -9, 4.2, -5] },
+    "X2": { "type": "choice", "values": [0.3, 7, -3.1, 0, 5.4, -4, 1.8, -6] },
+    "X3": { "type": "choice", "values": [0, 3, -7, 6.5, -1.1, 9, -9, 7] },
+    "X4": { "type": "choice", "values": [-2.7, -0.3, 2, -10, 3, 8.8, -8.5, 2.6] },
+    "X5": { "type": "choice", "values": [-9, 7.1, -3, 5.6, 0, 6, -1.9, 2.5] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 5,
+  "name": "10.б Число по модулю (оба значения)",
+  "question_template": "Найдите \\(x\\), если \\(|x| = {A}\\).<br><i>Ответ введите оба значения через точку с запятой.</i>",
+  "answer_template": "{A};{-A}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [6, 3.2, 0, 4.5, 2.7, 10] }
+  },
+  "conditions": ""
+},
+{
+    "textbook_id": 5,
+    "name": "14.а Сложение двух чисел (до тысячных и десятых)",
+    "question_template": "Найдите значение выражения: {A} + {B}",
+    "answer_template": "{round(A + B, 3)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "float", "min": 6, "max": 9, "constraints": [{"type": "multiple_of", "value": 0.001}] },
+      "B": { "type": "float", "min": 22, "max": 25, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 5,
+    "name": "14.б Вычитание десятичных (один с десятой, другой с сотыми)",
+    "question_template": "Найдите значение выражения: {A} - {B}",
+    "answer_template": "{round(A - B, 2)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "float", "min": 50, "max": 60, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+      "B": { "type": "float", "min": 6, "max": 9.99, "constraints": [{"type": "multiple_of", "value": 0.01}] }
+    },
+    "conditions": "A > B"
+  },
+  {
+    "textbook_id": 5,
+    "name": "14.в Вычитание целого и десятичного (до тысячных)",
+    "question_template": "Найдите значение выражения: {A} - {B}",
+    "answer_template": "{round(A - B, 3)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "int", "min": 70, "max": 99 },
+      "B": { "type": "float", "min": 8, "max": 12, "constraints": [{"type": "multiple_of", "value": 0.001}] }
+    },
+    "conditions": "A > B"
+  },
+  {
+    "textbook_id": 5,
+    "name": "14.г Умножение двух десятичных (один с десятыми, другой с сотыми)",
+    "question_template": "Найдите значение выражения: {A} \\( \\cdot \\) {B}",
+    "answer_template": "{round(A * B, 2)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "float", "min": 5, "max": 7, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+      "B": { "type": "float", "min": 1, "max": 2, "constraints": [{"type": "multiple_of", "value": 0.01}] }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 5,
+    "name": "14.д Умножение двух десятичных (сотые и десятые)",
+    "question_template": "Найдите значение выражения: {A} \\( \\cdot \\) {B}",
+    "answer_template": "{round(A * B, 2)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "float", "min": 0.2, "max": 0.99, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+      "B": { "type": "float", "min": 2, "max": 2.9, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 5,
+    "name": "14.е Умножение двух малых десятичных (тысячные и сотые)",
+    "question_template": "Найдите значение выражения: {A} \\( \\cdot \\) {B}",
+    "answer_template": "{round(A * B, 4)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "float", "min": 0.01, "max": 0.019, "constraints": [{"type": "multiple_of", "value": 0.001}] },
+      "B": { "type": "float", "min": 0.20, "max": 0.29, "constraints": [{"type": "multiple_of", "value": 0.01}] }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 5,
+    "name": "14.ж Деление десятичных (сотые и целое, дробная черта)",
+    "question_template": "Найдите значение выражения: {A} : {B}",
+    "answer_template": "{round(A / B, 2)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "float", "min": 50, "max": 55, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+      "B": { "type": "int", "min": 12, "max": 18 }
+    },
+    "conditions": "B != 0"
+  },
+  {
+    "textbook_id": 5,
+    "name": "14.з Деление десятичных (сотые и десятичное)",
+    "question_template": "Найдите значение выражения: {A} : {B}",
+    "answer_template": "{round(A / B, 2)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "float", "min": 15, "max": 18, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+      "B": { "type": "float", "min": 2, "max": 3, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+    },
+    "conditions": "B != 0"
+  },
+  {
+    "textbook_id": 5,
+    "name": "14.и Деление целого на десятичное",
+    "question_template": "Найдите значение выражения: {A} : {B}",
+    "answer_template": "{round(A / B, 2)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "int", "min": 70, "max": 90 },
+      "B": { "type": "float", "min": 1.1, "max": 2.5, "constraints": [{"type": "multiple_of", "value": 0.01}] }
+    },
+    "conditions": "B != 0"
+  },
+
+  {
+    "textbook_id": 5,
+    "name": "15.а Сложное выражение: деление и вычитание",
+    "question_template": "Выполните действие: {A} : {B} - {C}",
+    "answer_template": "{round(A / B - C, 2)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "float", "min": 400, "max": 600, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+      "B": { "type": "int", "min": 10, "max": 15 },
+      "C": { "type": "float", "min": 15, "max": 25, "constraints": [{"type": "multiple_of", "value": 0.01}] }
+    },
+    "conditions": "B != 0"
+  },
+  {
+    "textbook_id": 5,
+    "name": "15.б Умножение, вычитание, деление",
+    "question_template": "Выполните действие: {A} \\( \\cdot \\) {B} - {C} : {D}",
+    "answer_template": "{round(A * B - C / D, 2)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "float", "min": 1, "max": 2, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+      "B": { "type": "float", "min": 25, "max": 35, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+      "C": { "type": "float", "min": 8, "max": 12, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+      "D": { "type": "float", "min": 2, "max": 4, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+    },
+    "conditions": "D != 0"
+  },
+  {
+    "textbook_id": 5,
+    "name": "16.а Выражение с делением, сложением и умножением",
+    "question_template": "Найдите значение выражения: {A} : {B} + {C} \\( \\cdot \\) {D}",
+    "answer_template": "{round(A / B + C * D, 2)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "float", "min": 2, "max": 5, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+      "B": { "type": "float", "min": 0.05, "max": 0.2, "constraints": [{"type": "multiple_of", "value": 0.01}] },
+      "C": { "type": "float", "min": 3, "max": 7, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+      "D": { "type": "float", "min": 2, "max": 3, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+    },
+    "conditions": "B != 0"
+  },
+  {
+    "textbook_id": 5,
+    "name": "16.б Сложное выражение с разностью в скобках, делением и сложением",
+    "question_template": "Найдите значение выражения: ({A} - {B}) : {C} + {D}",
+    "answer_template": "{round((A - B) / C + D, 2)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "float", "min": 5, "max": 10, "constraints": [{"type": "multiple_of", "value": 0.001}] },
+      "B": { "type": "float", "min": 0.3, "max": 1, "constraints": [{"type": "multiple_of", "value": 0.001}] },
+      "C": { "type": "float", "min": 1, "max": 2, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+      "D": { "type": "float", "min": 3, "max": 6, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+    },
+    "conditions": "A > B and C != 0"
+  },
+
+  {
+    "textbook_id": 5,
+    "name": "17.а Сложение дробей",
+    "question_template": "Выполните действие: \\( \\frac{{A1}}{{A2}} + \\frac{{B1}}{{B2}} \\)",
+    "answer_template": "{round(A1/A2 + B1/B2, 3)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A1": { "type": "int", "min": 1, "max": 5 },
+      "A2": { "type": "choice", "values": [3, 4, 5, 6] },
+      "B1": { "type": "int", "min": 1, "max": 5 },
+      "B2": { "type": "choice", "values": [3, 4, 5, 6] }
+    },
+    "conditions": "A1 < A2 and B1 < B2"
+  },
+  {
+    "textbook_id": 5,
+    "name": "17.б Вычитание дробей",
+    "question_template": "Выполните действие: \\( \\frac{{A1}}{{A2}} - \\frac{{B1}}{{B2}} \\)",
+    "answer_template": "{round(A1/A2 - B1/B2, 3)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A1": { "type": "int", "min": 2, "max": 7 },
+      "A2": { "type": "choice", "values": [5, 6, 8] },
+      "B1": { "type": "int", "min": 1, "max": 5 },
+      "B2": { "type": "choice", "values": [4, 5, 6] }
+    },
+    "conditions": "A1 < A2 and B1 < B2 and (A1/A2) > (B1/B2)"
+  },
+  {
+    "textbook_id": 5,
+    "name": "17.в Разность двух дробей (с разными знаменателями)",
+    "question_template": "Выполните действие: \\( \\frac{{A1}}{{A2}} - \\frac{{B1}}{{B2}} \\)",
+    "answer_template": "{round(A1/A2 - B1/B2, 3)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A1": { "type": "int", "min": 2, "max": 7 },
+      "A2": { "type": "choice", "values": [10, 12, 15] },
+      "B1": { "type": "int", "min": 1, "max": 5 },
+      "B2": { "type": "choice", "values": [10, 12, 15] }
+    },
+    "conditions": "A1 < A2 and B1 < B2 and (A1/A2) > (B1/B2)"
+  },
+  {
+    "textbook_id": 5,
+    "name": "17.г Вычитание смешанных чисел",
+    "question_template": "Выполните действие: {A} - {B} \\( \\frac{{C}}{{D}} \\)",
+    "answer_template": "{round(A - (B + C/D), 3)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "int", "min": 4, "max": 6 },
+      "B": { "type": "int", "min": 2, "max": 4 },
+      "C": { "type": "int", "min": 1, "max": 4 },
+      "D": { "type": "choice", "values": [2, 3, 7] }
+    },
+    "conditions": "C < D and (A > B + C/D)"
+  },
+  {
+    "textbook_id": 5,
+    "name": "17.д Умножение дробей",
+    "question_template": "Выполните действие: \\( \\frac{{A1}}{{A2}} \\cdot \\frac{{B1}}{{B2}} \\)",
+    "answer_template": "{round(A1/A2 * B1/B2, 3)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A1": { "type": "int", "min": 2, "max": 5 },
+      "A2": { "type": "choice", "values": [8, 9] },
+      "B1": { "type": "int", "min": 2, "max": 7 },
+      "B2": { "type": "choice", "values": [8, 9] }
+    },
+    "conditions": "A1 < A2 and B1 < B2"
+  },
+  {
+    "textbook_id": 5,
+    "name": "17.е Деление дробей",
+    "question_template": "Выполните действие: \\( \\frac{{A1}}{{A2}} : \\frac{{B1}}{{B2}} \\)",
+    "answer_template": "{round((A1/A2) / (B1/B2), 3)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A1": { "type": "int", "min": 2, "max": 7 },
+      "A2": { "type": "choice", "values": [5, 8] },
+      "B1": { "type": "int", "min": 2, "max": 7 },
+      "B2": { "type": "choice", "values": [9, 10] }
+    },
+    "conditions": "A1 < A2 and B1 < B2 and (B1/B2) != 0"
+  },
+  {
+    "textbook_id": 5,
+    "name": "17.ж Деление смешанных чисел",
+    "question_template": "Выполните действие: {A} \\( \\frac{{B}}{{C}} : \\frac{{D}}{{E}} \\)",
+    "answer_template": "{round((A + B/C) / (D/E), 3)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "int", "min": 1, "max": 3 },
+      "B": { "type": "int", "min": 1, "max": 6 },
+      "C": { "type": "choice", "values": [7, 8] },
+      "D": { "type": "int", "min": 1, "max": 4 },
+      "E": { "type": "choice", "values": [7, 8] }
+    },
+    "conditions": "B < C and D < E and (D/E) != 0"
+  },
+  {
+    "textbook_id": 5,
+    "name": "17.з Умножение смешанных чисел",
+    "question_template": "Выполните действие: {A} \\( \\frac{{B}}{{C}} \\cdot {D} \\)",
+    "answer_template": "{round((A + B/C) * D, 3)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "int", "min": 5, "max": 7 },
+      "B": { "type": "int", "min": 1, "max": 4 },
+      "C": { "type": "choice", "values": [3, 5] },
+      "D": { "type": "int", "min": 2, "max": 12 }
+    },
+    "conditions": "B < C"
+  },
+
+  // --- 18 ---
+  {
+    "textbook_id": 5,
+    "name": "18.а Вычитание с отрицательным числом",
+    "question_template": "Выполните действие: {A} - {B}",
+    "answer_template": "{round(A - B, 1)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "float", "min": 2, "max": 6, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+      "B": { "type": "int", "min": 7, "max": 12 }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 5,
+    "name": "18.б Сложение отрицательного и положительного числа",
+    "question_template": "Выполните действие: {A} + {B}",
+    "answer_template": "{round(A + B, 1)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "float", "min": -4, "max": -2, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+      "B": { "type": "float", "min": 4, "max": 7, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 5,
+    "name": "18.в Вычитание двух отрицательных чисел",
+    "question_template": "Выполните действие: {A} - {B}",
+    "answer_template": "{round(A - B, 1)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "float", "min": -3, "max": -1, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+      "B": { "type": "float", "min": -5, "max": -2, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 5,
+    "name": "18.г Умножение отрицательного и положительного числа",
+    "question_template": "Выполните действие: {A} \\( \\cdot \\) {B}",
+    "answer_template": "{round(A * B, 1)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "float", "min": -2, "max": 2, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+      "B": { "type": "int", "min": -5, "max": -1 }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 5,
+    "name": "18.д Умножение двух отрицательных",
+    "question_template": "Выполните действие: {A} \\( \\cdot \\) {B}",
+    "answer_template": "{round(A * B, 1)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "int", "min": -8, "max": -4 },
+      "B": { "type": "float", "min": 3, "max": 5, "constraints": [{"type": "multiple_of", "value": 0.1}] }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 5,
+    "name": "18.е Умножение двух отрицательных десятичных",
+    "question_template": "Выполните действие: {A} \\( \\cdot \\) {B}",
+    "answer_template": "{round(A * B, 2)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "float", "min": -1, "max": -0.5, "constraints": [{"type": "multiple_of", "value": 0.1}] },
+      "B": { "type": "float", "min": -0.2, "max": -0.05, "constraints": [{"type": "multiple_of", "value": 0.01}] }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 5,
+    "name": "18.ж Деление положительного на отрицательное",
+    "question_template": "Выполните действие: {A} : ({B})",
+    "answer_template": "{round(A / B, 2)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "int", "min": 30, "max": 40 },
+      "B": { "type": "float", "min": -0.25, "max": -0.15, "constraints": [{"type": "multiple_of", "value": 0.01}] }
+    },
+    "conditions": "B != 0"
+  },
+  {
+    "textbook_id": 5,
+    "name": "18.з Деление отрицательного на положительное",
+    "question_template": "Выполните действие: {A} : {B}",
+    "answer_template": "{round(A / B,
+
+
+
+
+
+
+
+
+
+]

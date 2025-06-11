@@ -1557,22 +1557,15 @@
     }
   },
   "conditions": ""
-},
-{
-  "textbook_id": 5,
-  "name": "45. Выражение с дробями при условии a - b = d",
-  "question_template": "Известно, что при некоторых значениях \\(a\\) и \\(b\\) выражение \\(a - b = {D}\\). Чему равно при тех же \\(a\\) и \\(b\\) значение выражения<br>\\[\\frac{12}{b - a} + \\frac{16}{(b - a)^2}\\]?<br><i>Ответ округлите до десятых.</i>",
-  "answer_template": "{round(12 / (-D) + 16 / (D**2), 1)}",
-  "answer_type": "numeric",
-  "parameters": {
-    "D": {
-      "type": "float",
-      "min": 1.0,
-      "max": 5.0,
-      "constraints": [{"type": "multiple_of", "value": 0.5}]
-    }
-  },
-  "conditions": "D != 0"
 }
+
+
+
+
+
+
+
+
+
 
 ]

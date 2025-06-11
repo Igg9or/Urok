@@ -1494,85 +1494,11 @@
   },
   "conditions": ""
 },
-{
-  "textbook_id": 5,
-  "name": "44.а Значение выражения 5(x - y)",
-  "question_template": "Известно, что \\(x - y = {D}\\). Чему равно выражение \\(5(x - y)\\)?<br><i>Ответ введите десятичной дробью.</i>",
-  "answer_template": "{round(5 * D, 2)}",
-  "answer_type": "numeric",
-  "parameters": {
-    "D": {
-      "type": "float",
-      "min": 0.1,
-      "max": 2.0,
-      "constraints": [{ "type": "multiple_of", "value": 0.1 }]
-    }
-  },
-  "conditions": ""
-},
-{
-  "textbook_id": 5,
-  "name": "44.б Значение выражения y - x",
-  "question_template": "Известно, что \\(x - y = {D}\\). Чему равно выражение \\(y - x\\)?<br><i>Ответ введите десятичной дробью.</i>",
-  "answer_template": "{round(-D, 2)}",
-  "answer_type": "numeric",
-  "parameters": {
-    "D": {
-      "type": "float",
-      "min": 0.1,
-      "max": 2.0,
-      "constraints": [{ "type": "multiple_of", "value": 0.1 }]
-    }
-  },
-  "conditions": ""
-},
-{
-  "textbook_id": 5,
-  "name": "44.в Значение выражения 1 / (x - y)",
-  "question_template": "Известно, что \\(x - y = {D}\\). Чему равно выражение \\(\\frac{1}{x - y}\\)?<br><i>Ответ округлите до сотых.</i>",
-  "answer_template": "{round(1 / D, 2)}",
-  "answer_type": "numeric",
-  "parameters": {
-    "D": {
-      "type": "float",
-      "min": 0.1,
-      "max": 2.0,
-      "constraints": [{ "type": "multiple_of", "value": 0.1 }]
-    }
-  },
-  "conditions": ""
-},
-{
-  "textbook_id": 5,
-  "name": "44.г Значение выражения (x - y) / (y - x)",
-  "question_template": "Известно, что \\(x - y = {D}\\). Чему равно выражение \\(\\frac{x - y}{y - x}\\)?<br><i>Ответ округлите до целого числа.</i>",
-  "answer_template": "{round(D / -D, 0)}",
-  "answer_type": "numeric",
-  "parameters": {
-    "D": {
-      "type": "float",
-      "min": 0.1,
-      "max": 2.0,
-      "constraints": [{ "type": "multiple_of", "value": 0.1 }]
-    }
-  },
-  "conditions": ""
-},
-{
-  "textbook_id": 5,
-  "name": "45. Выражение с дробями при условии a - b = d",
-  "question_template": "Известно, что при некоторых значениях \\(a\\) и \\(b\\) выражение \\(a - b = {D}\\). Чему равно при тех же \\(a\\) и \\(b\\) значение выражения<br>\\[\\frac{12}{b - a} + \\frac{16}{(b - a)^2}\\]?<br><i>Ответ округлите до десятых.</i>",
-  "answer_template": "{round(12 / (-D) + 16 / (D**2), 1)}",
-  "answer_type": "numeric",
-  "parameters": {
-    "D": {
-      "type": "float",
-      "min": 1.0,
-      "max": 5.0,
-      "constraints": [{"type": "multiple_of", "value": 0.5}]
-    }
-  },
-  "conditions": "D != 0"
-}
+
+
+
+
+
+
 
 ]
