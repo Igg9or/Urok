@@ -1851,18 +1851,18 @@
   },
   "conditions": ""
 },
-{
-  "textbook_id": 5,
-  "name": "65. Количество голосов по отношению",
-  "question_template": "Голоса за двух кандидатов распределились в отношении {A}:{B}. Всего проголосовало {TOTAL} человек. Сколько голосов набрал победитель?<br><i>Ответ укажите целым числом.</i>",
-  "answer_template": "{round(max(A, B) * TOTAL / (A + B))}",
-  "answer_type": "numeric",
-  "parameters": {
-    "A": { "type": "int", "min": 2, "max": 6 },
-    "B": { "type": "int", "min": 5, "max": 9 },
-    "TOTAL": { "type": "int", "min": 100, "max": 300 }
-  },
-  "conditions": ""
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ]

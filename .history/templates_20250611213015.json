@@ -1814,55 +1814,16 @@
     "V": { "type": "float", "min": 2.0, "max": 6.0, "constraints": [{ "type": "multiple_of", "value": 0.1 }] }
   },
   "conditions": ""
-},
-{
-  "textbook_id": 5,
-  "name": "62.г Найдите число по проценту (6.2%)",
-  "question_template": "Найдите число, если {P}% этого числа равны {V}.<br><i>Ответ округлите до десятых.</i>",
-  "answer_template": "{round(V * 100 / P, 1)}",
-  "answer_type": "numeric",
-  "parameters": {
-    "P": { "type": "float", "min": 5.0, "max": 10.0, "constraints": [{ "type": "multiple_of", "value": 0.1 }] },
-    "V": { "type": "float", "min": 5.0, "max": 15.0, "constraints": [{ "type": "multiple_of", "value": 0.1 }] }
-  },
-  "conditions": ""
-},
-{
-  "textbook_id": 5,
-  "name": "63. Сколько было молока изначально после отлива процента",
-  "question_template": "После того как из бидона отлили {P}% молока, в нём осталось {V} л. Сколько литров молока было в бидоне первоначально?<br><i>Ответ округлите до целого числа.</i>",
-  "answer_template": "{round(V * 100 / (100 - P))}",
-  "answer_type": "numeric",
-  "parameters": {
-    "P": { "type": "int", "min": 10, "max": 40 },
-    "V": { "type": "int", "min": 10, "max": 50 }
-  },
-  "conditions": ""
-},
-{
-  "textbook_id": 5,
-  "name": "64. Плановое количество при известном результате с превышением",
-  "question_template": "Перевыполнив план на {P}%, завод выпустил {F} станков. Сколько станков нужно было выпустить по плану?<br><i>Ответ округлите до целого числа.</i>",
-  "answer_template": "{round(F / (1 + P / 100))}",
-  "answer_type": "numeric",
-  "parameters": {
-    "P": { "type": "int", "min": 10, "max": 30 },
-    "F": { "type": "int", "min": 200, "max": 300 }
-  },
-  "conditions": ""
-},
-{
-  "textbook_id": 5,
-  "name": "65. Количество голосов по отношению",
-  "question_template": "Голоса за двух кандидатов распределились в отношении {A}:{B}. Всего проголосовало {TOTAL} человек. Сколько голосов набрал победитель?<br><i>Ответ укажите целым числом.</i>",
-  "answer_template": "{round(max(A, B) * TOTAL / (A + B))}",
-  "answer_type": "numeric",
-  "parameters": {
-    "A": { "type": "int", "min": 2, "max": 6 },
-    "B": { "type": "int", "min": 5, "max": 9 },
-    "TOTAL": { "type": "int", "min": 100, "max": 300 }
-  },
-  "conditions": ""
 }
+
+
+
+
+
+
+
+
+
+
 
 ]
