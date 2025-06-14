@@ -1,0 +1,340 @@
+[
+{
+  "textbook_id": 6,
+  "name": "3.а Значение дроби (y — положительное целое)",
+   "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = {Y}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((Y - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": { "type": "choice", "values": [2, 3, 4, 5, 6, 8, 12, 20] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "3.б Значение дроби (y = 0 или 1)",
+  "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = {Y}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((Y - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": { "type": "choice", "values": [0, 1] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "3.в Значение дроби (y — отрицательное целое)",
+   "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = {Y}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((Y - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": { "type": "choice", "values": [-6, -4, -3, -1] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "3.г Значение дроби (y — обыкновенная дробь)",
+   "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = \\frac{{{N}}}{{{D}}}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((N/D - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "N": { "type": "choice", "values": [1, 2, 3, 5, 6] },
+    "D": { "type": "choice", "values": [2, 3, 4, 5, 6, 8] }
+  },
+  "conditions": "N < D"
+},
+{
+  "textbook_id": 6,
+  "name": "3.д Значение дроби (y — отрицательная десятичная)",
+  "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = {Y}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((Y - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": {
+      "type": "float",
+      "min": -3.0,
+      "max": -0.1,
+      "constraints": [{ "type": "multiple_of", "value": 0.1 }]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "3.е Значение дроби (y — большое значение)",
+  "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = {Y}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((Y - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": { "type": "choice", "values": [50, 75, 90, 100, 120] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "4.а Значение дроби (выражение с a)",
+  "question_template": "Найдите значение дроби \\(\\frac{a - 8}{2a + 5}\\), если \\(a = {A}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((A - 8)/(2 * A + 5), 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": {
+      "type": "choice",
+      "values": [-5, -4, -3, -2, -1, 0, 1, 2, 3]
+    }
+  },
+  "conditions": "2 * A + 5 != 0"
+},
+{
+  "textbook_id": 6,
+  "name": "4.б Значение дроби (выражение с b)",
+  "question_template": "Найдите значение дроби \\(\\frac{b^2 + 6}{2b}\\), если \\(b = {B}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((B ** 2 + 6)/(2 * B), 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "B": {
+      "type": "choice",
+      "values": [-4, -2, -1, 1, 2, 3, 4, 5]
+    }
+  },
+  "conditions": "B != 0"
+},
+{
+  "textbook_id": 6,
+  "name": "5.а Значение выражения с a и b (целые, отрицательные)",
+  "question_template": "Чему равно значение выражения \\(\\frac{(a + b)^2 - 1}{a^2 + 1}\\), если \\(a = {A},\\ b = {B}\\)?<br><i>Ответ округлите до сотых.</i>",
+  "answer_template": "{round(((A + B)**2 - 1) / (A**2 + 1), 2)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": { "type": "choice", "values": [-5, -4, -3, -2, -1] },
+    "B": { "type": "choice", "values": [-3, -2, -1] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "5.б Значение выражения с a и b (дробные значения)",
+  "question_template": "Чему равно значение выражения \\(\\frac{(a + b)^2 - 1}{a^2 + 1}\\), если \\(a = {A},\\ b = {B}\\)?<br><i>Ответ округлите до сотых.</i>",
+  "answer_template": "{round(((A + B)**2 - 1) / (A**2 + 1), 2)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": {
+      "type": "choice",
+      "values": [1.25, 1.5, 1.75, 2.0]
+    },
+    "B": {
+      "type": "choice",
+      "values": [0.25, 0.5, 0.75]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "6.а Значение дроби (x = -13 и -5)",
+  "question_template": "Вычислите значения выражения \\(\\frac{x + 5}{x - 3}\\) при:<br>\\(x = {X1}; {X2}\\)<br><i>Ответ округлите до сотых, через точку с запятой.</i>",
+  "answer_template": "{round((X1 + 5)/(X1 - 3), 2)}; {round((X2 + 5)/(X2 - 3), 2)}",
+  "answer_type": "string",
+  "parameters": {
+    "X1": { "type": "choice", "values": [-13, -12, -11, -10, -9] },
+    "X2": { "type": "choice", "values": [-6, -5, -4, -3] }
+  },
+  "conditions": "X1 != 3 and X2 != 3"
+},
+{
+  "textbook_id": 6,
+  "name": "6.б Значение дроби (x = -0.2 и 0)",
+  "question_template": "Вычислите значения выражения \\(\\frac{x + 5}{x - 3}\\) при:<br>\\(x = {X1}; {X2}\\)<br><i>Ответ округлите до сотых, через точку с запятой.</i>",
+  "answer_template": "{round((X1 + 5)/(X1 - 3), 2)}; {round((X2 + 5)/(X2 - 3), 2)}",
+  "answer_type": "string",
+  "parameters": {
+    "X1": { "type": "choice", "values": [-0.5, -0.2, 0.1] },
+    "X2": { "type": "choice", "values": [-0.1, 0, 0.2] }
+  },
+  "conditions": "X1 != 3 and X2 != 3"
+},
+{
+  "textbook_id": 6,
+  "name": "6.в Значение дроби (x = 1/17 и 1)",
+  "question_template": "Вычислите значения выражения \\(\\frac{x + 5}{x - 3}\\) при:<br>\\(x = \\frac{{1}}{{17}}; {X2}\\)<br><i>Ответ округлите до сотых, через точку с запятой.</i>",
+  "answer_template": "{round((1/17 + 5)/(1/17 - 3), 2)}; {round((X2 + 5)/(X2 - 3), 2)}",
+  "answer_type": "string",
+  "parameters": {
+    "X2": { "type": "choice", "values": [1, 1.5, 2] }
+  },
+  "conditions": "X2 != 3"
+},
+{
+  "textbook_id": 6,
+  "name": "6.г Значение дроби (x = 17/3 и 7)",
+  "question_template": "Вычислите значения выражения \\(\\frac{x + 5}{x - 3}\\) при:<br>\\(x = \\frac{{17}}{{3}}; {X2}\\)<br><i>Ответ округлите до сотых, через точку с запятой.</i>",
+  "answer_template": "{round((17/3 + 5)/(17/3 - 3), 2)}; {round((X2 + 5)/(X2 - 3), 2)}",
+  "answer_type": "string",
+  "parameters": {
+    "X2": { "type": "choice", "values": [6.5, 7, 8] }
+  },
+  "conditions": "X2 != 3"
+},
+{
+  "textbook_id": 6,
+  "name": "7.а Выражение переменных из формулы v = s / t",
+  "question_template": "Из формулы \\(v = \\frac{s}{t}\\):<br>1) Выразите переменную \\(s\\) через \\(v\\) и \\(t\\);<br>2) Выразите переменную \\(t\\) через \\(s\\) и \\(v\\).<br><i>Ответ введите двумя выражениями через точку с запятой.</i>",
+  "answer_template": "s = v * t; t = s / v",
+  "answer_type": "string",
+  "parameters": {},
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "7.б Выражение переменной V из формулы ρ = m / V",
+  "question_template": "Из формулы \\(\\rho = \\frac{m}{V}\\) выразите переменную \\(V\\) через \\(\\rho\\) и \\(m\\).",
+  "answer_template": "V = m / ρ",
+  "answer_type": "string",
+  "parameters": {},
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "8.а Время встречи поездов (расширенные значения)",
+  "question_template": "Из городов A и B навстречу друг другу вышли два поезда со скоростями \\(v_1 = {V1}\\) км/ч и \\(v_2 = {V2}\\) км/ч. Расстояние между ними \\(s = {S}\\) км. Найдите время \\(t\\), через которое они встретятся.<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round(S / (V1 + V2), 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "S": { "type": "choice", "values": [220, 240, 260, 280, 300, 320, 340, 360, 380, 400] },
+    "V1": { "type": "choice", "values": [50, 55, 60, 65, 70, 75, 80, 85] },
+    "V2": { "type": "choice", "values": [30, 35, 40, 45, 50, 55, 60, 65, 70] }
+  },
+  "conditions": "V1 + V2 != 0"
+},
+{
+  "textbook_id": 6,
+  "name": "8.б Время встречи поездов (ещё больше вариантов)",
+  "question_template": "Из городов A и B навстречу друг другу вышли два поезда со скоростями \\(v_1 = {V1}\\) км/ч и \\(v_2 = {V2}\\) км/ч. Расстояние между ними \\(s = {S}\\) км. Найдите время \\(t\\), через которое они встретятся.<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round(S / (V1 + V2), 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "S": { "type": "choice", "values": [250, 270, 290, 310, 330, 350, 370, 390, 410, 430] },
+    "V1": { "type": "choice", "values": [40, 50, 60, 70, 80, 90] },
+    "V2": { "type": "choice", "values": [35, 45, 55, 65, 75, 85] }
+  },
+  "conditions": "V1 + V2 != 0 and V1 != V2"
+},
+{
+  "textbook_id": 6,
+  "name": "10.а Значения, при которых выражение не имеет смысла: x / (x - 2)",
+  "question_template": "При каких значениях переменной выражение \\(\\frac{x}{x - 2}\\) не имеет смысла?<br><i>Ответ: только число, без пробелов.</i>",
+  "answer_template": "2",
+  "answer_type": "string",
+  "parameters": {},
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "10.б Значения, при которых выражение не имеет смысла: (b + 4)/(b² + 7)",
+  "question_template": "При каких значениях переменной выражение \\(\\frac{b + 4}{b^2 + 7}\\) не имеет смысла?<br><i>Ответ: если нет таких значений, напишите “нет”.</i>",
+  "answer_template": "нет",
+  "answer_type": "string",
+  "parameters": {},
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "10.в Значения, при которых выражение не имеет смысла: (y² - 1)/y + y/(y - 3)",
+  "question_template": "При каких значениях переменной выражение \\(\\frac{y^2 - 1}{y} + \\frac{y}{y - 3}\\) не имеет смысла?<br><i>Ответ: числа через точку с запятой, без пробелов.</i>",
+  "answer_template": "0;3",
+  "answer_type": "string",
+  "parameters": {},
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "10.г Значения, при которых выражение не имеет смысла: (a + 10)/(a(a - 1)) - 1",
+  "question_template": "При каких значениях переменной выражение \\(\\frac{a + 10}{a(a - 1)} - 1\\) не имеет смысла?<br><i>Ответ: два числа через точку с запятой, без пробелов.</i>",
+  "answer_template": "0;1",
+  "answer_type": "string",
+  "parameters": {},
+  "conditions": ""
+},
+{
+  "textbook_id": 7,
+  "name": "11.а Допустимые значения переменной (многочлен)",
+  "question_template": "Укажите все допустимые значения переменной в выражении: \\( {A}x^2 + {B}x + {C} \\)<br><i>Если ограничений нет, напишите: любое значение x.   Если есть x !=  </i>",
+  "answer_template": "любое значение x",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "int", "min": 1, "max": 5 },
+    "B": { "type": "int", "min": -10, "max": 10 },
+    "C": { "type": "int", "min": -20, "max": 20 }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 7,
+  "name": "11.б Допустимые значения переменной (линейный знаменатель)",
+  "question_template": "Укажите допустимые значения переменной в выражении: \\( \\frac{{1}}{{{A}x + {B}}} \\)<br><i> Если ограничений нет, напишите: любое значение x.   Если есть x !=</i>",
+  "answer_template": "x ≠ {round(-B/A, 2)}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "int", "min": 1, "max": 10 },
+    "B": { "type": "int", "min": -10, "max": 10 }
+  },
+  "conditions": "A != 0"
+},
+{
+  "textbook_id": 7,
+  "name": "11.в Допустимые значения переменной (знаменатель — число)",
+  "question_template": "Укажите допустимые значения переменной в выражении: \\( \\frac{{{A}x + {B}}}{{{C}}} \\)<br><i>Если ограничений нет, напишите: любое значение x.   Если есть x !=</i>",
+  "answer_template": "любое значение x",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "int", "min": -5, "max": 5 },
+    "B": { "type": "int", "min": -20, "max": 20 },
+    "C": { "type": "choice", "values": [2, 3, 5, 7, 9, 11] }
+  },
+  "conditions": "C != 0"
+},
+{
+  "textbook_id": 7,
+  "name": "11.г Допустимые значения переменной (знаменатель — произведение)",
+  "question_template": "Укажите допустимые значения переменной в выражении: \\( \\frac{{x^2 - {A}}}{{x(x + {B})}} \\)<br><i>Если ограничений нет, напишите: любое значение x.   Если есть x != ; х != </i>",
+  "answer_template": "x ≠ 0; x ≠ {-B}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "int", "min": 1, "max": 20 },
+    "B": { "type": "int", "min": 1, "max": 10 }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 7,
+  "name": "11.д Допустимые значения переменной (знаменатель — сумма квадратов)",
+  "question_template": "Укажите допустимые значения переменной в выражении: \\( \\frac{{x - {A}}}{{x^2 + {B}}} - {C}x \\)<br><i>Если знаменатель не обращается в ноль — напишите: любое значение x</i>",
+  "answer_template": "любое значение x",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "int", "min": 1, "max": 10 },
+    "B": { "type": "choice", "values": [1, 4, 9, 16, 25] },
+    "C": { "type": "int", "min": 1, "max": 5 }
+  },
+  "conditions": "B > 0"
+},
+{
+  "textbook_id": 7,
+  "name": "11.е Допустимые значения переменной (два знаменателя)",
+  "question_template": "Укажите допустимые значения переменной в выражении: \\( \\frac{x + {A}}{{x}} + \\frac{x - {A}}{{x + {B}}} \\)<br><i>Если знаменатель обращается в ноль при нескольких значениях, перечислите их через точку с запятой: x ≠ ...; x ≠ ...</i>",
+  "answer_template": "x ≠ 0; x ≠ {-B}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "int", "min": 1, "max": 9 },
+    "B": { "type": "int", "min": 1, "max": 9 }
+  },
+  "conditions": ""
+}
+
+
+
+
+
+
+
+]

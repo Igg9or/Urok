@@ -1,0 +1,105 @@
+[
+{
+  "textbook_id": 6,
+  "name": "3.а Значение дроби (y — положительное целое)",
+   "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = {Y}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((Y - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": { "type": "choice", "values": [2, 3, 4, 5, 6, 8, 12, 20] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "3.б Значение дроби (y = 0 или 1)",
+  "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = {Y}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((Y - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": { "type": "choice", "values": [0, 1] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "3.в Значение дроби (y — отрицательное целое)",
+   "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = {Y}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((Y - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": { "type": "choice", "values": [-6, -4, -3, -1] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "3.г Значение дроби (y — обыкновенная дробь)",
+   "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = \\frac{{{N}}}{{{D}}}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((N/D - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "N": { "type": "choice", "values": [1, 2, 3, 5, 6] },
+    "D": { "type": "choice", "values": [2, 3, 4, 5, 6, 8] }
+  },
+  "conditions": "N < D"
+},
+{
+  "textbook_id": 6,
+  "name": "3.д Значение дроби (y — отрицательная десятичная)",
+  "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = {Y}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((Y - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": {
+      "type": "float",
+      "min": -3.0,
+      "max": -0.1,
+      "constraints": [{ "type": "multiple_of", "value": 0.1 }]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "3.е Значение дроби (y — большое значение)",
+  "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = {Y}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((Y - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": { "type": "choice", "values": [50, 75, 90, 100, 120] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "4.а Значение дроби (выражение с a)",
+  "question_template": "Найдите значение дроби \\(\\frac{a - 8}{2a + 5}\\), если \\(a = {A}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((A - 8)/(2 * A + 5), 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": {
+      "type": "choice",
+      "values": [-5, -4, -3, -2, -1, 0, 1, 2, 3]
+    }
+  },
+  "conditions": "2 * A + 5 != 0"
+},
+{
+  "textbook_id": 6,
+  "name": "4.б Значение дроби (выражение с b)",
+  "question_template": "Найдите значение дроби \\(\\frac{b^2 + 6}{2b}\\), если \\(b = {B}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((B ** 2 + 6)/(2 * B), 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "B": {
+      "type": "choice",
+      "values": [-4, -2, -1, 1, 2, 3, 4, 5]
+    }
+  },
+  "conditions": "B != 0"
+}
+
+
+
+]

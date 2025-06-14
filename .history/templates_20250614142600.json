@@ -622,7 +622,7 @@
   "conditions": ""
 },
 {
-  "textbook_id": 6,
+  "textbook_id": 7,
   "name": "20.б Минимум дроби: квадрат со сдвигом в числителе",
   "question_template": "При каком значении переменной \\( b \\) дробь \\( \\frac{(b - {M})^2 + {N}}{8} \\) принимает наименьшее значение?<br><i>Ответ введите числом</i>",
   "answer_template": "{M}",
@@ -632,118 +632,8 @@
     "N": { "type": "int", "min": 1, "max": 10 }
   },
   "conditions": ""
-},
-{
-    "textbook_id": 6,
-    "name": "21.а Проверка утверждения: максимум дроби равен T (оригинальный знаменатель)",
-    "question_template": "Верно ли утверждение: наибольшее значение дроби \\( \\frac{{{N}}}{4x^2 + 9 + y^2 + 4xy} \\) равно {T}?<br><i>Ответ: да или нет</i>",
-    "answer_template": "{'да' if N / 9 == T else 'нет'}",
-    "answer_type": "string",
-    "parameters": {
-      "N": { "type": "choice", "values": [9, 12, 18, 27] },
-      "T": { "type": "choice", "values": [1, 1.5, 2, 3, 4] }
-    },
-    "conditions": ""
-  },
-  {
-    "textbook_id": 6,
-    "name": "21.б Проверка утверждения: максимум дроби равен T (оригинальный знаменатель)",
-    "question_template": "Верно ли утверждение: наибольшее значение дроби \\( \\frac{{{N}}}{4x^2 + 9 + y^2 + 4xy} \\) равно {T}?<br><i>Ответ: да или нет</i>",
-    "answer_template": "{'да' if N / 9 == T else 'нет'}",
-    "answer_type": "string",
-    "parameters": {
-      "N": { "type": "choice", "values": [9, 18, 27] },
-      "T": { "type": "choice", "values": [1, 2, 3, 4] }
-    },
-    "conditions": ""
-  },
-  {
-    "textbook_id": 6,
-    "name": "21.в Проверка утверждения: минимум дроби равен T (оригинальный знаменатель)",
-    "question_template": "Верно ли утверждение: наименьшее значение дроби \\( \\frac{{{N}}}{4x^2 + 9 + y^2 + 4xy} \\) равно {T}?<br><i>Ответ: да или нет</i>",
-    "answer_template": "нет",
-    "answer_type": "string",
-    "parameters": {
-      "N": { "type": "choice", "values": [9, 18, 27] },
-      "T": { "type": "choice", "values": [2, 3, 4, 5] }
-    },
-    "conditions": ""
-  },
-  {
-    "textbook_id": 6,
-    "name": "22.а Преобразование по формуле разности квадратов",
-    "question_template": "Преобразуйте в многочлен: \\( ({A}{var} + {C})({A}{var} - {C}) \\)<br><i>Ответ введите в виде многочлена</i>",
-    "answer_template": "{A**2}{var}^2 - {C**2}",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "choice", "values": [1, 2, 3] },
-      "C": { "type": "choice", "values": [1, 3, 5] },
-      "var": { "type": "choice", "values": ["a", "x", "m"] }
-    },
-    "conditions": ""
-  },
-  {
-    "textbook_id": 6,
-    "name": "22.б Преобразование: (P - Q)(P + Q)",
-    "question_template": "Преобразуйте в многочлен: \\( ({var} - {K}{v2})({var} + {K}{v2}) \\)<br><i>Ответ введите в виде многочлена</i>",
-    "answer_template": "{var}^2 - {K**2}{v2}^2",
-    "answer_type": "string",
-    "parameters": {
-      "var": { "type": "choice", "values": ["y", "x"] },
-      "v2": { "type": "choice", "values": ["b", "c"] },
-      "K": { "type": "choice", "values": [2, 5, 6] }
-    },
-    "conditions": ""
-  },
-  {
-    "textbook_id": 6,
-    "name": "22.в Преобразование: (A + B)(A - B) с коэффициентами",
-    "question_template": "Преобразуйте в многочлен: \\( ({K1}{v1} + {v2})({v2} - {K1}{v1}) \\)<br><i>Ответ введите в виде многочлена</i>",
-    "answer_template": "-{K1**2}{v1}^2 + {v2}^2",
-    "answer_type": "string",
-    "parameters": {
-      "v1": { "type": "choice", "values": ["x", "m"] },
-      "v2": { "type": "choice", "values": ["y", "n"] },
-      "K1": { "type": "choice", "values": [0.5, 0.8, 1.2] }
-    },
-    "conditions": ""
-  },
-  {
-    "textbook_id": 6,
-    "name": "22.г Преобразование: (a + b)^2",
-    "question_template": "Преобразуйте в многочлен: \\( ({var} + {R})^2 \\)<br><i>Ответ введите в виде многочлена</i>",
-    "answer_template": "{var}^2 + {2*R}{var} + {R**2}",
-    "answer_type": "string",
-    "parameters": {
-      "var": { "type": "choice", "values": ["b", "m", "x"] },
-      "R": { "type": "choice", "values": [0.5, 1.5, 2] }
-    },
-    "conditions": ""
-  },
-  {
-    "textbook_id": 6,
-    "name": "22.д Преобразование: (A - B)^2",
-    "question_template": "Преобразуйте в многочлен: \\( ({var1} - {K}{var2})^2 \\)<br><i>Ответ введите в виде многочлена</i>",
-    "answer_template": "{var1}^2 - {2*K}{var1}{var2} + {K**2}{var2}^2",
-    "answer_type": "string",
-    "parameters": {
-      "var1": { "type": "choice", "values": ["a", "x"] },
-      "var2": { "type": "choice", "values": ["y", "z"] },
-      "K": { "type": "choice", "values": [1, 2, 3] }
-    },
-    "conditions": ""
-  },
-  {
-    "textbook_id": 6,
-    "name": "22.е Преобразование: (A - 1)^2",
-    "question_template": "Преобразуйте в многочлен: \\( ({var1}{var2} - 1)^2 \\)<br><i>Ответ введите в виде многочлена</i>",
-    "answer_template": "{var1}{var2}^2 - 2{var1}{var2} + 1",
-    "answer_type": "string",
-    "parameters": {
-      "var1": { "type": "choice", "values": ["a", "x", "m"] },
-      "var2": { "type": "choice", "values": ["b", "n"] }
-    },
-    "conditions": ""
-  }
+}
+
+
 
 ]

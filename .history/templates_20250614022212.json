@@ -1,0 +1,189 @@
+[
+{
+  "textbook_id": 6,
+  "name": "3.а Значение дроби (y — положительное целое)",
+   "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = {Y}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((Y - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": { "type": "choice", "values": [2, 3, 4, 5, 6, 8, 12, 20] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "3.б Значение дроби (y = 0 или 1)",
+  "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = {Y}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((Y - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": { "type": "choice", "values": [0, 1] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "3.в Значение дроби (y — отрицательное целое)",
+   "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = {Y}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((Y - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": { "type": "choice", "values": [-6, -4, -3, -1] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "3.г Значение дроби (y — обыкновенная дробь)",
+   "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = \\frac{{{N}}}{{{D}}}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((N/D - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "N": { "type": "choice", "values": [1, 2, 3, 5, 6] },
+    "D": { "type": "choice", "values": [2, 3, 4, 5, 6, 8] }
+  },
+  "conditions": "N < D"
+},
+{
+  "textbook_id": 6,
+  "name": "3.д Значение дроби (y — отрицательная десятичная)",
+  "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = {Y}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((Y - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": {
+      "type": "float",
+      "min": -3.0,
+      "max": -0.1,
+      "constraints": [{ "type": "multiple_of", "value": 0.1 }]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "3.е Значение дроби (y — большое значение)",
+  "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = {Y}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((Y - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": { "type": "choice", "values": [50, 75, 90, 100, 120] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "4.а Значение дроби (выражение с a)",
+  "question_template": "Найдите значение дроби \\(\\frac{a - 8}{2a + 5}\\), если \\(a = {A}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((A - 8)/(2 * A + 5), 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": {
+      "type": "choice",
+      "values": [-5, -4, -3, -2, -1, 0, 1, 2, 3]
+    }
+  },
+  "conditions": "2 * A + 5 != 0"
+},
+{
+  "textbook_id": 6,
+  "name": "4.б Значение дроби (выражение с b)",
+  "question_template": "Найдите значение дроби \\(\\frac{b^2 + 6}{2b}\\), если \\(b = {B}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((B ** 2 + 6)/(2 * B), 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "B": {
+      "type": "choice",
+      "values": [-4, -2, -1, 1, 2, 3, 4, 5]
+    }
+  },
+  "conditions": "B != 0"
+},
+{
+  "textbook_id": 6,
+  "name": "5.а Значение выражения с a и b (целые, отрицательные)",
+  "question_template": "Чему равно значение выражения \\(\\frac{(a + b)^2 - 1}{a^2 + 1}\\), если \\(a = {A},\\ b = {B}\\)?<br><i>Ответ округлите до сотых.</i>",
+  "answer_template": "{round(((A + B)**2 - 1) / (A**2 + 1), 2)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": { "type": "choice", "values": [-5, -4, -3, -2, -1] },
+    "B": { "type": "choice", "values": [-3, -2, -1] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "5.б Значение выражения с a и b (дробные значения)",
+  "question_template": "Чему равно значение выражения \\(\\frac{(a + b)^2 - 1}{a^2 + 1}\\), если \\(a = {A},\\ b = {B}\\)?<br><i>Ответ округлите до сотых.</i>",
+  "answer_template": "{round(((A + B)**2 - 1) / (A**2 + 1), 2)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": {
+      "type": "choice",
+      "values": [1.25, 1.5, 1.75, 2.0]
+    },
+    "B": {
+      "type": "choice",
+      "values": [0.25, 0.5, 0.75]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "6.а Значение дроби (x = -13 и -5)",
+  "question_template": "Вычислите значения выражения \\(\\frac{x + 5}{x - 3}\\) при:<br>\\(x = {X1}; {X2}\\)<br><i>Ответ округлите до сотых, через точку с запятой.</i>",
+  "answer_template": "{round((X1 + 5)/(X1 - 3), 2)}; {round((X2 + 5)/(X2 - 3), 2)}",
+  "answer_type": "string",
+  "parameters": {
+    "X1": { "type": "choice", "values": [-13, -12, -11, -10, -9] },
+    "X2": { "type": "choice", "values": [-6, -5, -4, -3] }
+  },
+  "conditions": "X1 != 3 and X2 != 3"
+},
+{
+  "textbook_id": 6,
+  "name": "6.б Значение дроби (x = -0.2 и 0)",
+  "question_template": "Вычислите значения выражения \\(\\frac{x + 5}{x - 3}\\) при:<br>\\(x = {X1}; {X2}\\)<br><i>Ответ округлите до сотых, через точку с запятой.</i>",
+  "answer_template": "{round((X1 + 5)/(X1 - 3), 2)}; {round((X2 + 5)/(X2 - 3), 2)}",
+  "answer_type": "string",
+  "parameters": {
+    "X1": { "type": "choice", "values": [-0.5, -0.2, 0.1] },
+    "X2": { "type": "choice", "values": [-0.1, 0, 0.2] }
+  },
+  "conditions": "X1 != 3 and X2 != 3"
+},
+{
+  "textbook_id": 6,
+  "name": "6.в Значение дроби (x = 1/17 и 1)",
+  "question_template": "Вычислите значения выражения \\(\\frac{x + 5}{x - 3}\\) при:<br>\\(x = \\frac{{1}}{{17}}; {X2}\\)<br><i>Ответ округлите до сотых, через точку с запятой.</i>",
+  "answer_template": "{round((1/17 + 5)/(1/17 - 3), 2)}; {round((X2 + 5)/(X2 - 3), 2)}",
+  "answer_type": "string",
+  "parameters": {
+    "X2": { "type": "choice", "values": [1, 1.5, 2] }
+  },
+  "conditions": "X2 != 3"
+},
+{
+  "textbook_id": 6,
+  "name": "6.г Значение дроби (x = 17/3 и 7)",
+  "question_template": "Вычислите значения выражения \\(\\frac{x + 5}{x - 3}\\) при:<br>\\(x = \\frac{{17}}{{3}}; {X2}\\)<br><i>Ответ округлите до сотых, через точку с запятой.</i>",
+  "answer_template": "{round((17/3 + 5)/(17/3 - 3), 2)}; {round((X2 + 5)/(X2 - 3), 2)}",
+  "answer_type": "string",
+  "parameters": {
+    "X2": { "type": "choice", "values": [6.5, 7, 8] }
+  },
+  "conditions": "X2 != 3"
+},
+{
+  "textbook_id": 6,
+  "name": "7.а Выражение переменных из формулы v = s / t",
+  "question_template": "Из формулы \\(v = \\frac{s}{t}\\):<br>1) Выразите переменную \\(s\\) через \\(v\\) и \\(t\\);<br>2) Выразите переменную \\(t\\) через \\(s\\) и \\(v\\).<br><i>Ответ введите двумя выражениями через точку с запятой.</i>",
+  "answer_template": "s = v * t; t = s / v",
+  "answer_type": "string",
+  "parameters": {},
+  "conditions": ""
+}
+
+
+]
