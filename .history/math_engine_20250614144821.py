@@ -3,7 +3,8 @@ import random
 import sympy
 from sympy.parsing.sympy_parser import parse_expr
 from sympy import symbols, simplify
-import math
+from sympy.core.sympify import SympifyError
+from sympy import simplify, sympify
 
 class MathEngine:
     @staticmethod
@@ -76,8 +77,19 @@ class MathEngine:
 
         # Если не удалось сгенерировать - возвращаем последний вариант
         return generated
-
-
+    @staticmethod
+    def compare_symbolic_or_numeric(student_answer: str, correct_answer: str) -> bool:
+        try:
+            s_expr = sympify(student_answer.replace("^", "**").replace(" ", ""))
+            c_expr = sympify(correct_answer.replace("^", "**").replace(" ", ""))
+            return simplify(s_expr - c_expr) == 0
+        except SympifyError:
+            try:
+                s_val = round(float(student_answer.replace(",", ".")), 6)
+                c_val = round(float(correct_answer.replace(",", ".")), 6)
+                return s_val == c_val
+            except:
+                return student_answer.strip() == correct_answer.strip()
     
     @staticmethod
     def evaluate_expression(expr, params):

@@ -3,7 +3,7 @@ import random
 import sympy
 from sympy.parsing.sympy_parser import parse_expr
 from sympy import symbols, simplify
-import math
+from sympy.core.sympify import SympifyError
 
 class MathEngine:
     @staticmethod

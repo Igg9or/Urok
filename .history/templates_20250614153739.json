@@ -748,7 +748,7 @@
   {
   "textbook_id": 6,
   "name": "23.а Разность квадратов (без корней)",
-  "question_template": "Разложите на множители: \\( {var}^2 - {B2} \\)<br><i>Ответ введите в виде произведения скобок</i>",
+  "question_template": "Разложите на множители: \\( {var}^2 - {B2} \\)<br><i>Ответ введите в виде: ({var} - {B})({var} + {B})</i>",
   "answer_template": "({var} - {B})({var} + {B})",
   "answer_type": "string",
   "parameters": {
@@ -803,12 +803,13 @@
   "textbook_id": 6,
   "name": "23.д Разность кубов",
   "question_template": "Разложите на множители выражение: \\( {var}^3 - {B3} \\)<br><i>Ответ введите в виде произведения скобок</i>",
-  "answer_template": "({var} - {B})({var}^2 + {B}{var} + {B**2})",
+  "answer_template": "({var} - {B})({var}^2 + {B}{var} + {B2})",
   "answer_type": "string",
   "parameters": {
     "var": { "type": "choice", "values": ["a", "x", "m", "z"] },
     "B": { "type": "int", "min": 2, "max": 6 },
-    "B3": { "type": "expression", "value": "B**3" }
+    "B3": { "type": "expression", "value": "B**3" },
+    "B2": { "type": "expression", "value": "B**2" }
   },
   "conditions": ""
 },
@@ -816,325 +817,20 @@
   "textbook_id": 6,
   "name": "23.е Сумма кубов",
   "question_template": "Разложите на множители выражение: \\( {var}^3 + {B3} \\)<br><i>Ответ введите в виде произведения скобок</i>",
-  "answer_template": "({var} + {B})({var}^2 - {B}{var} + {B**2})",
+  "answer_template": "({var} + {B})({var}^2 - {B}{var} + {B2})",
   "answer_type": "string",
   "parameters": {
     "var": { "type": "choice", "values": ["b", "x", "y", "s"] },
     "B": { "type": "int", "min": 2, "max": 6 },
-    "B3": { "type": "expression", "value": "B**3" }
+    "B3": { "type": "expression", "value": "B**3" },
+    "B2": { "type": "expression", "value": "B**2" }
   },
   "conditions": ""
-},
-{
-  "textbook_id": 6,
-  "name": "24. Сравнение акций в двух магазинах (конфеты)",
-  "question_template": "Анне Александровне в подарок необходимо купить пять одинаковых коробок конфет. В магазине «Сладость» одна коробка стоит {A} р., но сейчас проходит акция: три коробки по цене двух. В магазине «Джем» одна коробка стоит {B} р., но при покупке более четырёх коробок действует скидка 30% на всю покупку.<br>В каком магазине покупка будет более выгодной? Сколько рублей при этом сможет сэкономить Анна Александровна?<br><i>Ответ: название магазина, затем сумма экономии в рублях</i>",
-  "answer_template": "{'Сладость' if (2*A + 2*A) < round((5*B)*0.7) else 'Джем'}; {abs((2*A + 2*A) - round((5*B)*0.7))}",
-  "answer_type": "string",
-  "parameters": {
-    "A": { "type": "int", "min": 300, "max": 400 },
-    "B": { "type": "int", "min": 350, "max": 450 }
-  },
-  "conditions": "A < B and round((5*B)*0.7) != (2*A + 2*A)"
-},
-{
-  "textbook_id": 6,
-  "name": "25.а Сокращение дробей: одночлены с переменными",
-  "question_template": "Укажите общий множитель числителя и знаменателя и сократите дробь: <br>\\( \\frac{{{A}{v1}}}{{{B}{v1}}} \\)<br><i>Ответ в виде дроби: числитель/знаменатель</i>",
-  "answer_template": "{int(A / gcd(A, B))}/{int(B / gcd(A, B))}",
-  "answer_type": "string",
-  "parameters": {
-    "A": { "type": "int", "min": 2, "max": 20 },
-    "B": { "type": "int", "min": 2, "max": 20 },
-    "v1": { "type": "choice", "values": ["x", "y", "a"] }
-  },
-  "conditions": "A % math.gcd(A, B) == 0 and B % math.gcd(A, B) == 0 and A != B"
-},
-{
-    "textbook_id": 6,
-    "name": "25.б Сокращение дроби Ax / By",
-    "question_template": "Укажите общий множитель числителя и знаменателя и сократите дробь:<br>\\( \\frac{{{A}{v1}}}{{{B}{v2}}} \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "{A // gcd(A, B)}{v1}/{B // gcd(A, B)}{v2}",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 5, "max": 30 },
-      "B": { "type": "int", "min": 5, "max": 30 },
-      "v1": { "type": "choice", "values": ["x", "a"] },
-      "v2": { "type": "choice", "values": ["y", "b"] }
-    },
-    "conditions": "gcd(A, B) > 1 and v1 != v2"
-  },
-  {
-    "textbook_id": 6,
-    "name": "25.в Сокращение дроби типа Aa / Ba",
-    "question_template": "Укажите общий множитель числителя и знаменателя и сократите дробь:<br>\\( \\frac{{{A}a}}{{{B}a}} \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "{A // gcd(A, B)}/{B // gcd(A, B)}",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 2, "max": 12 },
-      "B": { "type": "int", "min": 6, "max": 30 }
-    },
-    "conditions": "gcd(A, B) > 1"
-  },
-  {
-    "textbook_id": 6,
-    "name": "25.г Сокращение дроби типа ab / bc",
-    "question_template": "Укажите общий множитель числителя и знаменателя и сократите дробь:<br>\\( \\frac{{{A}ab}}{{{B}bc}} \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "{A // gcd(A, B)}a/{B // gcd(A, B)}c",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 3, "max": 10 },
-      "B": { "type": "int", "min": 6, "max": 30 }
-    },
-    "conditions": "gcd(A, B) > 1"
-  },
-  {
-    "textbook_id": 6,
-    "name": "25.д Сокращение дроби со степенями и знаком минус",
-    "question_template": "Укажите общий множитель числителя и знаменателя и сократите дробь:<br>\\( \\frac{{-{A}xy}}{{{B}x^{p}y}} \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "-{A // gcd(A, B)}/{B // gcd(A, B)}x^{p-1}",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 2, "max": 6 },
-      "B": { "type": "int", "min": 4, "max": 12 },
-      "p": { "type": "int", "min": 2, "max": 3 }
-    },
-    "conditions": "gcd(A, B) > 1"
-  },
-  {
-    "textbook_id": 6,
-    "name": "25.е Сокращение дроби: x²y² / x y",
-    "question_template": "Укажите общий множитель числителя и знаменателя и сократите дробь:<br>\\( \\frac{{{A}x^{p}y^{q}}}{{{B}xy}} \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "{A // gcd(A, B)}x^{p-1}y^{q-1}/{B // gcd(A, B)}",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 4, "max": 12 },
-      "B": { "type": "int", "min": 2, "max": 12 },
-      "p": { "type": "int", "min": 2, "max": 3 },
-      "q": { "type": "int", "min": 2, "max": 3 }
-    },
-    "conditions": "gcd(A, B) > 1"
-  }, 
-  {
-    "textbook_id": 6,
-    "name": "26.а Сокращение дроби xz / yz",
-    "question_template": "Сократите дробь:<br>\\( \\frac{{{A}xz}}{{{B}yz}} \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "{A // gcd(A, B)}x/{B // gcd(A, B)}y",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 5, "max": 20 },
-      "B": { "type": "int", "min": 5, "max": 25 }
-    },
-    "conditions": "gcd(A, B) > 1"
-  },
-  {
-    "textbook_id": 6,
-    "name": "26.б Сокращение дроби с b²",
-    "question_template": "Сократите дробь:<br>\\( \\frac{{{A}ab^{p}}}{{{B}bc^{q}}} \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "{A // gcd(A, B)}ab^{p-1}/{B // gcd(A, B)}c^{q}",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 3, "max": 12 },
-      "B": { "type": "int", "min": 3, "max": 15 },
-      "p": { "type": "int", "min": 2, "max": 3 },
-      "q": { "type": "int", "min": 1, "max": 2 }
-    },
-    "conditions": "gcd(A, B) > 1"
-  },
-  {
-    "textbook_id": 6,
-    "name": "26.в Сокращение дроби с отрицателем и y³",
-    "question_template": "Сократите дробь:<br>\\( \\frac{{{A}ay^{p}}}{{-{B}a^{q}b}} \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "-{A // gcd(A, B)}y^{p}/{B // gcd(A, B)}a^{q - 1}b",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 2, "max": 6 },
-      "B": { "type": "int", "min": 2, "max": 8 },
-      "p": { "type": "int", "min": 3, "max": 4 },
-      "q": { "type": "int", "min": 2, "max": 3 }
-    },
-    "conditions": "gcd(A, B) > 1"
-  },
-  {
-    "textbook_id": 6,
-    "name": "26.г Сокращение дроби p²q / q³",
-    "question_template": "Сократите дробь:<br>\\( \\frac{{-{A}p^{2}q}}{{-{B}q^{3}}} \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "{A // gcd(A, B)}p^{2}/{B // gcd(A, B)}q^{2}",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 2, "max": 10 },
-      "B": { "type": "int", "min": 2, "max": 10 }
-    },
-    "conditions": "gcd(A, B) > 1"
-  },
-  {
-    "textbook_id": 6,
-    "name": "26.д Сокращение дроби с x²c² / ac",
-    "question_template": "Сократите дробь:<br>\\( \\frac{{{A}a{x}^{2}c^{2}}}{{{B}ac}} \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "{A // gcd(A, B)}x^{2}c/{B // gcd(A, B)}",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 6, "max": 30 },
-      "B": { "type": "int", "min": 6, "max": 36 },
-      "x": { "type": "choice", "values": ["x", "z"] }
-    },
-    "conditions": "gcd(A, B) > 1"
-  },
-  {
-    "textbook_id": 6,
-    "name": "26.е Сокращение дроби с x⁵y³ / x⁶y⁴",
-    "question_template": "Сократите дробь:<br>\\( \\frac{{{A}x^{p}y^{q}}}{{{B}x^{r}y^{s}}} \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "{A // gcd(A, B)}x^{p - r}y^{q - s}/{B // gcd(A, B)}",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 21, "max": 70 },
-      "B": { "type": "int", "min": 21, "max": 70 },
-      "p": { "type": "int", "min": 4, "max": 6 },
-      "r": { "type": "int", "min": 5, "max": 6 },
-      "q": { "type": "int", "min": 3, "max": 5 },
-      "s": { "type": "int", "min": 4, "max": 5 }
-    },
-    "conditions": "gcd(A, B) > 1 and p < r + 2 and q < s + 2"
-  },
-  {
-    "textbook_id": 6,
-    "name": "27.а Деление одночленов с a²b³ / a⁴b²",
-    "question_template": "Представьте частное в виде дроби и сократите её:<br>\\( {A}a^{p1}b^{q1} : {B}a^{p2}b^{q2} \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "{A // gcd(A, B)}a^{p1 - p2}b^{q1 - q2}/{B // gcd(A, B)}",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 2, "max": 10 },
-      "B": { "type": "int", "min": 2, "max": 12 },
-      "p1": { "type": "int", "min": 2, "max": 3 },
-      "p2": { "type": "int", "min": 3, "max": 5 },
-      "q1": { "type": "int", "min": 2, "max": 4 },
-      "q2": { "type": "int", "min": 1, "max": 3 }
-    },
-    "conditions": "gcd(A, B) > 1 and p1 < p2 and q1 > q2"
-  },
-  {
-    "textbook_id": 6,
-    "name": "27.б Деление xy² : x³y³",
-    "question_template": "Представьте частное в виде дроби и сократите её:<br>\\( {A}x{v2}^{q1} : ({B}x^{p2}{v2}^{q2}) \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "{A // gcd(A, B)}/{B // gcd(A, B)}x^{1 - p2}{v2}^{q1 - q2}",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 2, "max": 8 },
-      "B": { "type": "int", "min": 2, "max": 10 },
-      "v2": { "type": "choice", "values": ["y", "z"] },
-      "p2": { "type": "int", "min": 2, "max": 4 },
-      "q1": { "type": "int", "min": 2, "max": 3 },
-      "q2": { "type": "int", "min": 3, "max": 4 }
-    },
-    "conditions": "gcd(A, B) > 1 and q1 < q2"
-  },
-  {
-    "textbook_id": 6,
-    "name": "27.в Деление одночленов с p⁴q⁴ / p²q²",
-    "question_template": "Представьте частное в виде дроби и сократите её:<br>\\( {A}p^{p1}q^{q1} : ({B}p^{p2}q^{q2}) \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "{A // gcd(A, B)}p^{p1 - p2}q^{q1 - q2}/{B // gcd(A, B)}",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 8, "max": 30 },
-      "B": { "type": "int", "min": 8, "max": 50 },
-      "p1": { "type": "int", "min": 3, "max": 5 },
-      "p2": { "type": "int", "min": 1, "max": 3 },
-      "q1": { "type": "int", "min": 3, "max": 5 },
-      "q2": { "type": "int", "min": 1, "max": 3 }
-    },
-    "conditions": "gcd(A, B) > 1 and p1 > p2 and q1 > q2"
-  },
-  {
-    "textbook_id": 6,
-    "name": "27.г Деление m²n / mn",
-    "question_template": "Представьте частное в виде дроби и сократите её:<br>\\( {A}m^{2}n : ({B}mn) \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "{A // gcd(A, B)}m/{B // gcd(A, B)}",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 6, "max": 50 },
-      "B": { "type": "int", "min": 6, "max": 40 }
-    },
-    "conditions": "gcd(A, B) > 1"
-  },
-  {
-    "textbook_id": 6,
-    "name": "27.д Деление отрицательных одночленов: -32b⁵c / 12b⁴c²",
-    "question_template": "Представьте частное в виде дроби и сократите её:<br>\\( -{A}b^{p1}c : ({B}b^{p2}c^{q2}) \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "-{A // gcd(A, B)}b^{p1 - p2}/{B // gcd(A, B)}c^{q2 - 1}",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 8, "max": 32 },
-      "B": { "type": "int", "min": 6, "max": 18 },
-      "p1": { "type": "int", "min": 5, "max": 6 },
-      "p2": { "type": "int", "min": 3, "max": 5 },
-      "q2": { "type": "int", "min": 2, "max": 3 }
-    },
-    "conditions": "gcd(A, B) > 1 and p1 > p2"
-  },
-  {
-    "textbook_id": 6,
-    "name": "27.е Деление отрицательных одночленов: -6ax / -18ax",
-    "question_template": "Представьте частное в виде дроби и сократите её:<br>\\( -{A}ax : (-{B}ax) \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "{A // gcd(A, B)}/{B // gcd(A, B)}",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 3, "max": 10 },
-      "B": { "type": "int", "min": 6, "max": 30 }
-    },
-    "conditions": "gcd(A, B) > 1"
-  },
-  {
-    "textbook_id": 6,
-    "name": "28.а Сокращение дроби a² / ac",
-    "question_template": "Сократите дробь:<br>\\( \\frac{{{A}a^{2}}}{{{B}ac}} \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "{A // gcd(A, B)}a/{B // gcd(A, B)}c",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 2, "max": 10 },
-      "B": { "type": "int", "min": 3, "max": 15 }
-    },
-    "conditions": "gcd(A, B) > 1"
-  },
-  {
-    "textbook_id": 6,
-    "name": "28.б Сокращение дроби x²y / xy²",
-    "question_template": "Сократите дробь:<br>\\( \\frac{{{A}x^{p1}y}}{{{B}x{y}^{q}}} \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "{A // gcd(A, B)}x^{p1 - 1}/{B // gcd(A, B)}y^{q - 1}",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 7, "max": 14 },
-      "B": { "type": "int", "min": 14, "max": 28 },
-      "p1": { "type": "int", "min": 2, "max": 3 },
-      "q": { "type": "int", "min": 2, "max": 3 }
-    },
-    "conditions": "gcd(A, B) > 1"
-  },
-  {
-    "textbook_id": 6,
-    "name": "28.в Сокращение дроби m²n⁵ / mn⁵",
-    "question_template": "Сократите дробь:<br>\\( \\frac{{{A}m^{2}n^{p}}}{{{B}mn^{p}}} \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "{A // gcd(A, B)}m/{B // gcd(A, B)}",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 14, "max": 60 },
-      "B": { "type": "int", "min": 7, "max": 50 },
-      "p": { "type": "int", "min": 4, "max": 6 }
-    },
-    "conditions": "gcd(A, B) > 1"
-  },
-  {
-    "textbook_id": 6,
-    "name": "28.г Сокращение дроби p⁴q / p⁵q",
-    "question_template": "Сократите дробь:<br>\\( \\frac{{{A}p^{p1}q}}{{{B}p^{p2}q}} \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "{A // gcd(A, B)}/ {B // gcd(A, B)}p^{p2 - p1}",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 10, "max": 50 },
-      "B": { "type": "int", "min": 20, "max": 100 },
-      "p1": { "type": "int", "min": 3, "max": 4 },
-      "p2": { "type": "int", "min": 5, "max": 6 }
-    },
-    "conditions": "gcd(A, B) > 1 and p1 < p2"
-  }
+}
+
+
+
+
+
 
 ]

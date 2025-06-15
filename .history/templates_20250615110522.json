@@ -1082,59 +1082,6 @@
       "B": { "type": "int", "min": 6, "max": 30 }
     },
     "conditions": "gcd(A, B) > 1"
-  },
-  {
-    "textbook_id": 6,
-    "name": "28.а Сокращение дроби a² / ac",
-    "question_template": "Сократите дробь:<br>\\( \\frac{{{A}a^{2}}}{{{B}ac}} \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "{A // gcd(A, B)}a/{B // gcd(A, B)}c",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 2, "max": 10 },
-      "B": { "type": "int", "min": 3, "max": 15 }
-    },
-    "conditions": "gcd(A, B) > 1"
-  },
-  {
-    "textbook_id": 6,
-    "name": "28.б Сокращение дроби x²y / xy²",
-    "question_template": "Сократите дробь:<br>\\( \\frac{{{A}x^{p1}y}}{{{B}x{y}^{q}}} \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "{A // gcd(A, B)}x^{p1 - 1}/{B // gcd(A, B)}y^{q - 1}",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 7, "max": 14 },
-      "B": { "type": "int", "min": 14, "max": 28 },
-      "p1": { "type": "int", "min": 2, "max": 3 },
-      "q": { "type": "int", "min": 2, "max": 3 }
-    },
-    "conditions": "gcd(A, B) > 1"
-  },
-  {
-    "textbook_id": 6,
-    "name": "28.в Сокращение дроби m²n⁵ / mn⁵",
-    "question_template": "Сократите дробь:<br>\\( \\frac{{{A}m^{2}n^{p}}}{{{B}mn^{p}}} \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "{A // gcd(A, B)}m/{B // gcd(A, B)}",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 14, "max": 60 },
-      "B": { "type": "int", "min": 7, "max": 50 },
-      "p": { "type": "int", "min": 4, "max": 6 }
-    },
-    "conditions": "gcd(A, B) > 1"
-  },
-  {
-    "textbook_id": 6,
-    "name": "28.г Сокращение дроби p⁴q / p⁵q",
-    "question_template": "Сократите дробь:<br>\\( \\frac{{{A}p^{p1}q}}{{{B}p^{p2}q}} \\)<br><i>Ответ в виде дроби</i>",
-    "answer_template": "{A // gcd(A, B)}/ {B // gcd(A, B)}p^{p2 - p1}",
-    "answer_type": "string",
-    "parameters": {
-      "A": { "type": "int", "min": 10, "max": 50 },
-      "B": { "type": "int", "min": 20, "max": 100 },
-      "p1": { "type": "int", "min": 3, "max": 4 },
-      "p2": { "type": "int", "min": 5, "max": 6 }
-    },
-    "conditions": "gcd(A, B) > 1 and p1 < p2"
   }
 
 ]

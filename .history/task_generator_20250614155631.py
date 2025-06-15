@@ -1,7 +1,6 @@
 import re
 from math_engine import MathEngine
 import random
-import math
 
 class TaskGenerator:
     @staticmethod
@@ -15,15 +14,14 @@ class TaskGenerator:
             params = MathEngine.generate_parameters(template['parameters'], template.get('conditions', ''))
 
         for param, config in template.get('parameters', {}).items():
-            if isinstance(config, dict) and config.get('type') == 'expression':
-                try:
-                    expr = config['value']
-                    safe_locals = dict(params)
-                    params[param] = eval(expr, {}, safe_locals)
-                except Exception as e:
-                    print(f"Ошибка вычисления выражения '{param}': {e}")
-                    params[param] = f"Ошибка генерации"
-
+    if isinstance(config, dict) and config.get('type') == 'expression':
+        try:
+            expr = config['value']
+            safe_locals = dict(params)
+            params[param] = eval(expr, {}, safe_locals)
+        except Exception as e:
+            print(f"Ошибка вычисления выражения '{param}': {e}")
+            params[param] = f"Ошибка генерации"
         # Формируем вопрос (подставляем параметры, если есть)
         question = template['question_template']
         if params:
@@ -39,8 +37,7 @@ class TaskGenerator:
                     'round': round,
                     'abs': abs,
                     'min': min,
-                    'max': max,
-                    'gcd': math.gcd
+                    'max': max
                 }
                 # Добавляем параметры в locals
                 local_vars = dict(params)

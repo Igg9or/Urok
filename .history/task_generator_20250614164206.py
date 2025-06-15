@@ -39,8 +39,7 @@ class TaskGenerator:
                     'round': round,
                     'abs': abs,
                     'min': min,
-                    'max': max,
-                    'gcd': math.gcd
+                    'max': max
                 }
                 # Добавляем параметры в locals
                 local_vars = dict(params)
