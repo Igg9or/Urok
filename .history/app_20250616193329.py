@@ -1,7 +1,6 @@
 from flask import Flask, flash, render_template, request, redirect, url_for, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3, math
-import sympy
 import os, re, json, random
 import datetime
 from datetime import datetime as dt
@@ -1280,29 +1279,6 @@ def get_template(template_id):
     finally:
         conn.close()
 
-def compare_expressions(ans1, ans2):
-    # Добавим * между числом и скобкой, если нужно
-    import re
-    def fix_mul(expr):
-        # Заменяет 2(x+1) на 2*(x+1)
-        return re.sub(r'(\d)(\()', r'\1*\2', expr)
-    ans1 = fix_mul(ans1.replace("^", "**").replace(" ", ""))
-    ans2 = fix_mul(ans2.replace("^", "**").replace(" ", ""))
-    def can_parse_as_expr(s):
-        # хотя бы одна буква и хотя бы один арифметический оператор
-        return any(c.isalpha() for c in s) and any(op in s for op in "+-*/^")
-    if can_parse_as_expr(ans1) and can_parse_as_expr(ans2):
-        try:
-            expr1 = parse_expr(ans1, evaluate=True)
-            expr2 = parse_expr(ans2, evaluate=True)
-            # Если разность упростилась до 0 — выражения эквивалентны
-            return sympy.simplify(expr1 - expr2) == 0
-        except Exception as e:
-            # Если не удалось распарсить — fallback
-            return ans1 == ans2
-    else:
-        return ans1 == ans2
-    
 @app.route('/api/generate_task', methods=['POST'])
 def generate_task():
     data = request.get_json()
@@ -1357,6 +1333,8 @@ def api_check_answer():
             return f"{frac.numerator}/{frac.denominator}"
         
         if answer_type == 'string':
+            
+            # Для сравнения знаков: > < =, убираем пробелы и сравниваем только значимые символы
             ua = user_answer.strip().replace(" ", "")
             ca = correct_answer.strip().replace(" ", "")
             print(f"Debug: Comparing user answer '{ua}' with correct '{ca}'")
@@ -1364,20 +1342,7 @@ def api_check_answer():
             if len(ua) == 1 and len(ca) == 1:
                 is_correct = ua == ca
             else:
-                # Если это алгебраическое выражение — сравни как выражения
-                def can_parse_as_expr(s):
-                    return any(c.isalpha() for c in s) and any(op in s for op in "+-*/^")
-                if can_parse_as_expr(ua) and can_parse_as_expr(ca):
-                    try:
-                        # Парсим и сравниваем через sympy
-                        expr1 = parse_expr(ua.replace("^", "**"))
-                        expr2 = parse_expr(ca.replace("^", "**"))
-                        is_correct = sympy.simplify(expr1 - expr2) == 0
-                    except Exception as e:
-                        # fallback — сравнение как строк
-                        is_correct = ua.lower() == ca.lower()
-                else:
-                    is_correct = ua.lower() == ca.lower()
+                is_correct = ua.lower() == ca.lower()
             return jsonify({"is_correct": is_correct, "correct_answer": correct_answer})
 
         def parse_math_answer(ans):

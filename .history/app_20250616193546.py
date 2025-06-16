@@ -1281,13 +1281,13 @@ def get_template(template_id):
         conn.close()
 
 def compare_expressions(ans1, ans2):
-    # Добавим * между числом и скобкой, если нужно
-    import re
-    def fix_mul(expr):
-        # Заменяет 2(x+1) на 2*(x+1)
-        return re.sub(r'(\d)(\()', r'\1*\2', expr)
-    ans1 = fix_mul(ans1.replace("^", "**").replace(" ", ""))
-    ans2 = fix_mul(ans2.replace("^", "**").replace(" ", ""))
+    """
+    Сравнивает два алгебраических выражения с помощью sympy.
+    Возвращает True, если они эквивалентны.
+    В остальных случаях — сравнивает как строки.
+    """
+    ans1 = ans1.replace("^", "**").replace(" ", "")
+    ans2 = ans2.replace("^", "**").replace(" ", "")
     def can_parse_as_expr(s):
         # хотя бы одна буква и хотя бы один арифметический оператор
         return any(c.isalpha() for c in s) and any(op in s for op in "+-*/^")

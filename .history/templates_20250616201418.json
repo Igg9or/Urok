@@ -1930,84 +1930,46 @@
 {
   "textbook_id": 6,
   "name": "44.б Сократите дробь (рандомизация, как в учебнике)",
-   "question_template": "Сократите дробь:<br>б) \\( \\frac{{var}^{N} - {var}^{N3}}{{var}^{K} - {var}^{K3}} \\)<br><i>Ответ в виде выражения</i>",
+  "question_template": "Сократите дробь:<br>б) \\( \\frac{{var}^{N} - {var}^{N+3}}{{var}^{K} - {var}^{K+3}} \\)<br><i>Ответ в виде выражения</i>",
   "answer_template": "-{var}^{N-K}",
   "answer_type": "string",
   "parameters": {
-    "var": { "type": "choice", "values": ["b", "z", "q", "k"] },
-    "N": { "type": "choice", "values": [7, 8, 9, 10] },
-    "N3": { "type": "expression", "value": "N+3" },
-    "K": { "type": "expression", "value": "N-2" },
-    "K3": { "type": "expression", "value": "K+3" }
+    "var": { "type": "choice", "values": ["b", "q", "k", "z"] },
+    "N": { "type": "choice", "values": [7, 8, 9] },
+    "K": { "type": "expression", "value": "N-2" }
   },
   "conditions": ""
 },
 {
   "textbook_id": 6,
   "name": "44.в Сократите дробь (рандомизация, как в учебнике)",
-  "question_template": "Сократите дробь:<br>в) \\( \\frac{{var}^{N} - {var}^{N3}}{{var}^{K} - {var}^{K3}} \\)<br><i>Ответ в виде выражения</i>",
-  "answer_template": "-{var}^{N-K3}",
+  "question_template": "Сократите дробь:<br>в) \\( \\frac{{var}^{N} - {var}^{N+3}}{{var}^{K} - {var}^{K-3}} \\)<br><i>Ответ в виде выражения</i>",
+  "answer_template": "-{var}^{N-K}",
   "answer_type": "string",
   "parameters": {
-    "var": { "type": "choice", "values": ["b", "z", "q", "k"] },
+    "var": { "type": "choice", "values": ["b", "q", "k", "z"] },
     "N": { "type": "choice", "values": [7, 8, 9, 10] },
-    "N3": { "type": "expression", "value": "N+3" },
-    "K": { "type": "expression", "value": "N-2" },
-    "K3": { "type": "expression", "value": "N-5" }
+    "K": { "type": "expression", "value": "N-2" }
   },
   "conditions": ""
 },
 {
   "textbook_id": 6,
-  "name": "46.а Сократите дробь с квадратом разности (рандом коэффициенты)",
-  "question_template": "Сократите дробь:<br>а) \\( \\frac{({A}{var1} - {A}{var2})^2}{{var1} - {var2}} \\)<br><i>Ответ в виде выражения</i>",
-  "answer_template": "{A*A}({var1}-{var2})",
+  "name": "44.г Сократите дробь (рандомизация, как в учебнике)",
+  "question_template": "Сократите дробь:<br>г) \\( \\frac{{varC}^{A} - {varC}^{B}}{{varC}^{C} - {varC}^{D}} \\)<br><i>Ответ в виде выражения</i>",
+  "answer_template": "{varC}^{A-C}({varC}+1)",
   "answer_type": "string",
   "parameters": {
-    "A": { "type": "choice", "values": [2, 3, 4, 5, 6] },
-    "var1": { "type": "choice", "values": ["a", "x", "m", "p"] },
-    "var2": { "type": "choice", "values": ["b", "y", "n", "q"] }
+    "varC": { "type": "choice", "values": ["c", "s", "r", "f"] },
+    "A": { "type": "choice", "values": [6, 8, 10, 4, 2, 12, 14] },
+    "B": { "type": "expression", "value": "A-4" },
+    "C": { "type": "expression", "value": "A-3" },
+    "D": { "type": "expression", "value": "A-4" }
   },
-  "conditions": "var1 != var2"
-},
-{
-  "textbook_id": 6,
-  "name": "46.б Сократите дробь с квадратом суммы (рандом коэффициенты)",
-  "question_template": "Сократите дробь:<br>б) \\( \\frac{({k}{var1} + {k2}{var2})^2}{{var1} + {k}{var2}} \\)<br><i>Ответ в виде выражения</i>",
-  "answer_template": "{k*k}({var1}+{k}{var2})",
-  "answer_type": "string",
-  "parameters": {
-    "k": { "type": "choice", "values": [2, 3, 4, 5, 6, 7, 8, 9] },
-    "k2": { "type": "expression", "value": "k*k" },
-    "var1": { "type": "choice", "values": ["c", "x", "m", "p"] },
-    "var2": { "type": "choice", "values": ["d", "y", "n", "q"] }
-  },
-  "conditions": "var1 != var2"
-},
-{
-  "textbook_id": 6,
-  "name": "46.в Сократите дробь (точно как в учебнике, рандомизация коэффициентов)",
-  "question_template": "Сократите дробь:<br>в) \\( \\frac{({A}{var1}+{B}{var2})^2}{{C}{var1}+{D}{var2}} \\)<br><i>Ответ в виде выражения</i>",
-  "answer_template": "{A*A}({var1}+{k}{var2})/{C}",
-  "answer_type": "string",
-  "parameters": {
-    "A": { "type": "choice", "values": [2, 3, 4, 5, 6] },
-    "k": { "type": "choice", "values": [2, 3, 4, 5] },
-    "var1": { "type": "choice", "values": ["x", "a", "m"] },
-    "var2": { "type": "choice", "values": ["y", "b", "n"] },
-    "B": { "type": "expression", "value": "A * k" },
-    "C": { "type": "choice", "values": [2, 3, 4, 5, 6] },
-    "D": { "type": "expression", "value": "C * k" }
-  },
-  "conditions": "A != C and var1 != var2"
-},
-{
-  "textbook_id": 6,
-  "name": "46.г Сократите дробь (разность квадратов, как в учебнике)",
-  "question_template": "Сократите дробь:<br>г) \\( \\frac{4x^2 - y^2}{(10x + 5y)^2} \\)<br><i>Ответ в виде выражения</i>",
-  "answer_template": "(2x - y)/(5(2x + y))",
-  "answer_type": "string",
-  "parameters": {}
+  "conditions": ""
 }
+
+
+
 
 ]
