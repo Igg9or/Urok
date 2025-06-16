@@ -1,0 +1,1754 @@
+[
+{
+  "textbook_id": 6,
+  "name": "3.а Значение дроби (y — положительное целое)",
+   "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = {Y}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((Y - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": { "type": "choice", "values": [2, 3, 4, 5, 6, 8, 12, 20] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "3.б Значение дроби (y = 0 или 1)",
+  "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = {Y}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((Y - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": { "type": "choice", "values": [0, 1] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "3.в Значение дроби (y — отрицательное целое)",
+   "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = {Y}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((Y - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": { "type": "choice", "values": [-6, -4, -3, -1] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "3.г Значение дроби (y — обыкновенная дробь)",
+   "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = \\frac{{{N}}}{{{D}}}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((N/D - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "N": { "type": "choice", "values": [1, 2, 3, 5, 6] },
+    "D": { "type": "choice", "values": [2, 3, 4, 5, 6, 8] }
+  },
+  "conditions": "N < D"
+},
+{
+  "textbook_id": 6,
+  "name": "3.д Значение дроби (y — отрицательная десятичная)",
+  "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = {Y}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((Y - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": {
+      "type": "float",
+      "min": -3.0,
+      "max": -0.1,
+      "constraints": [{ "type": "multiple_of", "value": 0.1 }]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "3.е Значение дроби (y — большое значение)",
+  "question_template": "Найдите значение дроби \\(\\frac{y - 1}{4}\\), если \\(y = {Y}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((Y - 1)/4, 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "Y": { "type": "choice", "values": [50, 75, 90, 100, 120] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "4.а Значение дроби (выражение с a)",
+  "question_template": "Найдите значение дроби \\(\\frac{a - 8}{2a + 5}\\), если \\(a = {A}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((A - 8)/(2 * A + 5), 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": {
+      "type": "choice",
+      "values": [-5, -4, -3, -2, -1, 0, 1, 2, 3]
+    }
+  },
+  "conditions": "2 * A + 5 != 0"
+},
+{
+  "textbook_id": 6,
+  "name": "4.б Значение дроби (выражение с b)",
+  "question_template": "Найдите значение дроби \\(\\frac{b^2 + 6}{2b}\\), если \\(b = {B}\\).<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round((B ** 2 + 6)/(2 * B), 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "B": {
+      "type": "choice",
+      "values": [-4, -2, -1, 1, 2, 3, 4, 5]
+    }
+  },
+  "conditions": "B != 0"
+},
+{
+  "textbook_id": 6,
+  "name": "5.а Значение выражения с a и b (целые, отрицательные)",
+  "question_template": "Чему равно значение выражения \\(\\frac{(a + b)^2 - 1}{a^2 + 1}\\), если \\(a = {A},\\ b = {B}\\)?<br><i>Ответ округлите до сотых.</i>",
+  "answer_template": "{round(((A + B)**2 - 1) / (A**2 + 1), 2)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": { "type": "choice", "values": [-5, -4, -3, -2, -1] },
+    "B": { "type": "choice", "values": [-3, -2, -1] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "5.б Значение выражения с a и b (дробные значения)",
+  "question_template": "Чему равно значение выражения \\(\\frac{(a + b)^2 - 1}{a^2 + 1}\\), если \\(a = {A},\\ b = {B}\\)?<br><i>Ответ округлите до сотых.</i>",
+  "answer_template": "{round(((A + B)**2 - 1) / (A**2 + 1), 2)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": {
+      "type": "choice",
+      "values": [1.25, 1.5, 1.75, 2.0]
+    },
+    "B": {
+      "type": "choice",
+      "values": [0.25, 0.5, 0.75]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "6.а Значение дроби (x = -13 и -5)",
+  "question_template": "Вычислите значения выражения \\(\\frac{x + 5}{x - 3}\\) при:<br>\\(x = {X1}; {X2}\\)<br><i>Ответ округлите до сотых, через точку с запятой.</i>",
+  "answer_template": "{round((X1 + 5)/(X1 - 3), 2)}; {round((X2 + 5)/(X2 - 3), 2)}",
+  "answer_type": "string",
+  "parameters": {
+    "X1": { "type": "choice", "values": [-13, -12, -11, -10, -9] },
+    "X2": { "type": "choice", "values": [-6, -5, -4, -3] }
+  },
+  "conditions": "X1 != 3 and X2 != 3"
+},
+{
+  "textbook_id": 6,
+  "name": "6.б Значение дроби (x = -0.2 и 0)",
+  "question_template": "Вычислите значения выражения \\(\\frac{x + 5}{x - 3}\\) при:<br>\\(x = {X1}; {X2}\\)<br><i>Ответ округлите до сотых, через точку с запятой.</i>",
+  "answer_template": "{round((X1 + 5)/(X1 - 3), 2)}; {round((X2 + 5)/(X2 - 3), 2)}",
+  "answer_type": "string",
+  "parameters": {
+    "X1": { "type": "choice", "values": [-0.5, -0.2, 0.1] },
+    "X2": { "type": "choice", "values": [-0.1, 0, 0.2] }
+  },
+  "conditions": "X1 != 3 and X2 != 3"
+},
+{
+  "textbook_id": 6,
+  "name": "6.в Значение дроби (x = 1/17 и 1)",
+  "question_template": "Вычислите значения выражения \\(\\frac{x + 5}{x - 3}\\) при:<br>\\(x = \\frac{{1}}{{17}}; {X2}\\)<br><i>Ответ округлите до сотых, через точку с запятой.</i>",
+  "answer_template": "{round((1/17 + 5)/(1/17 - 3), 2)}; {round((X2 + 5)/(X2 - 3), 2)}",
+  "answer_type": "string",
+  "parameters": {
+    "X2": { "type": "choice", "values": [1, 1.5, 2] }
+  },
+  "conditions": "X2 != 3"
+},
+{
+  "textbook_id": 6,
+  "name": "6.г Значение дроби (x = 17/3 и 7)",
+  "question_template": "Вычислите значения выражения \\(\\frac{x + 5}{x - 3}\\) при:<br>\\(x = \\frac{{17}}{{3}}; {X2}\\)<br><i>Ответ округлите до сотых, через точку с запятой.</i>",
+  "answer_template": "{round((17/3 + 5)/(17/3 - 3), 2)}; {round((X2 + 5)/(X2 - 3), 2)}",
+  "answer_type": "string",
+  "parameters": {
+    "X2": { "type": "choice", "values": [6.5, 7, 8] }
+  },
+  "conditions": "X2 != 3"
+},
+{
+  "textbook_id": 6,
+  "name": "7.а Выражение переменных из формулы v = s / t",
+  "question_template": "Из формулы \\(v = \\frac{s}{t}\\):<br>1) Выразите переменную \\(s\\) через \\(v\\) и \\(t\\);<br>2) Выразите переменную \\(t\\) через \\(s\\) и \\(v\\).<br><i>Ответ введите двумя выражениями через точку с запятой.</i>",
+  "answer_template": "s = v * t; t = s / v",
+  "answer_type": "string",
+  "parameters": {},
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "7.б Выражение переменной V из формулы ρ = m / V",
+  "question_template": "Из формулы \\(\\rho = \\frac{m}{V}\\) выразите переменную \\(V\\) через \\(\\rho\\) и \\(m\\).",
+  "answer_template": "V = m / ρ",
+  "answer_type": "string",
+  "parameters": {},
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "8.а Время встречи поездов (расширенные значения)",
+  "question_template": "Из городов A и B навстречу друг другу вышли два поезда со скоростями \\(v_1 = {V1}\\) км/ч и \\(v_2 = {V2}\\) км/ч. Расстояние между ними \\(s = {S}\\) км. Найдите время \\(t\\), через которое они встретятся.<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round(S / (V1 + V2), 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "S": { "type": "choice", "values": [220, 240, 260, 280, 300, 320, 340, 360, 380, 400] },
+    "V1": { "type": "choice", "values": [50, 55, 60, 65, 70, 75, 80, 85] },
+    "V2": { "type": "choice", "values": [30, 35, 40, 45, 50, 55, 60, 65, 70] }
+  },
+  "conditions": "V1 + V2 != 0"
+},
+{
+  "textbook_id": 6,
+  "name": "8.б Время встречи поездов (ещё больше вариантов)",
+  "question_template": "Из городов A и B навстречу друг другу вышли два поезда со скоростями \\(v_1 = {V1}\\) км/ч и \\(v_2 = {V2}\\) км/ч. Расстояние между ними \\(s = {S}\\) км. Найдите время \\(t\\), через которое они встретятся.<br><i>Ответ округлите до десятых.</i>",
+  "answer_template": "{round(S / (V1 + V2), 1)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "S": { "type": "choice", "values": [250, 270, 290, 310, 330, 350, 370, 390, 410, 430] },
+    "V1": { "type": "choice", "values": [40, 50, 60, 70, 80, 90] },
+    "V2": { "type": "choice", "values": [35, 45, 55, 65, 75, 85] }
+  },
+  "conditions": "V1 + V2 != 0 and V1 != V2"
+},
+{
+  "textbook_id": 6,
+  "name": "10.а Значения, при которых выражение не имеет смысла: x / (x - 2)",
+  "question_template": "При каких значениях переменной выражение \\(\\frac{x}{x - 2}\\) не имеет смысла?<br><i>Ответ: только число, без пробелов.</i>",
+  "answer_template": "2",
+  "answer_type": "string",
+  "parameters": {},
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "10.б Значения, при которых выражение не имеет смысла: (b + 4)/(b² + 7)",
+  "question_template": "При каких значениях переменной выражение \\(\\frac{b + 4}{b^2 + 7}\\) не имеет смысла?<br><i>Ответ: если нет таких значений, напишите “нет”.</i>",
+  "answer_template": "нет",
+  "answer_type": "string",
+  "parameters": {},
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "10.в Значения, при которых выражение не имеет смысла: (y² - 1)/y + y/(y - 3)",
+  "question_template": "При каких значениях переменной выражение \\(\\frac{y^2 - 1}{y} + \\frac{y}{y - 3}\\) не имеет смысла?<br><i>Ответ: числа через точку с запятой, без пробелов.</i>",
+  "answer_template": "0;3",
+  "answer_type": "string",
+  "parameters": {},
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "10.г Значения, при которых выражение не имеет смысла: (a + 10)/(a(a - 1)) - 1",
+  "question_template": "При каких значениях переменной выражение \\(\\frac{a + 10}{a(a - 1)} - 1\\) не имеет смысла?<br><i>Ответ: два числа через точку с запятой, без пробелов.</i>",
+  "answer_template": "0;1",
+  "answer_type": "string",
+  "parameters": {},
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "11.а Допустимые значения переменной (многочлен)",
+  "question_template": "Укажите все допустимые значения переменной в выражении: \\( {A}x^2 + {B}x + {C} \\)<br><i>Если ограничений нет, напишите: любое значение x.   Если есть x !=  </i>",
+  "answer_template": "любое значение x",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "int", "min": 1, "max": 5 },
+    "B": { "type": "int", "min": -10, "max": 10 },
+    "C": { "type": "int", "min": -20, "max": 20 }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "11.б Допустимые значения переменной (линейный знаменатель)",
+  "question_template": "Укажите допустимые значения переменной в выражении: \\( \\frac{{1}}{{{A}x + {B}}} \\)<br><i> Если ограничений нет, напишите: любое значение x.   Если есть x !=</i>",
+  "answer_template": "x ≠ {round(-B/A, 2)}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "int", "min": 1, "max": 10 },
+    "B": { "type": "int", "min": -10, "max": 10 }
+  },
+  "conditions": "A != 0"
+},
+{
+  "textbook_id": 6,
+  "name": "11.в Допустимые значения переменной (знаменатель — число)",
+  "question_template": "Укажите допустимые значения переменной в выражении: \\( \\frac{{{A}x + {B}}}{{{C}}} \\)<br><i>Если ограничений нет, напишите: любое значение x.   Если есть x !=</i>",
+  "answer_template": "любое значение x",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "int", "min": -5, "max": 5 },
+    "B": { "type": "int", "min": -20, "max": 20 },
+    "C": { "type": "choice", "values": [2, 3, 5, 7, 9, 11] }
+  },
+  "conditions": "C != 0"
+},
+{
+  "textbook_id": 6,
+  "name": "11.г Допустимые значения переменной (знаменатель — произведение)",
+  "question_template": "Укажите допустимые значения переменной в выражении: \\( \\frac{{x^2 - {A}}}{{x(x + {B})}} \\)<br><i>Если ограничений нет, напишите: любое значение x.   Если есть x != ; х != </i>",
+  "answer_template": "x ≠ 0; x ≠ {-B}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "int", "min": 1, "max": 20 },
+    "B": { "type": "int", "min": 1, "max": 10 }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "11.д Допустимые значения переменной (знаменатель — сумма квадратов)",
+  "question_template": "Укажите допустимые значения переменной в выражении: \\( \\frac{{x - {A}}}{{x^2 + {B}}} - {C}x \\)<br><i>Если ограничений нет, напишите: любое значение x.   Если есть x != ; х !=</i>",
+  "answer_template": "любое значение x",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "int", "min": 1, "max": 10 },
+    "B": { "type": "choice", "values": [1, 4, 9, 16, 25] },
+    "C": { "type": "int", "min": 1, "max": 5 }
+  },
+  "conditions": "B > 0"
+},
+{
+  "textbook_id": 6,
+  "name": "11.е Допустимые значения переменной (два знаменателя)",
+  "question_template": "Укажите допустимые значения переменной в выражении: \\( \\frac{x + {A}}{{x}} + \\frac{x - {A}}{{x + {B}}} \\)<br><i>Если ограничений нет, напишите: любое значение x.   Если есть x != ; х != </i>",
+  "answer_template": "x ≠ 0; x ≠ {-B}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "int", "min": 1, "max": 9 },
+    "B": { "type": "int", "min": 1, "max": 9 }
+  },
+  "conditions": ""
+},
+{
+    "textbook_id": 6,
+    "name": "12.а Допустимые значения переменной (знаменатель — число)",
+    "question_template": "Найдите допустимые значения переменной в выражении: \\( \\frac{{{A}y - {B}}}{{{C}}} \\)<br><i>Если ограничений нет, напишите: любое значение y. Если есть ограничения — укажите их в формате: y ≠ ...</i>",
+    "answer_template": "любое значение y",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 1, "max": 7 },
+      "B": { "type": "int", "min": 1, "max": 20 },
+      "C": { "type": "choice", "values": [2, 5, 11, 13] }
+    },
+    "conditions": "C != 0"
+  },
+  {
+    "textbook_id": 6,
+    "name": "12.б Допустимые значения переменной (знаменатель линейный)",
+    "question_template": "Найдите допустимые значения переменной в выражении: \\( \\frac{{{A}}}{{y - {B}}} \\)<br><i>Если ограничений нет, напишите: любое значение y. Если есть ограничения — укажите их в формате: y ≠ ...</i>",
+    "answer_template": "y ≠ {B}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 1, "max": 50 },
+      "B": { "type": "int", "min": 1, "max": 20 }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 6,
+    "name": "12.в Допустимые значения переменной (знаменатель — неполный квадратный трёхчлен)",
+    "question_template": "Найдите допустимые значения переменной в выражении: \\( \\frac{{y^2 + {A}}}{{y^2 - {B}y}} \\)<br><i>Если ограничений нет, напишите: любое значение y. Если есть ограничения — укажите их в формате: y ≠ ...; y ≠ ...</i>",
+    "answer_template": "y ≠ 0; y ≠ {B}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "choice", "values": [1, 4, 5, 9] },
+      "B": { "type": "choice", "values": [1, 2, 3, 5] }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 6,
+    "name": "12.г Допустимые значения переменной (знаменатель всегда положителен)",
+    "question_template": "Найдите допустимые значения переменной в выражении: \\( \\frac{{y - {A}}}{{y^2 + {B}}} \\)<br><i>Если ограничений нет, напишите: любое значение y. Если есть ограничения — укажите их в формате: y ≠ ...</i>",
+    "answer_template": "любое значение y",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 1, "max": 10 },
+      "B": { "type": "choice", "values": [3, 5, 7, 9] }
+    },
+    "conditions": "B > 0"
+  },
+  {
+    "textbook_id": 6,
+    "name": "12.д Допустимые значения переменной (два знаменателя)",
+    "question_template": "Найдите допустимые значения переменной в выражении: \\( \\frac{y}{y - {A}} + \\frac{{B}}{{y + {C}}} \\)<br><i>Если ограничений нет, напишите: любое значение y. Если есть ограничения — укажите их в формате: y ≠ ...; y ≠ ...</i>",
+    "answer_template": "y ≠ {A}; y ≠ {-C}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 1, "max": 10 },
+      "B": { "type": "int", "min": 1, "max": 30 },
+      "C": { "type": "int", "min": 1, "max": 10 }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 6,
+    "name": "12.е Допустимые значения переменной (два знаменателя, одно из них y)",
+    "question_template": "Найдите допустимые значения переменной в выражении: \\( \\frac{{{A}}}{{y}} - \\frac{{y + {B}}}{{y + {C}}} \\)<br><i>Если ограничений нет, напишите: любое значение y. Если есть ограничения — укажите их в формате: y ≠ ...; y ≠ ...</i>",
+    "answer_template": "y ≠ 0; y ≠ {-C}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 10, "max": 50 },
+      "B": { "type": "int", "min": 1, "max": 5 },
+      "C": { "type": "int", "min": 1, "max": 7 }
+    },
+    "conditions": ""
+  },
+   {
+    "textbook_id": 6,
+    "name": "13.а Область определения: дробь с линейным знаменателем",
+    "question_template": "Найдите область определения функции: \\( y = \\frac{1}{x - {A}} \\)<br><i>Если ограничений нет, напишите: любое значение x. Если есть — укажите их в формате: x ≠ ...</i>",
+    "answer_template": "x ≠ {A}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 1, "max": 10 }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 6,
+    "name": "13.б Область определения: дробь с произведением в знаменателе",
+    "question_template": "Найдите область определения функции: \\( y = \\frac{2x + {A}}{x(x + {B})} \\)<br><i>Если ограничений нет, напишите: любое значение x. Если есть — укажите их в формате: x ≠ ...; x ≠ ...</i>",
+    "answer_template": "x ≠ 0; x ≠ {-B}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 1, "max": 10 },
+      "B": { "type": "int", "min": 1, "max": 10 }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 6,
+    "name": "13.в Область определения: линейная + дробь",
+    "question_template": "Найдите область определения функции: \\( y = x + \\frac{1}{x + {C}} \\)<br><i>Если ограничений нет, напишите: любое значение x. Если есть — укажите их в формате: x ≠ ...</i>",
+    "answer_template": "x ≠ {-C}",
+    "answer_type": "string",
+    "parameters": {
+      "C": { "type": "int", "min": 1, "max": 10 }
+    },
+    "conditions": ""
+  },
+  {
+  "textbook_id": 6,
+  "name": "14.а Найдите x при значении дроби 1",
+  "question_template": "При каком значении переменной значение дроби \\( \\frac{x - {A}}{5} \\) равно 1?<br><i>Ответ введите числом</i>",
+  "answer_template": "{5 * 1 + A}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": { "type": "int", "min": -5, "max": 5 }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "14.б Найдите x при значении дроби 0",
+  "question_template": "При каком значении переменной значение дроби \\( \\frac{x - {A}}{5} \\) равно 0?<br><i>Ответ введите числом</i>",
+  "answer_template": "{A}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": { "type": "int", "min": -10, "max": 10 }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "14.в Найдите x при значении дроби -1",
+  "question_template": "При каком значении переменной значение дроби \\( \\frac{x - {A}}{5} \\) равно -1?<br><i>Ответ введите числом</i>",
+  "answer_template": "{5 * (-1) + A}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": { "type": "int", "min": -5, "max": 10 }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "14.г Найдите x при значении дроби 3",
+  "question_template": "При каком значении переменной значение дроби \\( \\frac{x - {A}}{5} \\) равно 3?<br><i>Ответ введите числом</i>",
+  "answer_template": "{5 * 3 + A}",
+  "answer_type": "numeric",
+  "parameters": {
+    "A": { "type": "int", "min": -5, "max": 5 }
+  },
+  "conditions": ""
+},
+{
+    "textbook_id": 6,
+    "name": "15.а Нули дроби: линейный числитель y - A",
+    "question_template": "При каких значениях переменной значение дроби \\( \\frac{y - {A}}{8} \\) равно нулю?<br><i>Ответ введите числом</i>",
+    "answer_template": "{A}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "int", "min": -10, "max": 10 }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 6,
+    "name": "15.б Нули дроби: линейный числитель 2y + B",
+    "question_template": "При каких значениях переменной значение дроби \\( \\frac{2y + {B}}{10} \\) равно нулю?<br><i>Ответ введите числом</i>",
+    "answer_template": "{-B / 2}",
+    "answer_type": "numeric",
+    "parameters": {
+      "B": { "type": "int", "min": -20, "max": 20 }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 6,
+    "name": "15.в Нули дроби: числитель x(x - A)",
+    "question_template": "При каких значениях переменной значение дроби \\( \\frac{x(x - {A})}{x + 4} \\) равно нулю?<br><i>Ответ введите через точку с запятой</i>",
+    "answer_template": "0; {A}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 1, "max": 10 }
+    },
+    "conditions": ""
+  },
+  {
+  "textbook_id": 6,
+  "name": "15.г Нули дроби: исключение из области определения",
+  "question_template": "При каких значениях переменной значение дроби \\( \\frac{x(x + 3)}{2x + 6} \\) равно нулю?<br><i>Ответ введите числом</i>",
+  "answer_template": "0",
+  "answer_type": "numeric",
+  "parameters": {},
+  "conditions": ""
+},
+{
+    "textbook_id": 6,
+    "name": "16.а Нули дроби: линейный числитель m + A",
+    "question_template": "Найдите значения переменной, при которых значение дроби \\( \\frac{m + {A}}{6} \\) равно нулю.<br><i>Ответ введите числом</i>",
+    "answer_template": "{-A}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "int", "min": 1, "max": 10 }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 6,
+    "name": "16.б Нули дроби: 7 - An",
+    "question_template": "Найдите значения переменной, при которых значение дроби \\( \\frac{7 - {A}n}{11} \\) равно нулю.<br><i>Ответ введите числом</i>",
+    "answer_template": "{round(7 / A, 2)}",
+    "answer_type": "numeric",
+    "parameters": {
+      "A": { "type": "choice", "values": [2, 3, 4, 5, 6, 7] }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 6,
+    "name": "16.в Нули дроби: квадратный числитель b^2 - b",
+    "question_template": "Найдите значения переменной, при которых значение дроби \\( \\frac{b^2 - b}{b + {A}} \\) равно нулю.<br><i>Ответ введите через точку с запятой</i>",
+    "answer_template": "0; 1",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 1, "max": 5 }
+    },
+    "conditions": ""
+  },
+  {
+  "textbook_id": 6,
+  "name": "16.г Нули дроби: разность квадратов с исключением по ОДЗ",
+  "question_template": "Найдите значения переменной, при которых значение дроби \\( \\frac{y^2 - 25}{3y - 15} \\) равно нулю.<br><i>Ответ введите числом</i>",
+  "answer_template": "-5",
+  "answer_type": "numeric",
+  "parameters": {},
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "17 Определение знака дроби по знакам числителя и знаменателя",
+  "question_template": "Определите знак дроби \\( \\frac{a}{b} \\), если известно, что: <br>\\( a {a_sign} 0 \\) и \\( b {b_sign} 0 \\)<br><i>Ответ введите одним символом: + или -</i>",
+  "answer_template": "{'+' if (a_sign == '>' and b_sign == '>') or (a_sign == '<' and b_sign == '<') else '-'}",
+  "answer_type": "string",
+  "parameters": {
+    "a_sign": {
+      "type": "choice",
+      "values": [">", "<"]
+    },
+    "b_sign": {
+      "type": "choice",
+      "values": [">", "<"]
+    }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "19.а Максимум дроби: квадрат в знаменателе",
+  "question_template": "При каком значении переменной \\( a \\) дробь \\( \\frac{{{C}}}{a^2 + {K}} \\) принимает наибольшее значение?<br><i>Ответ введите числом</i>",
+  "answer_template": "0",
+  "answer_type": "numeric",
+  "parameters": {
+    "C": { "type": "int", "min": 2, "max": 10 },
+    "K": { "type": "int", "min": 1, "max": 10 }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "19.б Максимум дроби: квадрат со сдвигом",
+  "question_template": "При каком значении переменной \\( a \\) дробь \\( \\frac{{{C}}}{(a - {M})^2 + {N}} \\) принимает наибольшее значение?<br><i>Ответ введите числом</i>",
+  "answer_template": "{M}",
+  "answer_type": "numeric",
+  "parameters": {
+    "C": { "type": "int", "min": 5, "max": 20 },
+    "M": { "type": "int", "min": -5, "max": 5 },
+    "N": { "type": "int", "min": 1, "max": 5 }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "20.а Минимум дроби: квадрат в числителе",
+  "question_template": "При каком значении переменной \\( b \\) дробь \\( \\frac{b^2 + {K}}{21} \\) принимает наименьшее значение?<br><i>Ответ введите числом</i>",
+  "answer_template": "0",
+  "answer_type": "numeric",
+  "parameters": {
+    "K": { "type": "int", "min": 1, "max": 10 }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "20.б Минимум дроби: квадрат со сдвигом в числителе",
+  "question_template": "При каком значении переменной \\( b \\) дробь \\( \\frac{(b - {M})^2 + {N}}{8} \\) принимает наименьшее значение?<br><i>Ответ введите числом</i>",
+  "answer_template": "{M}",
+  "answer_type": "numeric",
+  "parameters": {
+    "M": { "type": "int", "min": -5, "max": 5 },
+    "N": { "type": "int", "min": 1, "max": 10 }
+  },
+  "conditions": ""
+},
+{
+    "textbook_id": 6,
+    "name": "21.а Проверка утверждения: максимум дроби равен T (оригинальный знаменатель)",
+    "question_template": "Верно ли утверждение: наибольшее значение дроби \\( \\frac{{{N}}}{4x^2 + 9 + y^2 + 4xy} \\) равно {T}?<br><i>Ответ: да или нет</i>",
+    "answer_template": "{'да' if N / 9 == T else 'нет'}",
+    "answer_type": "string",
+    "parameters": {
+      "N": { "type": "choice", "values": [9, 12, 18, 27] },
+      "T": { "type": "choice", "values": [1, 1.5, 2, 3, 4] }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 6,
+    "name": "21.б Проверка утверждения: максимум дроби равен T (оригинальный знаменатель)",
+    "question_template": "Верно ли утверждение: наибольшее значение дроби \\( \\frac{{{N}}}{4x^2 + 9 + y^2 + 4xy} \\) равно {T}?<br><i>Ответ: да или нет</i>",
+    "answer_template": "{'да' if N / 9 == T else 'нет'}",
+    "answer_type": "string",
+    "parameters": {
+      "N": { "type": "choice", "values": [9, 18, 27] },
+      "T": { "type": "choice", "values": [1, 2, 3, 4] }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 6,
+    "name": "21.в Проверка утверждения: минимум дроби равен T (оригинальный знаменатель)",
+    "question_template": "Верно ли утверждение: наименьшее значение дроби \\( \\frac{{{N}}}{4x^2 + 9 + y^2 + 4xy} \\) равно {T}?<br><i>Ответ: да или нет</i>",
+    "answer_template": "нет",
+    "answer_type": "string",
+    "parameters": {
+      "N": { "type": "choice", "values": [9, 18, 27] },
+      "T": { "type": "choice", "values": [2, 3, 4, 5] }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 6,
+    "name": "22.а Преобразование по формуле разности квадратов",
+    "question_template": "Преобразуйте в многочлен: \\( ({A}{var} + {C})({A}{var} - {C}) \\)<br><i>Ответ введите в виде многочлена</i>",
+    "answer_template": "{A**2}{var}^2 - {C**2}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "choice", "values": [1, 2, 3] },
+      "C": { "type": "choice", "values": [1, 3, 5] },
+      "var": { "type": "choice", "values": ["a", "x", "m"] }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 6,
+    "name": "22.б Преобразование: (P - Q)(P + Q)",
+    "question_template": "Преобразуйте в многочлен: \\( ({var} - {K}{v2})({var} + {K}{v2}) \\)<br><i>Ответ введите в виде многочлена</i>",
+    "answer_template": "{var}^2 - {K**2}{v2}^2",
+    "answer_type": "string",
+    "parameters": {
+      "var": { "type": "choice", "values": ["y", "x"] },
+      "v2": { "type": "choice", "values": ["b", "c"] },
+      "K": { "type": "choice", "values": [2, 5, 6] }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 6,
+    "name": "22.в Преобразование: (A + B)(A - B) с коэффициентами",
+    "question_template": "Преобразуйте в многочлен: \\( ({K1}{v1} + {v2})({v2} - {K1}{v1}) \\)<br><i>Ответ введите в виде многочлена</i>",
+    "answer_template": "-{round(K1**2, 2)}{v1}^2 + {v2}^2",
+    "answer_type": "string",
+    "parameters": {
+      "v1": { "type": "choice", "values": ["x", "m"] },
+      "v2": { "type": "choice", "values": ["y", "n"] },
+      "K1": { "type": "choice", "values": [0.5, 0.8, 1.2] }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 6,
+    "name": "22.г Преобразование: (a + b)^2",
+    "question_template": "Преобразуйте в многочлен: \\( ({var} + {R})^2 \\)<br><i>Ответ введите в виде многочлена</i>",
+    "answer_template": "{var}^2 + {2*R}{var} + {R**2}",
+    "answer_type": "string",
+    "parameters": {
+      "var": { "type": "choice", "values": ["b", "m", "x"] },
+      "R": { "type": "choice", "values": [0.5, 1.5, 2] }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 6,
+    "name": "22.д Преобразование: (A - B)^2",
+    "question_template": "Преобразуйте в многочлен: \\( ({var1} - {K}{var2})^2 \\)<br><i>Ответ введите в виде многочлена</i>",
+    "answer_template": "{var1}^2 - {2*K}{var1}{var2} + {K**2}{var2}^2",
+    "answer_type": "string",
+    "parameters": {
+      "var1": { "type": "choice", "values": ["a", "x"] },
+      "var2": { "type": "choice", "values": ["y", "z"] },
+      "K": { "type": "choice", "values": [1, 2, 3] }
+    },
+    "conditions": ""
+  },
+  {
+    "textbook_id": 6,
+    "name": "22.е Преобразование: (A - 1)^2",
+    "question_template": "Преобразуйте в многочлен: \\( ({var1}{var2} - 1)^2 \\)<br><i>Ответ введите в виде многочлена</i>",
+    "answer_template": "{var1}{var2}^2 - 2{var1}{var2} + 1",
+    "answer_type": "string",
+    "parameters": {
+      "var1": { "type": "choice", "values": ["a", "x", "m"] },
+      "var2": { "type": "choice", "values": ["b", "n"] }
+    },
+    "conditions": ""
+  },
+  {
+  "textbook_id": 6,
+  "name": "23.а Разность квадратов (без корней)",
+  "question_template": "Разложите на множители: \\( {var}^2 - {B2} \\)<br><i>Ответ введите в виде произведения скобок</i>",
+  "answer_template": "({var} - {B})({var} + {B})",
+  "answer_type": "string",
+  "parameters": {
+    "var": { "type": "choice", "values": ["x", "m", "a", "z"] },
+    "B": { "type": "int", "min": 2, "max": 12 },
+    "B2": { "type": "expression", "value": "B**2" }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "23.б Разность квадратов: число минус переменная",
+  "question_template": "Разложите на множители выражение: \\( {A2} - {var}^2 \\)<br><i>Ответ введите в виде произведения скобок</i>",
+  "answer_template": "({A} - {var})({A} + {var})",
+  "answer_type": "string",
+  "parameters": {
+    "var": { "type": "choice", "values": ["c", "b", "y"] },
+    "A": { "type": "int", "min": 2, "max": 10 },
+    "A2": { "type": "expression", "value": "A**2" }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "23.в Квадрат разности",
+  "question_template": "Разложите на множители выражение: \\( {var}^2 - {double}{var} + {squared} \\)<br><i>Ответ введите в виде произведения скобок</i>",
+  "answer_template": "({var} - {B})^2",
+  "answer_type": "string",
+  "parameters": {
+    "var": { "type": "choice", "values": ["a", "x", "n", "y"] },
+    "B": { "type": "int", "min": 2, "max": 10 },
+    "double": { "type": "expression", "value": "2*B" },
+    "squared": { "type": "expression", "value": "B**2" }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "23.г Квадрат суммы",
+  "question_template": "Разложите на множители выражение: \\( {var}^2 + {double}{var} + {squared} \\)<br><i>Ответ введите в виде произведения скобок</i>",
+  "answer_template": "({var} + {B})^2",
+  "answer_type": "string",
+  "parameters": {
+    "var": { "type": "choice", "values": ["x", "t", "m", "r"] },
+    "B": { "type": "int", "min": 1, "max": 9 },
+    "double": { "type": "expression", "value": "2*B" },
+    "squared": { "type": "expression", "value": "B**2" }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "23.д Разность кубов",
+  "question_template": "Разложите на множители выражение: \\( {var}^3 - {B3} \\)<br><i>Ответ введите в виде произведения скобок</i>",
+  "answer_template": "({var} - {B})({var}^2 + {B}{var} + {B**2})",
+  "answer_type": "string",
+  "parameters": {
+    "var": { "type": "choice", "values": ["a", "x", "m", "z"] },
+    "B": { "type": "int", "min": 2, "max": 6 },
+    "B3": { "type": "expression", "value": "B**3" }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "23.е Сумма кубов",
+  "question_template": "Разложите на множители выражение: \\( {var}^3 + {B3} \\)<br><i>Ответ введите в виде произведения скобок</i>",
+  "answer_template": "({var} + {B})({var}^2 - {B}{var} + {B**2})",
+  "answer_type": "string",
+  "parameters": {
+    "var": { "type": "choice", "values": ["b", "x", "y", "s"] },
+    "B": { "type": "int", "min": 2, "max": 6 },
+    "B3": { "type": "expression", "value": "B**3" }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "24. Сравнение акций в двух магазинах (конфеты)",
+  "question_template": "Анне Александровне в подарок необходимо купить пять одинаковых коробок конфет. В магазине «Сладость» одна коробка стоит {A} р., но сейчас проходит акция: три коробки по цене двух. В магазине «Джем» одна коробка стоит {B} р., но при покупке более четырёх коробок действует скидка 30% на всю покупку.<br>В каком магазине покупка будет более выгодной? Сколько рублей при этом сможет сэкономить Анна Александровна?<br><i>Ответ: название магазина, затем сумма экономии в рублях</i>",
+  "answer_template": "{'Сладость' if (2*A + 2*A) < round((5*B)*0.7) else 'Джем'}; {abs((2*A + 2*A) - round((5*B)*0.7))}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "int", "min": 300, "max": 400 },
+    "B": { "type": "int", "min": 350, "max": 450 }
+  },
+  "conditions": "A < B and round((5*B)*0.7) != (2*A + 2*A)"
+},
+{
+  "textbook_id": 6,
+  "name": "25.а Сокращение дробей: одночлены с переменными",
+  "question_template": "Укажите общий множитель числителя и знаменателя и сократите дробь: <br>\\( \\frac{{{A}{v1}}}{{{B}{v1}}} \\)<br><i>Ответ в виде дроби: числитель/знаменатель</i>",
+  "answer_template": "{int(A / gcd(A, B))}/{int(B / gcd(A, B))}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "int", "min": 2, "max": 20 },
+    "B": { "type": "int", "min": 2, "max": 20 },
+    "v1": { "type": "choice", "values": ["x", "y", "a"] }
+  },
+  "conditions": "A % math.gcd(A, B) == 0 and B % math.gcd(A, B) == 0 and A != B"
+},
+{
+    "textbook_id": 6,
+    "name": "25.б Сокращение дроби Ax / By",
+    "question_template": "Укажите общий множитель числителя и знаменателя и сократите дробь:<br>\\( \\frac{{{A}{v1}}}{{{B}{v2}}} \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "{A // gcd(A, B)}{v1}/{B // gcd(A, B)}{v2}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 5, "max": 30 },
+      "B": { "type": "int", "min": 5, "max": 30 },
+      "v1": { "type": "choice", "values": ["x", "a"] },
+      "v2": { "type": "choice", "values": ["y", "b"] }
+    },
+    "conditions": "gcd(A, B) > 1 and v1 != v2"
+  },
+  {
+    "textbook_id": 6,
+    "name": "25.в Сокращение дроби типа Aa / Ba",
+    "question_template": "Укажите общий множитель числителя и знаменателя и сократите дробь:<br>\\( \\frac{{{A}a}}{{{B}a}} \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "{A // gcd(A, B)}/{B // gcd(A, B)}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 2, "max": 12 },
+      "B": { "type": "int", "min": 6, "max": 30 }
+    },
+    "conditions": "gcd(A, B) > 1"
+  },
+  {
+    "textbook_id": 6,
+    "name": "25.г Сокращение дроби типа ab / bc",
+    "question_template": "Укажите общий множитель числителя и знаменателя и сократите дробь:<br>\\( \\frac{{{A}ab}}{{{B}bc}} \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "{A // gcd(A, B)}a/{B // gcd(A, B)}c",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 3, "max": 10 },
+      "B": { "type": "int", "min": 6, "max": 30 }
+    },
+    "conditions": "gcd(A, B) > 1"
+  },
+  {
+    "textbook_id": 6,
+    "name": "25.д Сокращение дроби со степенями и знаком минус",
+    "question_template": "Укажите общий множитель числителя и знаменателя и сократите дробь:<br>\\( \\frac{{-{A}xy}}{{{B}x^{p}y}} \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "-{A // gcd(A, B)}/{B // gcd(A, B)}x^{p-1}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 2, "max": 6 },
+      "B": { "type": "int", "min": 4, "max": 12 },
+      "p": { "type": "int", "min": 2, "max": 3 }
+    },
+    "conditions": "gcd(A, B) > 1"
+  },
+  {
+    "textbook_id": 6,
+    "name": "25.е Сокращение дроби: x²y² / x y",
+    "question_template": "Укажите общий множитель числителя и знаменателя и сократите дробь:<br>\\( \\frac{{{A}x^{p}y^{q}}}{{{B}xy}} \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "{A // gcd(A, B)}x^{p-1}y^{q-1}/{B // gcd(A, B)}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 4, "max": 12 },
+      "B": { "type": "int", "min": 2, "max": 12 },
+      "p": { "type": "int", "min": 2, "max": 3 },
+      "q": { "type": "int", "min": 2, "max": 3 }
+    },
+    "conditions": "gcd(A, B) > 1"
+  }, 
+  {
+    "textbook_id": 6,
+    "name": "26.а Сокращение дроби xz / yz",
+    "question_template": "Сократите дробь:<br>\\( \\frac{{{A}xz}}{{{B}yz}} \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "{A // gcd(A, B)}x/{B // gcd(A, B)}y",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 5, "max": 20 },
+      "B": { "type": "int", "min": 5, "max": 25 }
+    },
+    "conditions": "gcd(A, B) > 1"
+  },
+  {
+    "textbook_id": 6,
+    "name": "26.б Сокращение дроби с b²",
+    "question_template": "Сократите дробь:<br>\\( \\frac{{{A}ab^{p}}}{{{B}bc^{q}}} \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "{A // gcd(A, B)}ab^{p-1}/{B // gcd(A, B)}c^{q}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 3, "max": 12 },
+      "B": { "type": "int", "min": 3, "max": 15 },
+      "p": { "type": "int", "min": 2, "max": 3 },
+      "q": { "type": "int", "min": 1, "max": 2 }
+    },
+    "conditions": "gcd(A, B) > 1"
+  },
+  {
+    "textbook_id": 6,
+    "name": "26.в Сокращение дроби с отрицателем и y³",
+    "question_template": "Сократите дробь:<br>\\( \\frac{{{A}ay^{p}}}{{-{B}a^{q}b}} \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "-{A // gcd(A, B)}y^{p}/{B // gcd(A, B)}a^{q - 1}b",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 2, "max": 6 },
+      "B": { "type": "int", "min": 2, "max": 8 },
+      "p": { "type": "int", "min": 3, "max": 4 },
+      "q": { "type": "int", "min": 2, "max": 3 }
+    },
+    "conditions": "gcd(A, B) > 1"
+  },
+  {
+    "textbook_id": 6,
+    "name": "26.г Сокращение дроби p²q / q³",
+    "question_template": "Сократите дробь:<br>\\( \\frac{{-{A}p^{2}q}}{{-{B}q^{3}}} \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "{A // gcd(A, B)}p^{2}/{B // gcd(A, B)}q^{2}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 2, "max": 10 },
+      "B": { "type": "int", "min": 2, "max": 10 }
+    },
+    "conditions": "gcd(A, B) > 1"
+  },
+  {
+    "textbook_id": 6,
+    "name": "26.д Сокращение дроби с x²c² / ac",
+    "question_template": "Сократите дробь:<br>\\( \\frac{{{A}a{x}^{2}c^{2}}}{{{B}ac}} \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "{A // gcd(A, B)}x^{2}c/{B // gcd(A, B)}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 6, "max": 30 },
+      "B": { "type": "int", "min": 6, "max": 36 },
+      "x": { "type": "choice", "values": ["x", "z"] }
+    },
+    "conditions": "gcd(A, B) > 1"
+  },
+  {
+    "textbook_id": 6,
+    "name": "26.е Сокращение дроби с x⁵y³ / x⁶y⁴",
+    "question_template": "Сократите дробь:<br>\\( \\frac{{{A}x^{p}y^{q}}}{{{B}x^{r}y^{s}}} \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "{A // gcd(A, B)}x^{p - r}y^{q - s}/{B // gcd(A, B)}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 21, "max": 70 },
+      "B": { "type": "int", "min": 21, "max": 70 },
+      "p": { "type": "int", "min": 4, "max": 6 },
+      "r": { "type": "int", "min": 5, "max": 6 },
+      "q": { "type": "int", "min": 3, "max": 5 },
+      "s": { "type": "int", "min": 4, "max": 5 }
+    },
+    "conditions": "gcd(A, B) > 1 and p < r + 2 and q < s + 2"
+  },
+  {
+    "textbook_id": 6,
+    "name": "27.а Деление одночленов с a²b³ / a⁴b²",
+    "question_template": "Представьте частное в виде дроби и сократите её:<br>\\( {A}a^{p1}b^{q1} : {B}a^{p2}b^{q2} \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "{A // gcd(A, B)}a^{p1 - p2}b^{q1 - q2}/{B // gcd(A, B)}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 2, "max": 10 },
+      "B": { "type": "int", "min": 2, "max": 12 },
+      "p1": { "type": "int", "min": 2, "max": 3 },
+      "p2": { "type": "int", "min": 3, "max": 5 },
+      "q1": { "type": "int", "min": 2, "max": 4 },
+      "q2": { "type": "int", "min": 1, "max": 3 }
+    },
+    "conditions": "gcd(A, B) > 1 and p1 < p2 and q1 > q2"
+  },
+  {
+    "textbook_id": 6,
+    "name": "27.б Деление xy² : x³y³",
+    "question_template": "Представьте частное в виде дроби и сократите её:<br>\\( {A}x{v2}^{q1} : ({B}x^{p2}{v2}^{q2}) \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "{A // gcd(A, B)}/{B // gcd(A, B)}x^{1 - p2}{v2}^{q1 - q2}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 2, "max": 8 },
+      "B": { "type": "int", "min": 2, "max": 10 },
+      "v2": { "type": "choice", "values": ["y", "z"] },
+      "p2": { "type": "int", "min": 2, "max": 4 },
+      "q1": { "type": "int", "min": 2, "max": 3 },
+      "q2": { "type": "int", "min": 3, "max": 4 }
+    },
+    "conditions": "gcd(A, B) > 1 and q1 < q2"
+  },
+  {
+    "textbook_id": 6,
+    "name": "27.в Деление одночленов с p⁴q⁴ / p²q²",
+    "question_template": "Представьте частное в виде дроби и сократите её:<br>\\( {A}p^{p1}q^{q1} : ({B}p^{p2}q^{q2}) \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "{A // gcd(A, B)}p^{p1 - p2}q^{q1 - q2}/{B // gcd(A, B)}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 8, "max": 30 },
+      "B": { "type": "int", "min": 8, "max": 50 },
+      "p1": { "type": "int", "min": 3, "max": 5 },
+      "p2": { "type": "int", "min": 1, "max": 3 },
+      "q1": { "type": "int", "min": 3, "max": 5 },
+      "q2": { "type": "int", "min": 1, "max": 3 }
+    },
+    "conditions": "gcd(A, B) > 1 and p1 > p2 and q1 > q2"
+  },
+  {
+    "textbook_id": 6,
+    "name": "27.г Деление m²n / mn",
+    "question_template": "Представьте частное в виде дроби и сократите её:<br>\\( {A}m^{2}n : ({B}mn) \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "{A // gcd(A, B)}m/{B // gcd(A, B)}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 6, "max": 50 },
+      "B": { "type": "int", "min": 6, "max": 40 }
+    },
+    "conditions": "gcd(A, B) > 1"
+  },
+  {
+    "textbook_id": 6,
+    "name": "27.д Деление отрицательных одночленов: -32b⁵c / 12b⁴c²",
+    "question_template": "Представьте частное в виде дроби и сократите её:<br>\\( -{A}b^{p1}c : ({B}b^{p2}c^{q2}) \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "-{A // gcd(A, B)}b^{p1 - p2}/{B // gcd(A, B)}c^{q2 - 1}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 8, "max": 32 },
+      "B": { "type": "int", "min": 6, "max": 18 },
+      "p1": { "type": "int", "min": 5, "max": 6 },
+      "p2": { "type": "int", "min": 3, "max": 5 },
+      "q2": { "type": "int", "min": 2, "max": 3 }
+    },
+    "conditions": "gcd(A, B) > 1 and p1 > p2"
+  },
+  {
+    "textbook_id": 6,
+    "name": "27.е Деление отрицательных одночленов: -6ax / -18ax",
+    "question_template": "Представьте частное в виде дроби и сократите её:<br>\\( -{A}ax : (-{B}ax) \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "{A // gcd(A, B)}/{B // gcd(A, B)}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 3, "max": 10 },
+      "B": { "type": "int", "min": 6, "max": 30 }
+    },
+    "conditions": "gcd(A, B) > 1"
+  },
+  {
+    "textbook_id": 6,
+    "name": "28.а Сокращение дроби a² / ac",
+    "question_template": "Сократите дробь:<br>\\( \\frac{{{A}a^{2}}}{{{B}ac}} \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "{A // gcd(A, B)}a/{B // gcd(A, B)}c",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 2, "max": 10 },
+      "B": { "type": "int", "min": 3, "max": 15 }
+    },
+    "conditions": "gcd(A, B) > 1"
+  },
+  {
+    "textbook_id": 6,
+    "name": "28.б Сокращение дроби x²y / xy²",
+    "question_template": "Сократите дробь:<br>\\( \\frac{{{A}x^{p1}y}}{{{B}x{y}^{q}}} \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "{A // gcd(A, B)}x^{p1 - 1}/{B // gcd(A, B)}y^{q - 1}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 7, "max": 14 },
+      "B": { "type": "int", "min": 14, "max": 28 },
+      "p1": { "type": "int", "min": 2, "max": 3 },
+      "q": { "type": "int", "min": 2, "max": 3 }
+    },
+    "conditions": "gcd(A, B) > 1"
+  },
+  {
+    "textbook_id": 6,
+    "name": "28.в Сокращение дроби m²n⁵ / mn⁵",
+    "question_template": "Сократите дробь:<br>\\( \\frac{{{A}m^{2}n^{p}}}{{{B}mn^{p}}} \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "{A // gcd(A, B)}m/{B // gcd(A, B)}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 14, "max": 60 },
+      "B": { "type": "int", "min": 7, "max": 50 },
+      "p": { "type": "int", "min": 4, "max": 6 }
+    },
+    "conditions": "gcd(A, B) > 1"
+  },
+  {
+    "textbook_id": 6,
+    "name": "28.г Сокращение дроби p⁴q / p⁵q",
+    "question_template": "Сократите дробь:<br>\\( \\frac{{{A}p^{p1}q}}{{{B}p^{p2}q}} \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "{A // gcd(A, B)}/ {B // gcd(A, B)}p^{p2 - p1}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 10, "max": 50 },
+      "B": { "type": "int", "min": 20, "max": 100 },
+      "p1": { "type": "int", "min": 3, "max": 4 },
+      "p2": { "type": "int", "min": 5, "max": 6 }
+    },
+    "conditions": "gcd(A, B) > 1 and p1 < p2"
+  },
+  {
+  "textbook_id": 6,
+  "name": "29.а Степени и деление 8^n / 16^m",
+  "question_template": "Найдите значение выражения:<br>\\( \\frac{8^{n}}{16^{m}} \\)<br><i>Ответ введите в виде целого числа</i>",
+  "answer_template": "{8 ** n // 16 ** m}",
+  "answer_type": "numeric",
+  "parameters": {
+    "n": { "type": "int", "min": 2, "max": 7 },
+    "m": { "type": "int", "min": 1, "max": 5 }
+  },
+  "conditions": "3 * n >= 4 * m and 8 ** n % 16 ** m == 0"
+},
+{
+  "textbook_id": 6,
+  "name": "29.б Степени и деление 81^p / 27^q",
+  "question_template": "Найдите значение выражения:<br>\\( \\frac{81^{p}}{27^{q}} \\)<br><i>Ответ введите в виде целого числа</i>",
+  "answer_template": "{81 ** p // 27 ** q}",
+  "answer_type": "numeric",
+  "parameters": {
+    "p": { "type": "int", "min": 2, "max": 8 },
+    "q": { "type": "int", "min": 1, "max": 7 }
+  },
+  "conditions": "4 * p >= 3 * q and 81 ** p % 27 ** q == 0"
+},
+{
+  "textbook_id": 6,
+  "name": "30.a Сократить дробь типа a(b-k) / b(b-k)",
+   "question_template": "Сократите дробь:<br>\\( \\frac{{{A}a({var}-2)}}{{{B}({var}-2)}} \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "{A // gcd(A, B)}a/{B // gcd(A, B)}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 2, "max": 24 },
+      "B": { "type": "int", "min": 2, "max": 24 },
+      "var": { "type": "choice", "values": ["b", "x", "m"] }
+    },
+    "conditions": "gcd(A, B) > 1"
+  },
+{
+  "textbook_id": 6,
+  "name": "30.б Сократить дробь с одинаковыми скобками",
+   "question_template": "Сократите дробь:<br>\\( \\frac{{{A}({var1}+{num})}}{{{var2}({var1}+{num})}} \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "{A // gcd(A, 1)} / {var2}",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "choice", "values": [2, 3, 4, 6, 8, 10] },
+      "num": { "type": "choice", "values": [2, 4, 5, 6] },
+      "var1": { "type": "choice", "values": ["x", "a", "y"] },
+      "var2": { "type": "choice", "values": ["c", "m", "n"] }
+    },
+    "conditions": "var1 != var2"
+  },
+{
+  "textbook_id": 6,
+  "name": "30.в Сократить дробь с одинаковым множителем в скобках",
+  "question_template": "Сократите дробь:<br>\\( \\frac{{{A}ab({var}+{num})}}{{{B}a^{2}b({var}+{num})}} \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "{A // gcd(A, B)}/{B // gcd(A, B)}a",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "int", "min": 2, "max": 20 },
+      "B": { "type": "int", "min": 2, "max": 20 },
+      "var": { "type": "choice", "values": ["y", "m", "x"] },
+      "num": { "type": "choice", "values": [2, 3, 4] }
+    },
+    "conditions": "gcd(A, B) > 1"
+  },
+{
+  "textbook_id": 6,
+  "name": "30.г Сократить дробь с разностью",
+  "question_template": "Сократите дробь:<br>\\( \\frac{{{A}a(a-{var})}}{{{B}b(a-{var})}} \\)<br><i>Ответ в виде дроби</i>",
+    "answer_template": "{A // gcd(A, B)}a/{B // gcd(A, B)}b",
+    "answer_type": "string",
+    "parameters": {
+      "A": { "type": "choice", "values": [10, 12, 15, 18, 20, 24, 30] },
+      "B": { "type": "choice", "values": [15, 20, 25, 30, 40, 50] },
+      "var": { "type": "choice", "values": ["b", "x", "y"] }
+    },
+    "conditions": "gcd(A, B) > 1"
+  },
+  {
+  "textbook_id": 6,
+  "name": "31.а Сократите дробь с линейными одночленами",
+  "question_template": "Разложите на множители числитель и знаменатель дроби и сократите её:<br>а) \\( \\frac{{{A}a + {B}b}}{{C}ab} \\)<br><i>Ответ в виде несократимой дроби (например, \\( \\frac{a + 4b}{2ab} \\))</i>",
+  "answer_template": "{A // gcd(A, B, C)}a + {B // gcd(A, B, C)}b/{C // gcd(A, B, C)}ab",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [3, 6, 9, 12, 15, 18] },
+    "B": { "type": "choice", "values": [6, 12, 15, 18, 21, 24] },
+    "C": { "type": "choice", "values": [6, 9, 12, 15, 18, 21, 24] }
+  },
+  "conditions": "gcd(A, B, C) > 1"
+},
+{
+  "textbook_id": 6,
+  "name": "31.б Сократите дробь с разностью одночленов",
+  "question_template": "Разложите на множители числитель и знаменатель дроби и сократите её:<br>б) \\( \\frac{{A}b - {B}c}{{C}b} \\)<br><i>Ответ в виде несократимой дроби (например, \\( \\frac{3b - 4c}{2b} \\))</i>",
+  "answer_template": "{A // gcd(A, B, C)}b - {B // gcd(A, B, C)}c/{C // gcd(A, B, C)}b",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [10, 15, 20, 25, 30, 35, 40] },
+    "B": { "type": "choice", "values": [8, 12, 16, 20, 24, 28, 32] },
+    "C": { "type": "choice", "values": [10, 15, 20, 25, 30, 35, 40] }
+  },
+  "conditions": "gcd(A, B, C) > 1"
+},
+{
+  "textbook_id": 6,
+  "name": "31.в Сократите дробь с линейным скобочным множителем",
+  "question_template": "Разложите на множители числитель и знаменатель дроби и сократите её:<br>в) \\( \\frac{{A}a - {B}}{{C}(a - {D})} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "{A // gcd(A, C)}/{C // gcd(A, C)}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [2, 4, 6, 8, 10] },
+    "D": { "type": "choice", "values": [2, 3, 4, 5, 6] },
+    "C": { "type": "choice", "values": [2, 3, 4, 6, 8] },
+    "B": { "type": "expression", "value": "A * D" }
+  },
+  "conditions": "gcd(A, C) > 1"
+},
+{
+  "textbook_id": 6,
+  "name": "31.г Сократите дробь с общим скобочным множителем",
+  "question_template": "Разложите на множители числитель и знаменатель дроби и сократите её:<br>г) \\( \\frac{{A}x(y + {B})}{{C}y + {D}} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "{A // gcd(A, C)}x/{C // gcd(A, C)}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [4, 5, 6, 8] },
+    "B": { "type": "choice", "values": [2, 3, 4, 5] },
+    "C": { "type": "choice", "values": [4, 5, 6, 8] },
+    "D": { "type": "expression", "value": "C * B" }
+  },
+  "conditions": "gcd(A, C) > 1"
+},
+{
+  "textbook_id": 6,
+  "name": "31.д Сократите дробь с выносом общего множителя",
+   "question_template": "Разложите на множители числитель и знаменатель дроби и сократите её:<br>д) \\( \\frac{a - {A}b}{a^2 - {A}ab} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "1/a",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [2, 3, 4, 5, 6] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "31.е Сократите дробь с квадратным одночленом",
+  "question_template": "Разложите на множители числитель и знаменатель дроби и сократите её:<br>е) \\( \\frac{{A}x^2 + {B}xy}{x + {C}y} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "{A}x",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [2, 3, 4, 5] },
+    "C": { "type": "choice", "values": [2, 3, 4, 5] },
+    "B": { "type": "expression", "value": "A * C" }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "32.а Сократить дробь: разность квадратов и приводимый многочлен",
+  "question_template": "Сократите дробь:<br>а) \\( \\frac{y^2 - {A}^2}{{B}y + {C}} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "(y - {A})/{B}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [2, 3, 4, 5, 6] },
+    "B": { "type": "choice", "values": [3, 4, 5, 6, 7] },
+    "C": { "type": "expression", "value": "B * A" }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "32.б Сократить дробь: вынесение общего множителя и разность квадратов",
+  "question_template": "Сократите дробь:<br>б) \\( \\frac{{A}x - {B}y}{x^2 - {C}y^2} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "{A}/(x + {D}y)",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [5, 7, 9, 11, 13] },
+    "D": { "type": "choice", "values": [2, 3, 4, 5, 6] },
+    "B": { "type": "expression", "value": "A * D" },
+    "C": { "type": "expression", "value": "D ** 2" }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "32.в Сократить дробь: квадрат двучлена/двучлен",
+  "question_template": "Сократите дробь:<br>в) \\( \\frac{(c + {A})^2}{{B}c^2 + {C}c} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "(c + {A}) / {B}c",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [2, 3, 4] },
+    "B": { "type": "choice", "values": [7, 8, 9] },
+    "C": { "type": "expression", "value": "B * A" }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "32.г Сократить дробь: вынесение общего множителя и разность квадратов",
+"question_template": "Сократите дробь:<br>г) \\( \\frac{{A}cd - {B}c}{(d - {D})^2} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "{A}c/(d - {D})",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [6, 8, 10, 12, 14] },
+    "D": { "type": "choice", "values": [3, 4, 5, 6, 7] },
+    "B": { "type": "expression", "value": "A * D" }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "32.д Сократить дробь: полный квадрат и разность квадратов",
+  "question_template": "Сократите дробь:<br>д) \\( \\frac{a^2 + {A}a + {B}}{a^2 - {C}^2} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "(a + {C}) / (a - {C})",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "expression", "value": "2 * C" },
+    "B": { "type": "expression", "value": "C ** 2" },
+    "C": { "type": "choice", "values": [5, 6, 7, 8, 9, 4, 3] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "32.е Сократить дробь: разность квадратов и приводимый многочлен",
+  "question_template": "Сократите дробь:<br>е) \\( \\frac{y^2 - {A}^2}{y^2 - {B}y + {C}} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "(y + {A}) / (y - {D})",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [3, 4, 5, 6, 7, 8, 9] },
+    "B": { "type": "expression", "value": "2 * A" },
+    "C": { "type": "expression", "value": "A ** 2" },
+    "D": { "type": "expression", "value": "A" }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "33.а Сократить дробь: полный квадрат, полный куб",
+  "question_template": "Сократите дробь:<br>а) \\( \\frac{{A}^2 - {A}{B} + {B}^2}{{A}^3 + {B}^3} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "1/({A} + {B})",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [2, 3, 4, 5, 6] },
+    "B": { "type": "choice", "values": [7, 8, 9, 10, 11] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "33.б Сократить дробь: разность кубов",
+  "question_template": "Сократите дробь:<br>б) \\( \\frac{{A}^3 - {B}^3}{{A} - {B}} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "{A}^2 + {A}{B} + {B}^2",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [2, 3, 4, 5, 6] },
+    "B": { "type": "choice", "values": [7, 8, 9, 10, 11] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "33.в Сократить дробь: куб суммы в числителе и знаменателе",
+  "question_template": "Сократите дробь:<br>в) \\( \\frac{({A} + {B})^3}{{A}^3 + {B}^3} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "1",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [2, 3, 4, 5, 6] },
+    "B": { "type": "choice", "values": [7, 8, 9, 10, 11] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "33.г Сократить дробь: разность кубов / разность квадратов",
+  "question_template": "Сократите дробь:<br>г) \\( \\frac{{A}^3 - {B}^3}{{A}^2 - {B}^2} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "{A} + {B}",
+  "answer_type": "string",
+  "parameters": {
+    "A": { "type": "choice", "values": [2, 3, 4, 5, 6] },
+    "B": { "type": "choice", "values": [7, 8, 9, 10, 11] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "33.а Сократить дробь: алгебраическая (квадрат/куб суммы)",
+  "question_template": "Сократите дробь:<br>а) \\( \\frac{a^2 - ab + b^2}{a^3 + b^3} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "1/(a+b)",
+  "answer_type": "string",
+  "parameters": {},
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "33.б Сократить дробь: разность кубов",
+  "question_template": "Сократите дробь:<br>б) \\( \\frac{a^3 - b^3}{a - b} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "a^2 + ab + b^2",
+  "answer_type": "string",
+  "parameters": {},
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "33.в Сократить дробь: куб суммы / сумма кубов",
+  "question_template": "Сократите дробь:<br>в) \\( \\frac{(a + b)^3}{a^3 + b^3} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "a + b",
+  "answer_type": "string",
+  "parameters": {},
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "33.г Сократить дробь: разность кубов / разность квадратов",
+  "question_template": "Сократите дробь:<br>г) \\( \\frac{a^3 - b^3}{a^2 - b^2} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "a^2 + ab + b^2 / (a + b)",
+  "answer_type": "string",
+  "parameters": {},
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "34.а Найти значение дроби: сокращаемая дробь с квадратом",
+   "question_template": "Найдите значение дроби:<br>а) \\( \\frac{15a^2 - 10ab}{3ab - 2b^2} \\) при \\( a = {a_val},\\ b = {b_val} \\)<br><i>Ответ в виде десятичной дроби, округлите до сотых</i>",
+  "answer_template": "{round((5 * a_val) / b_val, 2)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "a_val": { "type": "choice", "values": [-2, -1.5, -1, 2, 1.5, 1] },
+    "b_val": { "type": "choice", "values": [-0.1, -0.2, -0.3, 0.2, 0.3, 0.4] }
+  },
+  "conditions": "b_val != 0"
+},
+{
+  "textbook_id": 6,
+  "name": "34.б Найти значение дроби: сокращаемая дробь с квадратом",
+  "question_template": "Найдите значение дроби:<br>б) \\( \\frac{9c^2 - 4d^2}{18c^2d - 12cd^2} \\) при \\( c = {c_val},\\ d = {d_val} \\)<br><i>Ответ в виде десятичной дроби, округлите до сотых</i>",
+  "answer_template": "{round((3 * c_val + 2 * d_val) / (6 * d_val), 2)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "c_val": { "type": "choice", "values": [2.3, 0.5, 0.6, 0.7, 0.8, 1] },
+    "d_val": { "type": "choice", "values": [0.5, 0.4, 0.6, 0.7, 1] }
+  },
+  "conditions": "d_val != 0"
+},
+{
+  "textbook_id": 6,
+  "name": "34.в Найти значение дроби: сокращаемая дробь с x и y",
+  "question_template": "Найдите значение дроби:<br>в) \\( \\frac{6x^2 + 12xy}{5xy + 10y^2} \\) при \\( x = {x_val},\\ y = {y_val} \\)<br><i>Ответ в виде десятичной дроби, округлите до сотых</i>",
+  "answer_template": "{round((2 * x_val) / (5 * y_val), 2)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "x_val": { "type": "choice", "values": [0.5, 0.6, 2.3, 1, -0.5] },
+    "y_val": { "type": "choice", "values": [-0.4, -0.3, -0.2, 0.5, 0.4] }
+  },
+  "conditions": "y_val != 0"
+},
+{
+  "textbook_id": 6,
+  "name": "34.г Найти значение дроби: квадрат и смешанные члены",
+  "question_template": "Найдите значение дроби:<br>г) \\( \\frac{x^2 + 6xy + 9y^2}{4x^2 + 12xy} \\) при \\( x = {x_val},\\ y = {y_val} \\)<br><i>Ответ в виде десятичной дроби, округлите до сотых</i>",
+  "answer_template": "{round((x_val + 3 * y_val) / (2 * x_val), 2)}",
+  "answer_type": "numeric",
+  "parameters": {
+    "x_val": { "type": "choice", "values": [-0.2, -0.3, -0.4, 0.4, 0.5] },
+    "y_val": { "type": "choice", "values": [-0.6, -0.5, -0.7, 0.7, 0.6] }
+  },
+  "conditions": "x_val != 0"
+},
+{
+  "textbook_id": 6,
+  "name": "35.а Сократить дробь: полный квадрат и общий множитель",
+  "question_template": "Сократите дробь:<br>а) \\( \\frac{{var}^2 - {A}{var} + {B}}{{var}^2 - {C}{var}} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "({var} - {A // 2})/{var}",
+  "answer_type": "string",
+  "parameters": {
+    "var": { "type": "choice", "values": ["x", "m", "t", "p"] },
+    "A": { "type": "choice", "values": [4, 6, 8, 10] },
+    "B": { "type": "expression", "value": "((A // 2) ** 2)" },
+    "C": { "type": "expression", "value": "A // 2" }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "35.б Сократить дробь: общий множитель и полный квадрат",
+  "question_template": "Сократите дробь:<br>б) \\( \\frac{{K}{var}^2 + {L}{var}}{{var}^2 + {M}{var} + {N}} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "{K}{var}/({var} + {O})",
+  "answer_type": "string",
+  "parameters": {
+    "var": { "type": "choice", "values": ["y", "n", "s", "q"] },
+    "K": { "type": "choice", "values": [2, 3, 4, 5] },
+    "O": { "type": "choice", "values": [4, 5, 6, 7] },
+    "L": { "type": "expression", "value": "K * O" },
+    "M": { "type": "expression", "value": "2 * O" },
+    "N": { "type": "expression", "value": "O ** 2" }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "35.в Сократить дробь: сокращение на многочлен",
+  "question_template": "Сократите дробь:<br>в) \\( \\frac{{var}^2 + {var} + 1}{{var}^3 - 1} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "1/({var} - 1)",
+  "answer_type": "string",
+  "parameters": {
+    "var": { "type": "choice", "values": ["a", "m", "x", "p"] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "35.г Сократить дробь: сокращение на линейный множитель",
+  "question_template": "Сократите дробь:<br>г) \\( \\frac{{var} + {O}}{{var}^3 + {P}} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "1/({var}^2 - {Q}{var} + {R})",
+  "answer_type": "string",
+  "parameters": {
+    "var": { "type": "choice", "values": ["b", "k", "z", "t"] },
+    "O": { "type": "choice", "values": [2, 3, 4, 5, 6, 7, 8 ] },
+    "P": { "type": "expression", "value": "O ** 3" },
+    "Q": { "type": "expression", "value": "2 * O" },
+    "R": { "type": "expression", "value": "O ** 2" }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "36.а Представьте частное в виде дроби и сократите её (рандомизация)",
+  "question_template": "Представьте частное в виде дроби и сократите её:<br>а) \\( ({K1}{var1}^2 - {K2}{var2}^2) : ({K3}{var1} + {var2}) \\)<br><i>Ответ в виде выражения</i>",
+  "answer_template": "{K3}{var1} - {var2}",
+  "answer_type": "string",
+  "parameters": {
+    "var1": { "type": "choice", "values": ["x", "m", "t"] },
+    "var2": { "type": "choice", "values": ["y", "n", "s"] },
+    "K3": { "type": "choice", "values": [2, 3, 4, 5, 6, 7, 8] },
+    "K1": { "type": "expression", "value": "K3 * K3" },
+    "K2": { "type": "expression", "value": "1" }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "36.б Представьте частное в виде дроби и сократите её (рандомизация)",
+  "question_template": "Представьте частное в виде дроби и сократите её:<br>б) \\( ({K1}{var1}{var2} - {K2}{var1}) : ({K3}{var2}^2 - {K4}{var2} + 1) \\)<br><i>Ответ в виде выражения</i>",
+  "answer_template": "{var1}/({K3}{var2} - {K2})",
+  "answer_type": "string",
+  "parameters": {
+    "var1": { "type": "choice", "values": ["a", "p", "x"] },
+    "var2": { "type": "choice", "values": ["b", "q", "y"] },
+    "K2": { "type": "choice", "values": [1, 2, 3, 4, 5, 6] },
+    "K1": { "type": "expression", "value": "2 * K2" },
+    "K3": { "type": "expression", "value": "2 * K2" },
+    "K4": { "type": "expression", "value": "2 * K2" }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "36.в Представьте частное в виде дроби и сократите её (рандомизация)",
+  "question_template": "Представьте частное в виде дроби и сократите её:<br>в) \\( ({var}^2 + {D}{var} + {D2}) : ({var}^3 - {D3}) \\)<br><i>Ответ в виде выражения</i>",
+  "answer_template": "1/({var} - {D})",
+  "answer_type": "string",
+  "parameters": {
+    "var": { "type": "choice", "values": ["x", "a", "t", "m"] },
+    "D": { "type": "choice", "values": [2, 3, 4, 5, 6, 7] },
+    "D2": { "type": "expression", "value": "D * D" },
+    "D3": { "type": "expression", "value": "D * D * D" }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "36.г Представьте частное в виде дроби и сократите её (рандомизация)",
+  "question_template": "Представьте частное в виде дроби и сократите её:<br>г) \\( (1 + {var}^3) : (1 + {var}) \\)<br><i>Ответ в виде выражения</i>",
+  "answer_template": "{var}^2 - {var} + 1",
+  "answer_type": "string",
+  "parameters": {
+    "var": { "type": "choice", "values": ["a", "m", "x"] }
+  },
+  "conditions": ""
+},
+{
+  "textbook_id": 6,
+  "name": "37.а Сократите дробь (сокращение x-y, рандомизация переменных)",
+  "question_template": "Сократите дробь:<br>а) \\( \\frac{2{var1} + b{var1} - 2{var2} - b{var2}}{7{var1} - 7{var2}} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "(2 + b)/7",
+  "answer_type": "string",
+  "parameters": {
+    "var1": { "type": "choice", "values": ["x", "p", "m"] },
+    "var2": { "type": "choice", "values": ["y", "q", "n"] }
+  },
+  "conditions": "var1 != var2"
+},
+{
+  "textbook_id": 6,
+  "name": "37.б Сократите дробь (сокращение по разности, рандомизация переменных)",
+  "question_template": "Сократите дробь:<br>б) \\( \\frac{8{var1} + 4{var2}}{2{var1}{var2} + {var2}^2 - 2{var1}{var3} - {var2}{var3}} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "4/({var2}-{var3})",
+  "answer_type": "string",
+  "parameters": {
+    "var1": { "type": "choice", "values": ["a", "m", "x", "p"] },
+    "var2": { "type": "choice", "values": ["b", "n", "y", "q"] },
+    "var3": { "type": "choice", "values": ["d", "k", "t", "s"] }
+  },
+  "conditions": "len(set([var1, var2, var3])) == 3"
+},
+{
+  "textbook_id": 6,
+  "name": "37.в Сократите дробь (разность квадратов, рандомизация переменных)",
+  "question_template": "Сократите дробь:<br>в) \\( \\frac{{var1}{var2} - {var1} + {var2} - {var2}^2}{{var1}^2 - {var2}^2} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "({var2} - 1)/({var1} + {var2})",
+  "answer_type": "string",
+  "parameters": {
+    "var1": { "type": "choice", "values": ["x", "a", "m"] },
+    "var2": { "type": "choice", "values": ["y", "c", "n"] }
+  },
+  "conditions": "var1 != var2"
+},
+{
+  "textbook_id": 6,
+  "name": "37.г Сократите дробь (раскладывание на множители, рандомизация переменных)",
+  "question_template": "Сократите дробь:<br>г) \\( \\frac{{var1}^2 + 2{var1}{var2} + {var2}^2}{{var1}^2 + {var1}{var2} - {var1}{var3} - {var2}{var3}} \\)<br><i>Ответ в виде несократимой дроби</i>",
+  "answer_template": "({var1} + {var2})/({var1} - {var3})",
+  "answer_type": "string",
+  "parameters": {
+    "var1": { "type": "choice", "values": ["a", "m", "p", "x"] },
+    "var2": { "type": "choice", "values": ["c", "b", "y", "n"] },
+    "var3": { "type": "choice", "values": ["x", "t", "q", "k"] }
+  },
+  "conditions": "len(set([var1, var2, var3])) == 3"
+},
+{
+  "textbook_id": 6,
+  "name": "40.а Упростите выражение (разность, рандомизация коэффициента и переменных)",
+  "question_template": "Упростите выражение:<br>а) \\( \\frac{{K}({var1} - {var2})}{{K}({var2} - {var1})} \\)<br><i>Ответ: число</i>",
+  "answer_template": "-1",
+  "answer_type": "numeric",
+  "parameters": {
+    "K": { "type": "choice", "values": [1, 2, 3, 5, 7] },
+    "var1": { "type": "choice", "values": ["a", "x", "p", "m"] },
+    "var2": { "type": "choice", "values": ["b", "y", "q", "n"] }
+  },
+  "conditions": "var1 != var2"
+},
+{
+  "textbook_id": 6,
+  "name": "40.б Упростите выражение (квадраты разностей, рандомизация)",
+  "question_template": "Упростите выражение:<br>б) \\( \\frac{{K}({var1} - {var2})^2}{{K}({var2} - {var1})^2} \\)<br><i>Ответ: число</i>",
+  "answer_template": "1",
+  "answer_type": "numeric",
+  "parameters": {
+    "K": { "type": "choice", "values": [1, 3, 4, 7] },
+    "var1": { "type": "choice", "values": ["a", "x", "p"] },
+    "var2": { "type": "choice", "values": ["b", "y", "q"] }
+  },
+  "conditions": "var1 != var2"
+},
+{
+  "textbook_id": 6,
+  "name": "40.в Упростите выражение (степень/разность, рандомизация)",
+  "question_template": "Упростите выражение:<br>в) \\( \\frac{{K}({var1} - {var2})^2}{{K}({var2} - {var1})} \\)<br><i>Ответ: выражение</i>",
+  "answer_template": "-({var1} - {var2})",
+  "answer_type": "string",
+  "parameters": {
+    "K": { "type": "choice", "values": [1, 2, 3, 5, 6, 7, 8, 9, 10] },
+    "var1": { "type": "choice", "values": ["a", "x"] },
+    "var2": { "type": "choice", "values": ["b", "y"] }
+  },
+  "conditions": "var1 != var2"
+},
+{
+  "textbook_id": 6,
+  "name": "40.г Упростите выражение (разность/квадрат, рандомизация)",
+  "question_template": "Упростите выражение:<br>г) \\( \\frac{{K}({var1} - {var2})}{{K}({var2} - {var1})^2} \\)<br><i>Ответ: выражение</i>",
+  "answer_template": "-1/({var2} - {var1})",
+  "answer_type": "string",
+  "parameters": {
+    "K": { "type": "choice", "values": [1, 2, 3, 5, 6, 7, 8, 9, 10] },
+    "var1": { "type": "choice", "values": ["a", "x", "p"] },
+    "var2": { "type": "choice", "values": ["b", "y", "q"] }
+  },
+  "conditions": "var1 != var2"
+},
+{
+  "textbook_id": 6,
+  "name": "40.д Упростите выражение (знак, рандомизация)",
+  "question_template": "Упростите выражение:<br>д) \\( \\frac{-{K}({var1} + {var2})}{{K}({var1} + {var2})} \\)<br><i>Ответ: число</i>",
+  "answer_template": "-1",
+  "answer_type": "numeric",
+  "parameters": {
+    "K": { "type": "choice", "values": [1, 2, 3, 5, 6, 7, 8, 9, 10] },
+    "var1": { "type": "choice", "values": ["a", "x"] },
+    "var2": { "type": "choice", "values": ["b", "y"] }
+  },
+  "conditions": "var1 != var2"
+},
+{
+  "textbook_id": 6,
+  "name": "40.е Упростите выражение (сумма/обратная сумма в квадрате, рандомизация)",
+  "question_template": "Упростите выражение:<br>е) \\( \\frac{({var1} + {var2})^2}{(-{var1} - {var2})^2} \\)<br><i>Ответ: число</i>",
+  "answer_template": "1",
+  "answer_type": "numeric",
+  "parameters": {
+    "var1": { "type": "choice", "values": ["a", "x", "z"] },
+    "var2": { "type": "choice", "values": ["b", "y"] }
+  },
+  "conditions": "var1 != var2"
+},
+
+
+
+
+
+
+
+
+]
